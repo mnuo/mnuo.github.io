@@ -19,19 +19,15 @@ Quick">
 <meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
 Quick">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
+  <link type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/scrollUp/image.css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
   
-
 </head>
-
 <body>
   <div id="container">
     <div id="wrap">
@@ -39,30 +35,81 @@ Quick">
   <div id="banner"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      <div class="logo">
+        <img src="/logo.png" alt="Profile Picture">
       </div>
+      <div id="title">Hexo</div>
+      
+       <ul class="my-socials">
+  
+  <li>
+  	<a href="https://github.com/henryhuang" class="github" target="_blank">
+  		<i class="fa fa-github"></i>
+  	</a>
+  </li>
+  
+  <li>
+  	<a href="http://weibo.com/626242034" class="weibo" target="_blank">
+  		<i class="fa fa-weibo"></i>
+  	</a>
+  </li>
+  
+ 
+</ul>
     </div>
+  </div>
+  <div id="header-inner" class="">
+    <nav id="main-nav">
+      <a id="main-nav-toggle" class="nav-icon"></a>
+      <!--
+        
+          <a class="main-nav-link" href="/">首页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      -->
+    </nav>
+    <nav id="title-nav" style="display:none">
+      <a href="/">Hexo</a>
+      <img src="/logo.png" alt="Profile Picture">
+      <!--
+      <span id="title-nav-socials">
+        
+          <a href="https://github.com/henryhuang" class="github" target="_blank">
+            <i class="fa fa-github"></i>
+          </a>
+        
+          <a href="http://weibo.com/626242034" class="weibo" target="_blank">
+            <i class="fa fa-weibo"></i>
+          </a>
+        
+       
+     </span>
+      -->
+    </nav>
+    <nav id="sub-nav">
+      
+      <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+    </nav>
+    <div id="search-form-wrap">
+      <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+        <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+        <input type="submit" value="" class="search-form-submit">
+        <input name=tn type=hidden value="bds">
+        <input name=cl type=hidden value="3">
+        <input name=ct type=hidden value="2097152">
+        <input type="hidden" name="si" value="yoursite.com">
+      </form>
+    </div>
+  </div>
+  <div class="site-nav" style="display: none;">
+    <ul>
+    
+        <li><a href="/">首页</a></li>
+      
+        <li><a href="/archives">归档</a></li>
+      
+    </ul>
   </div>
 </header>
       <div class="outer">
@@ -101,8 +148,10 @@ Quick">
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/15/hello-world/" data-id="cipger40q0000d8nxacu6s9i2" class="article-share-link">Share</a>
       
+        <a data-url="http://yoursite.com/2016/06/15/hello-world/" data-id="cipghyw0e0000b4nx01pnq8n7" class="article-share-link">Share</a>
+      
+
       
     </footer>
   </div>
@@ -112,43 +161,6 @@ Quick">
 </article>
 
 </section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2016/06/15/hello-world/">Hello World</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
         
       </div>
       <footer id="footer">
@@ -161,23 +173,31 @@ Quick">
   </div>
 </footer>
     </div>
-    <nav id="mobile-nav">
+    <!--
+      <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">首页</a>
   
-    <a href="/archives" class="mobile-nav-link">Archives</a>
+    <a href="/archives" class="mobile-nav-link">归档</a>
   
 </nav>
+    -->
     
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<!-- 百度分享 start -->
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
-  <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
+<script src="/js/jquery.scrollUp.min.js"></script>
+<script src="/js/jquery.transform.js"></script>
+<script src="/js/menu.js"></script>
 
 <script src="/js/script.js"></script>
+<script src="/js/scrollUp.js"></script>
 
   </div>
 </body>
