@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>Hello World | mnuo</title>
+  <title>sql分类 | mnuo</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -101,6 +101,17 @@
             <!-- Dropdown Menu -->
 			 
             
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/JAVA基础/" class="animsition-link">JAVA基础<small>(0)</small></a></li>
+				    
+				    <li><a href="/categories/MySQL/" class="animsition-link">MySQL<small>(2)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
             
         </ul>
         <!-- Lists in Slidebars -->
@@ -194,34 +205,148 @@
         <div class="row col-md-offset-2">
             <div class="col-md-8">
     			<span class="post-meta">
-      <time datetime="2016-06-15T03:27:34.406Z" itemprop="datePublished">
-          2016-06-15
+      <time datetime="2016-07-11T08:17:15.081Z" itemprop="datePublished">
+          2016-07-11
       </time>
     
+    
+    | 
+    <a href='/tags/MySql/'>MySql</a>
+    
+    
 </span>
-                <h1>Hello World</h1>
+                <h1>sql分类</h1>
             </div>
         </div>
         <div class="col-md-8 col-md-offset-2">
-      		<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+      		<h3 id="sql分类"><a href="#sql分类" class="headerlink" title="sql分类"></a>sql分类</h3><h5 id="1-DDL-Data-Definition-Languages-语句"><a href="#1-DDL-Data-Definition-Languages-语句" class="headerlink" title="1 DDL(Data Definition Languages)语句:"></a>1 DDL(Data Definition Languages)语句:</h5><pre><code>数据定义语言,这些语句定义了不同的数据段,数据库,表,列,索引等数据库对象的定义,常用的语句关键字主要包括了create,drop,alter等
+    1)创建数据库:create database test1
+        mysql&gt; show databases;
+        +--------------------+
+        | Database           |
+        +--------------------+
+        | information_schema |
+        | fkcloud            |
+        | lifeworld          |
+        | mysql              |
+        | performance_schema |
+        | test               |
+        +--------------------+
+        6 rows in set (0.04 sec)
 
+        information_schema:主要存储了系统中的一些数据库对象信息。比如用户表信息,列信息,权限信息,字符集信息,分区信息等。
+        cluster: 存储了系统的集群信息
+        mysql: 存储了系统的用户权限
+        test: 系统自动创建的测试数据库,任何用户都可以使用
+    2)删除数据库
+        drop database dbname;
+    3) 创建表
+         create table emp(ename varchar(10),hiredate date,sal decimal(10,2),deptno int(2));
+
+        desc 查看表信息
+
+        show create table emp\G;查看创建表的信息
+        mysql&gt; desc emp;
+        +----------+---------------+------+-----+---------+-------+
+        | Field    | Type          | Null | Key | Default | Extra |
+        +----------+---------------+------+-----+---------+-------+
+        | ename    | varchar(10)   | YES  |     | NULL    |       |
+        | hiredate | date          | YES  |     | NULL    |       |
+        | sal      | decimal(10,2) | YES  |     | NULL    |       |
+        | deptno   | int(2)        | YES  |     | NULL    |       |
+        +----------+---------------+------+-----+---------+-------+
+        4 rows in set (0.03 sec)
+
+        mysql&gt; show create table emp\G;
+        *************************** 1. row ***************************
+               Table: emp
+        Create Table: CREATE TABLE `emp` (
+          `ename` varchar(10) DEFAULT NULL,
+          `hiredate` date DEFAULT NULL,
+          `sal` decimal(10,2) DEFAULT NULL,
+          `deptno` int(2) DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+        1 row in set (0.00 sec)
+
+        ERROR:
+        No query specified
+
+
+    4) 删除表
+        drop table tablename;
+    5) 修改表
+        (1) 修改表类型
+            ALTER TABLE tablename MODIFY[COLUMN] column_definition [FIRST|AFTER col_name]
+            例:修改emp表的ename字段定义,将varchar(10) 改成varchar(20)
+
+                mysql&gt; alter table emp modify ename varchar(20);
+                Query OK, 0 rows affected (0.15 sec)
+                Records: 0  Duplicates: 0  Warnings: 0
+
+                mysql&gt; desc emp;
+                +----------+---------------+------+-----+---------+-------+
+                | Field    | Type          | Null | Key | Default | Extra |
+                +----------+---------------+------+-----+---------+-------+
+                | ename    | varchar(20)   | YES  |     | NULL    |       |
+                | hiredate | date          | YES  |     | NULL    |       |
+                | sal      | decimal(10,2) | YES  |     | NULL    |       |
+                | deptno   | int(2)        | YES  |     | NULL    |       |
+                +----------+---------------+------+-----+---------+-------+
+                4 rows in set (0.00 sec)
+        (2) 增加字段
+            ALTER TABLE tablename ADD [COLUMN] column_definition [first|after col_name]
+            例子:添加字段age在ename之后
+            mysql&gt; alter table emp add age int(3) after ename;
+            Query OK, 0 rows affected (0.17 sec)
+            Records: 0  Duplicates: 0  Warnings: 0
+
+            mysql&gt; desc emp;
+            +----------+---------------+------+-----+---------+-------+
+            | Field    | Type          | Null | Key | Default | Extra |
+            +----------+---------------+------+-----+---------+-------+
+            | ename    | varchar(20)   | YES  |     | NULL    |       |
+            | age      | int(3)        | YES  |     | NULL    |       |
+            | hiredate | date          | YES  |     | NULL    |       |
+            | sal      | decimal(10,2) | YES  |     | NULL    |       |
+            | deptno   | int(2)        | YES  |     | NULL    |       |
+            +----------+---------------+------+-----+---------+-------+
+            5 rows in set (0.00 sec)
+        (3) 删除字段
+            ALTER TABLE tablename DROP [COLUMN] col_name;
+        (4) 字段改名
+            ALTER TABLE tablename CHANGE [column] old_col_name column_definition;
+        (5) 修改字段排序
+        (6) 修改表名
+            ALTER TABLE tablename RENAME [TO] new_tablename
+</code></pre><h5 id="2-DML-Data-Manipulation-Language-语句"><a href="#2-DML-Data-Manipulation-Language-语句" class="headerlink" title="2 DML(Data Manipulation Language)语句:"></a>2 DML(Data Manipulation Language)语句:</h5><pre><code>数据操纵语句,用于添加,删除,更新和查询数据库记录,并检查数据完整性,常用的关键字有,insert update delete和select
+    (1) 插入记录(多条记录使用逗号隔开即可)
+        INSERT INTO tablename(field1,field2,...) VALUES(value1,value2,...),(value11,value12,...)...;
+
+    (2) 更新记录
+        UPDATE t1,t2 set t1.field1=expr1,tn,fieldn=exprn [WHERE CONDITION]
+
+    (3) 删除表中的记录
+        DELETE t1,t2,... from t1,t2,...[WHERE CONDITION]
+
+    (4) 查询记录
+        1&gt; 查询不重复记录distinct
+        2&gt;group by.. with pollup..having
+        3&gt;union|union ALL 记录联合
+</code></pre><h5 id="3-DCL-Data-Control-Language-语句"><a href="#3-DCL-Data-Control-Language-语句" class="headerlink" title="3 DCL (Data Control Language)语句:"></a>3 DCL (Data Control Language)语句:</h5><pre><code>1)创建用户
+    grant select,insert on test.* to &apos;mn&apos;@&apos;localhost&apos; identified by &apos;123&apos;;
+2)收回权限
+    remove insert on test.* from &apos;mn&apos;@&apos;localhost&apos; identified by &apos;123&apos;
+数据控制语句,用于不同数据段直接的许可和访问级别的语句,这些语句定义了数据库,表,字段,用户的访问权限和安全级别,主要的语句关键字包括grant revoke等
+</code></pre>
             <div class="clearfix"></div>
             <hr class="nogutter">
         </div>
         <nav class="pagination" role="pagination">
     
-    <a class="pull-left" href="/2016/06/15/hello/" style="float: left;">
-        ← title
-    </a>
     
+    <a class="pull-right" href="/2016/07/09/MySql服务命令/">
+        MySql服务命令 →
+    </a>
     
 </nav>
 

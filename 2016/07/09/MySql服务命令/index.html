@@ -17,7 +17,7 @@
 <!--<![endif]-->
 
 <head>
-  <title>Tag: 散文 | mnuo</title>
+  <title>MySql服务命令 | mnuo</title>
   <!-- Meta data -->
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -84,7 +84,7 @@
 </head>
 
 <!--
-<body class="home-template">
+<body class="post-template">
 -->
 <body id="index" class="lightnav animsition">
 
@@ -101,6 +101,17 @@
             <!-- Dropdown Menu -->
 			 
             
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/JAVA基础/" class="animsition-link">JAVA基础<small>(0)</small></a></li>
+				    
+				    <li><a href="/categories/MySQL/" class="animsition-link">MySQL<small>(2)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
             
         </ul>
         <!-- Lists in Slidebars -->
@@ -189,37 +200,57 @@
 
         <!-- ============================ END Hero Image =========================== -->
       
-
-
-<section id="services">
+<section id="intro">
     <div class="container">
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div class="row boxes">
-                    
-                    
-                        
-                        
-                        <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.3s">
-                            
-                              <h4 class="title"><a href="/2016/07/09/aaa/">初见</a></h4>
-                            
-                            <p><time datetime="2016-07-09T07:20:08.000Z"><a href="/2016/07/09/aaa/">2016-07-09</a></time></p>
-                        </div>
-                    
-                </div>
-            </div>    
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-09T07:20:08.000Z" itemprop="datePublished">
+          2016-07-09
+      </time>
+    
+</span>
+                <h1>MySql服务命令</h1>
+            </div>
         </div>
-    </div>
-</section> 
+        <div class="col-md-8 col-md-offset-2">
+      		<h4 id="MySql服务命令"><a href="#MySql服务命令" class="headerlink" title="MySql服务命令"></a>MySql服务命令</h4><ul>
+<li>查看mysql的运行状态:<ul>
+<li>service mysqld status</li>
+<li>/etc/init.d/mysqld status</li>
+</ul>
+</li>
+<li>启动服务:<ul>
+<li>service mysqld start</li>
+</ul>
+</li>
+<li>关闭服务<ul>
+<li>service mysqld stop</li>
+</ul>
+</li>
+<li>连接mysql<ul>
+<li>mysql -h 127.0.0.1 -P 3306 -uroot -p123123</li>
+</ul>
+</li>
+</ul>
 
-<section id="statement">
-    <div class="container text-center wow fadeInUp" data-wow-delay="0.5s">
-        <div class="row">
-            <p>虽然还没想好写点什么，但是总觉得这里放句话比较和谐。</p>
+            <div class="clearfix"></div>
+            <hr class="nogutter">
         </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/07/11/sql分类/" style="float: left;">
+        ← sql分类
+    </a>
+    
+    
+</nav>
+
+        <div class="duoshuo"></div>
     </div>
 </section>
+
+
       
 <!-- ============================ Footer =========================== -->
 
