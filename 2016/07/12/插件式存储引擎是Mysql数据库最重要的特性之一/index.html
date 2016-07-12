@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>插件式存储引擎是Mysql数据库最重要的特性之一 | mnuo</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="mnuo">
+    <meta name="author" content="Saxon mnuo">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="mnuo" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.useso.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.useso.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://fonts.useso.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">HOME</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/MySQL/" class="animsition-link">MySQL<small>(16)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <!--<ul class="sb-menu secondary">
+            <li><a href="/about.html" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>-->
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">mnuo</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            
+                            
+                            
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>YOU'VE MADE A <span>BRAVE</span> DECISION, WELCOME.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>每一个不曾起舞的日子都是对生命的辜负。</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-12T13:47:43.772Z" itemprop="datePublished">
+          2016-07-12
+      </time>
+    
+    
+    | 
+    <a href='/tags/MySql/'>MySql</a>
+    
+    
+</span>
+                <h1>插件式存储引擎是Mysql数据库最重要的特性之一</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<h5 id="1-默认情况下-创建新表不指定表的存储引擎-则新表是默认存储引擎-如果需要修改默认的存储引擎-则可以再参数文件中设置-default-table-type-5-5-3之后instead-default-storage-engine"><a href="#1-默认情况下-创建新表不指定表的存储引擎-则新表是默认存储引擎-如果需要修改默认的存储引擎-则可以再参数文件中设置-default-table-type-5-5-3之后instead-default-storage-engine" class="headerlink" title="1) 默认情况下,创建新表不指定表的存储引擎,则新表是默认存储引擎,如果需要修改默认的存储引擎,则可以再参数文件中设置 default-table-type(5.5.3之后instead default_storage_engine)."></a>1) 默认情况下,创建新表不指定表的存储引擎,则新表是默认存储引擎,如果需要修改默认的存储引擎,则可以再参数文件中设置 default-table-type(5.5.3之后instead default_storage_engine).</h5><ul>
+<li><p>查看当前的默认存储引擎:</p>
+<pre><code>mysql&gt; show variables like &apos;default_storage_engine&apos;;
++------------------------+--------+
+| Variable_name          | Value  |
++------------------------+--------+
+| default_storage_engine | InnoDB |
++------------------------+--------+
+1 row in set (0.00 sec)
+</code></pre></li>
+<li><p>查看支持的存储引擎:</p>
+<pre><code>方法1:
+        mysql&gt; show engines \G
+        *************************** 1. row ***************************
+              Engine: PERFORMANCE_SCHEMA
+             Support: YES
+             Comment: Performance Schema
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 2. row ***************************
+              Engine: MRG_MYISAM
+             Support: YES
+             Comment: Collection of identical MyISAM tables
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 3. row ***************************
+              Engine: CSV
+             Support: YES
+             Comment: CSV storage engine
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 4. row ***************************
+              Engine: BLACKHOLE
+             Support: YES
+             Comment: /dev/null storage engine (anything you write to it disappears)
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 5. row ***************************
+              Engine: MyISAM
+             Support: YES
+             Comment: MyISAM storage engine
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 6. row ***************************
+              Engine: MEMORY
+             Support: YES
+             Comment: Hash based, stored in memory, useful for temporary tables
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 7. row ***************************
+              Engine: ARCHIVE
+             Support: YES
+             Comment: Archive storage engine
+        Transactions: NO
+                  XA: NO
+          Savepoints: NO
+        *************************** 8. row ***************************
+              Engine: InnoDB
+             Support: DEFAULT
+             Comment: Supports transactions, row-level locking, and foreign keys
+        Transactions: YES
+                  XA: YES
+          Savepoints: YES
+        *************************** 9. row ***************************
+              Engine: FEDERATED
+             Support: NO
+             Comment: Federated MySQL storage engine
+        Transactions: NULL
+                  XA: NULL
+          Savepoints: NULL
+        9 rows in set (0.00 sec)
+方法2:
+    mysql&gt; mysql&gt; show engines;
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+    | Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+    | PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |
+    | MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |
+    | CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |
+    | BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |
+    | MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |
+    | MEMORY             | YES     | Hash based, stored in memory, useful for temporary tables      | NO           | NO   | NO         |
+    | ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |
+    | InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |
+    | FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |
+    +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
+    9 rows in set (0.00 sec)
+</code></pre></li>
+<li><p>修改存储引擎:</p>
+<pre><code>mysql&gt; create table ai (i bigint(20) not null auto_increment,primary key(i))engine=MyISAM DEFAULT CHARSET=gbk;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| ai             |
+| emp            |
++----------------+
+2 rows in set (0.00 sec)
+
+mysql&gt; desc ai;
++-------+------------+------+-----+---------+----------------+
+| Field | Type       | Null | Key | Default | Extra          |
++-------+------------+------+-----+---------+----------------+
+| i     | bigint(20) | NO   | PRI | NULL    | auto_increment |
++-------+------------+------+-----+---------+----------------+
+1 row in set (0.01 sec)
+
+mysql&gt; show create table ai;
++-------+-----------------------------------------------------------------------------------------------------------------------+
+| Table | Create Table                                                                                                          |
++-------+-----------------------------------------------------------------------------------------------------------------------+
+| ai    | CREATE TABLE `ai` (
+  `i` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`i`)
+) ENGINE=MyISAM DEFAULT CHARSET=gbk |
++-------+-----------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql&gt; CREATE TABLE country(country_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    -&gt; country VARCHAR(50) NOT NULL,last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,PRIMARY KEY (country_id))ENGINE=InnoDB DEFAULT CHARSET=utf8;
+Query OK, 0 rows affected (0.10 sec)
+
+mysql&gt; desc contry;
+ERROR 1146 (42S02): Table &apos;test.contry&apos; doesn&apos;t exist
+mysql&gt; desc country;
++-------------+----------------------+------+-----+-------------------+-----------------------------+
+| Field       | Type                 | Null | Key | Default           | Extra                       |
++-------------+----------------------+------+-----+-------------------+-----------------------------+
+| country_id  | smallint(5) unsigned | NO   | PRI | NULL              | auto_increment              |
+| country     | varchar(50)          | NO   |     | NULL              |                             |
+| last_update | timestamp            | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
++-------------+----------------------+------+-----+-------------------+-----------------------------+
+3 rows in set (0.00 sec)
+
+mysql&gt; alter table ai engine=innodb;
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql&gt; show create table ai\G;
+*************************** 1. row ***************************
+       Table: ai
+Create Table: CREATE TABLE `ai` (
+  `i` bigint(20) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`i`)
+) ENGINE=InnoDB DEFAULT CHARSET=gbk
+1 row in set (0.00 sec)
+
+ERROR:
+No query specified
+</code></pre></li>
+</ul>
+<h5 id="2-各个存储引擎特性"><a href="#2-各个存储引擎特性" class="headerlink" title="2) 各个存储引擎特性"></a>2) 各个存储引擎特性</h5><ul>
+<li><p>1) MyISAM<br>  是Mysql的默认存储引擎.MyISAM不支持事务,也不支持外键.优势是访问的速度快,对事物完整性没有要求,或者以SELECT,INSERT为主的应用,基本上都可以使用这个引擎来创建表.每个MyISAM在磁盘上存储成3个文件,其文件名都和表名相同,但扩展名分别是:</p>
+<pre><code>    .frm 存储表定义;
+    .MYD (MYData,存储数据);
+    .MYI (MYIndex,存储索引)
+注意:该存储引擎,字段后的空格将被过滤
+</code></pre></li>
+<li><p>2) InnoDB<br>innodb存储引擎提供了具有提交回滚和恢复能力的事务安全.但是对比MyISAM的存储引擎,InnoDB写的处理效率差一些并且会占用更多的磁盘空间以保留数据和索引    </p>
+<blockquote>
+<p>1&gt; 自动增长列</p>
+<pre><code>auto_increment 默认值1,auto_increment = n 默认值为n,但是这个默认值是存储在内存中,数据库关闭后需要重新启动
+使用: select last_insert_id();查看最后一次插入使用的值;
+对于InnoDB表,自动增长列必须是索引,如果是组合索引,也必须是组合索引的第一列,对于MyISAM表,自动增长列可以是组合索引的其他列,这样插入记录后,自动增长列按照组合索引的前面几列进行排序后递增的            
+    mysql&gt; create table autoincre_demo
+        -&gt; (i smallint not null auto_increment,
+        -&gt; name varchar(10),primary key (i)
+        -&gt; )engine=innodb;
+    Query OK, 0 rows affected (0.05 sec)
+    mysql&gt; insert into autoincre_demo values(1,&apos;1&apos;),(0,&apos;2&apos;),(null,&apos;3&apos;);
+    Query OK, 3 rows affected (0.03 sec)
+    Records: 3  Duplicates: 0  Warnings: 0
+    mysql&gt; select * from autoincre_demo;
+    +---+------+
+    | i | name |
+    +---+------+
+    | 1 | 1    |
+    | 2 | 2    |
+    | 3 | 3    |
+    +---+------+
+    3 rows in set (0.00 sec)
+    mysql&gt; select LAST_INSERT_ID();
+    +------------------+
+    | LAST_INSERT_ID() |
+    +------------------+
+    |                2 |
+    +------------------+
+    1 row in set (0.02 sec)   
+    mysql&gt; INSERT INTO autoincre_demo values(4,&apos;4&apos;);
+    Query OK, 1 row affected (0.00 sec)   
+    mysql&gt; select Last_insert_in();
+    ERROR 1305 (42000): FUNCTION test.Last_insert_in does not exist
+    mysql&gt; select Last_insert_id();
+    +------------------+
+    | Last_insert_id() |
+    +------------------+
+    |                2 |
+    +------------------+
+    1 row in set (0.00 sec)   
+    mysql&gt; drop table autoincre_demo;
+    Query OK, 0 rows affected (0.03 sec   
+    mysql&gt; show tables;
+    +----------------+
+    | Tables_in_test |
+    +----------------+
+    | ai             |
+    | country        |
+    | emp            |
+    +----------------+
+    3 rows in set (0.00 sec)   
+    mysql&gt; create table autoincre_demo
+        -&gt; (d1 smallint not null auto_increment,
+        -&gt; d2 smallint not null,
+        -&gt; name varchar(10),
+        -&gt; index(d2,d1)
+        -&gt; )engine=myisam;
+    Query OK, 0 rows affected (0.01 sec)
+    mysql&gt; insert into autoincre_demo(d2,name) values(2,&apos;2&apos;),(3,&apos;3&apos;),(4,&apos;4&apos;),(2,&apos;2&apos;),(3,&apos;3&apos;),(4,&apos;4&apos;);
+    Query OK, 6 rows affected (0.02 sec)
+    Records: 6  Duplicates: 0  Warnings: 0
+    mysql&gt; select * from autoincr_demo;
+    ERROR 1146 (42S02): Table &apos;test.autoincr_demo&apos; doesn&apos;t exist
+    mysql&gt; select * from autoincre_demo;
+    +----+----+------+
+    | d1 | d2 | name |
+    +----+----+------+
+    |  1 |  2 | 2    |
+    |  1 |  3 | 3    |
+    |  1 |  4 | 4    |
+    |  2 |  2 | 2    |
+    |  2 |  3 | 3    |
+    |  2 |  4 | 4    |
+    +----+----+------+
+    6 rows in set (0.00 sec)
+    mysql&gt;  
+</code></pre><p>2&gt;外键约束</p>
+<pre><code>Mysql支持外键的存储引擎只有InnoDB,在创建外键的时候,要求父表必须有对应的索引,子表在创建外键的时候也会自动创建对应的索引。
+    CREATE TABLE city (
+        city_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        city VARCHAR(50) NOT NULL,
+        country_id SMALLINT UNSIGNED NOT NULL,
+        last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (city_id),
+        KEY idx_fk_country_id (country_id),
+        CONSTRAINT fk_city_country FOREIGN KEY (country_id) REFERENCES country (country_id) ON DELETE RESTRICT  ON UPDATE CASCADE
+    )ENGINE=INNODB DEFAULT CHARSET=UTF8;
+</code></pre><p>3&gt;存储方式</p>
+<pre><code>使用共享表空间存储,这种方式创建的表的表结构保存在 .frm文件中,数据和索引保存在innodb_data_home_dir和innodb_data_file_path定义的表空间中,可以是多个文件.
+使用多表空间存储,这种方式创建的表的表结构仍然保存在.frm文件中,但是每个表的数据和索引单独保存在.ibd中,如果是个分区表,则每个分区对应单独的.ibd文件,文件名是&quot;表名+分区名&quot;,可以再创建分区的时候指定每个分区的数据文件的位置,以此来将表的IO均匀分布在多个磁盘上
+</code></pre></blockquote>
+</li>
+<li><p>3) MEMORY </p>
+<pre><code>存储引擎使用存在内存中的内容来创建表,每个memory表只实际对应一个磁盘文件,格式是.frm 
+MEMORY类型的表访问非常的快,因为他的数据是放在内存中的,并且默认使用HASH索引,但是一旦服务关闭,表中的数据就会丢失掉
+</code></pre></li>
+<li><p>4) MERGE </p>
+<pre><code>MERGE 存储引擎是一组MyISAM表的组合,这些MyISAM表必须结构完全相同,MERGE表本身没有数据,对MERGE类型的表可以进行查询,更新,删除的操作,这些操作实际上是对内部的实际的MYISAM表进行的,对于merge 类型表的插入操作是通过INSERT_METHOD字句定义插入的表,可以有3个不同的值,使用first或last值使得插入操作被相应的作用在第一或最后一个表上,不定义这个子句或者定义为NO,表示不能对这个MERGE表执行插入操作.
+
+创建3个测试表payment_2006,payment_2007和payment_all,其中payment_all是前两个表的MERGE表
+    mysql&gt; create table payment_2006(
+        -&gt; country_id smallint,
+        -&gt; payment_date datetime,
+        -&gt; amount DECIMAL(15,2),
+        -&gt; key idx_fk_country_id (country_id)
+        -&gt; )engine=myisam default charset=utf8;
+    Query OK, 0 rows affected (0.01 sec)
+
+    mysql&gt; create table payment_2007( country_id smallint, payment_date datetime, amount DECIMAL(15,2), key idx_fk_country_id (country_id) )engine=myisam default charset=utf8;
+    Query OK, 0 rows affected (0.02 sec)
+
+    mysql&gt; create table payment_all( country_id smallint, payment_date datetime, amount DECIMAL(15,2), INDEX (country_id) )engine=merge union=(payment_2006,payment_2007) insert_method=last;
+    Query OK, 0 rows affected (0.01 sec)
+
+分别向payment+2006和payment_2007插入数据:\c
+    mysql&gt; insert into payment_2006 values(1,&apos;2006-05-01&apos;,100000),(2,&apos;2006-08-15&apos;,150000);
+    Query OK, 2 rows affected (0.00 sec)
+    Records: 2  Duplicates: 0  Warnings: 0
+
+    mysql&gt; insert into payment_2007 values(1,&apos;2007-02-20&apos;,35000),(2,&apos;2007-07-15&apos;,220000);
+    Query OK, 2 rows affected (0.00 sec)
+    Records: 2  Duplicates: 0  Warnings: 0
+
+    mysql&gt; select * from payment_all;
+    +------------+---------------------+-----------+
+    | country_id | payment_date        | amount    |
+    +------------+---------------------+-----------+
+    |          1 | 2006-05-01 00:00:00 | 100000.00 |
+    |          2 | 2006-08-15 00:00:00 | 150000.00 |
+    |          1 | 2007-02-20 00:00:00 |  35000.00 |
+    |          2 | 2007-07-15 00:00:00 | 220000.00 |
+    +------------+---------------------+-----------+
+    4 rows in set (0.00 sec)
+
+插入数据:
+    mysql&gt; insert into payment_all values(3,&apos;2006-03-20&apos;,112200);
+    Query OK, 1 row affected (0.00 sec)
+
+    mysql&gt; select * from payment_all;
+    +------------+---------------------+-----------+
+    | country_id | payment_date        | amount    |
+    +------------+---------------------+-----------+
+    |          1 | 2006-05-01 00:00:00 | 100000.00 |
+    |          2 | 2006-08-15 00:00:00 | 150000.00 |
+    |          1 | 2007-02-20 00:00:00 |  35000.00 |
+    |          2 | 2007-07-15 00:00:00 | 220000.00 |
+    |          3 | 2006-03-20 00:00:00 | 112200.00 |
+    +------------+---------------------+-----------+
+    5 rows in set (0.00 sec)
+</code></pre></li>
+</ul>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    
+    <a class="pull-right" href="/2016/07/12/sql分类/">
+        sql分类 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo"></div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Saxon mnuo. All Rights Reserved.
+                </p>
+              <!--<p>Contanc <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>-->
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+</body>
+</html>

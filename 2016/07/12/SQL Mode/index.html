@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>SQL Mode | mnuo</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="mnuo">
+    <meta name="author" content="Saxon mnuo">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="mnuo" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.useso.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.useso.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://fonts.useso.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">HOME</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/MySQL/" class="animsition-link">MySQL<small>(16)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <!--<ul class="sb-menu secondary">
+            <li><a href="/about.html" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>-->
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">mnuo</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            
+                            
+                            
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>YOU'VE MADE A <span>BRAVE</span> DECISION, WELCOME.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>每一个不曾起舞的日子都是对生命的辜负。</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-12T06:12:08.000Z" itemprop="datePublished">
+          2016-07-12
+      </time>
+    
+    
+    | 
+    <a href='/tags/MySql/'>MySql</a>
+    
+    
+</span>
+                <h1>SQL Mode</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<h4 id="简介"><a href="#简介" class="headerlink" title="简介:"></a>简介:</h4><ul>
+<li>1&gt;通过设置SQL Mode,可以王城不同严格程度的数据校验,有效的保障数据准确性。</li>
+<li>2&gt;通过设置SQL Mode为ANSI模式,来保证大多数SQL符合标准的SQL语法,这样应用在不同数据库之间进行迁移时,则不需要对业务SQL进行较大的修改</li>
+<li><p>3&gt;在不同数据库之间进行数据迁移之前,通过设置SLQ Mode可以使用MySQL 上的数据更方便的迁移到目标数据库中   </p>
+<p> 例子:</p>
+<blockquote>
+<p>在Mysql5.0 上,查询默认的SLQ Mode(sql mode 参数)为: REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,GNORE_SPACE和ANSI。在这种模式下允许插入超过字段长度的值,只是在插入后,MySQL会返回一个warning。通过修改sql_mode为STRICT_TRANS_TABLES(严格模式)是吸纳了数据的严格校验,使错误数据不能插入表中,从而保证数据的准确性</p>
+</blockquote>
+<p>  1) 查看默认的SQL Mode:    </p>
+<pre><code>mysql&gt; select @@sql_mode;
+
++--------------------------------------------+
+
+| @@sql_mode                                 |
+
++--------------------------------------------+
+
+| STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION |
+
++--------------------------------------------+
+
+1 row in set (0.00 sec)
+</code></pre><p>  2) 由于上面的sql mode 是strict_trans_tables 所以insert失败:ERROR 1406 (22001): Data too long for column ‘name’ at row 1</p>
+<pre><code>mysql&gt; create table t(
+
+    -&gt; name varchar(20),
+
+    -&gt; email varchar(40)
+
+    -&gt; ) engine=innodb charset=utf8;
+
+Query OK, 0 rows affected (0.13 sec)
+
+mysql&gt; 查看测试表t的表结构:\c
+
+mysql&gt; desc t;
+
++-------+-------------+------+-----+---------+-------+
+
+| Field | Type        | Null | Key | Default | Extra |
+
++-------+-------------+------+-----+---------+-------+
+
+| name  | varchar(20) | YES  |     | NULL    |       |
+
+| email | varchar(40) | YES  |     | NULL    |       |
+
++-------+-------------+------+-----+---------+-------+
+
+2 rows in set (0.00 sec)
+
+mysql&gt; 在表t中插入一条记录,其中name故意超出了实际的定义值varchar(20):\c
+
+mysql&gt; insert into t values(&apos;12340000000000000000999999&apos;,&apos;beijing@126.com&apos;);
+
+ERROR 1406 (22001): Data too long for column &apos;name&apos; at row 1
+</code></pre><p>  3) 修改sql_mode之后可以执行,但是字符被截断了</p>
+<pre><code>mysql&gt; set session sql_mode=&apos;REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI&apos;;
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql&gt; select @@sql_mode;
+
++-------------------------------------------------------------+
+
+| @@sql_mode                                                  |
+
++-------------------------------------------------------------+
+
+| REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI |
+
++-------------------------------------------------------------+
+
+1 row in set (0.00 sec)
+
+mysql&gt; insert into t values(&apos;12340000000000000000999999&apos;,&apos;beijing@126.com&apos;);
+
+Query OK, 1 row affected, 1 warning (0.00 sec)
+
+mysql&gt; show warnings;
+
++---------+------+-------------------------------------------+
+
+| Level   | Code | Message                                   |
+
++---------+------+-------------------------------------------+
+
+| Warning | 1265 | Data truncated for column &apos;name&apos; at row 1 |
+
++---------+------+-------------------------------------------+
+
+1 row in set (0.01 sec)
+</code></pre></li>
+</ul>
+<h4 id="校验日期数据合法性"><a href="#校验日期数据合法性" class="headerlink" title="校验日期数据合法性:"></a>校验日期数据合法性:</h4><ul>
+<li><p>在 INSERT 或 UPDATE 过程中，如果 SQL MODE 处于 TRADITIONAL 模式， 运行 MOD(X，0)会产生错误，因为 TRADITIONAL 也属于严格模式，在非严格模式下 MOD(X，0)返回的结果是 NULL，所以在含有 MOD 的运算中要根据实际情况设定好 sql_mode。</p>
+<pre><code>mysql&gt; set sql_mode=&apos;ANSI&apos;;
+
+mysql&gt; CREATE TABLE t1(i int);
+
+Query OK, 0 rows affected (0.11 sec)
+
+mysql&gt; insert into t1 values(90%0);
+
+Query OK, 1 row affected (0.04 sec)
+
+mysql&gt; select * from t1;
+
++------+
+
+| i    |
+
++------+
+
+| NULL | 
+
++------+
+
+1 row in set (0.03 sec)
+
+mysql&gt; set session sql_mode=&apos;TRADITIONAL&apos;;
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql&gt; INSERT INTO t1 values(90%0);
+
+ERROR 1365 (22012): Division by 0
+</code></pre></li>
+<li><p>启用 NO_BACKSLASH_ESCAPES 模式，使反斜线成为普通字符。在导入数据时，如果数据中含有反斜线字符，     启用 NO_BACKSLASH_ESCAPES 模式保证数据的正确性，是个不错的选择。</p>
+<pre><code>mysql&gt; set sql_mode=&apos;ANSI&apos;;   
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql&gt; select @@sql_mode;
+
++-------------------------------------------------------------+
+
+| @@sql_mode                                                  |
+
++-------------------------------------------------------------+
+
+| REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI | 
+
++-------------------------------------------------------------+
+
+1 row in set (0.04 sec)
+
+mysql&gt; drop table t;
+
+Query OK, 0 rows affected (0.06 sec)
+
+mysql&gt; create table t (context varchar(20));
+
+Query OK, 0 rows affected (0.09 sec)
+
+mysql&gt; insert into t values(&apos;\beijing&apos;);
+
+Query OK, 1 row affected (0.04 sec)
+
+mysql&gt; select * from t;
+
++---------+
+
+| context |
+
++---------+
+
+|eijing | 
+
++---------+
+
+1 row in set (0.04 sec)
+
+mysql&gt; insert into t values(&apos;\\beijing&apos;);
+
+Query OK, 1 row affected (0.04 sec)
+
+mysql&gt; select * from t;
+
++----------+
+
+| context  |
+
++----------+
+
+|eijing  | 
+
+| \beijing | 
+
++----------+
+
+2 rows in set (0.04 sec)
+
+mysql&gt; set sql_mode=&apos;NO_BACKSLASH_ESCAPES&apos;;Query OK, 0 rows affected (0.04 sec)
+
+mysql&gt; SELECT @@SQL_MODE;
+
++----------------------+
+
+| @@SQL_MODE           |
+
++----------------------+
+
+| NO_BACKSLASH_ESCAPES | 
+
++----------------------+
+
+1 row in set (0.03 sec)
+
+mysql&gt; set sql_mode=&apos;REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI,NO_BACKSLASH_ESCAPES&apos;;
+
+Query OK, 0 rows affected (0.03 sec)
+
+mysql&gt; select @@sql_mode;
+
++----------------------------------------------------------------------------------+
+
+| @@sql_mode                                                                       |
+
++----------------------------------------------------------------------------------+
+
+| REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI,NO_BACKSLASH_ESCAPES | 
+
++----------------------------------------------------------------------------------+
+
+1 row in set (0.04 sec)
+
+mysql&gt; insert into t values(&apos;\\beijing&apos;);
+
+Query OK, 1 row affected (0.04 sec)
+
+mysql&gt; select * from t;         
+
++-----------+
+
+| context   |
+
++-----------+
+
+|eijing   | 
+
+| \beijing  | 
+
+| \\beijing | 
+</code></pre></li>
+<li><p>启用 PIPES_AS_CONCAT 模式。将“||”视为字符串连接操作符，在 Oracle 等数据库中， ||”被视为字符串的连接操作符，所以，在其他数据库中含有“||”操作符的 SQL在 MySQL 中将无法执行，为了解决这个问题，MySQL 提供了 PIPES_AS_CONCAT 模式。</p>
+<pre><code>mysql&gt; set sql_mode=&apos;ansi&apos;;
+
+Query OK, 0 rows affected (0.04 sec)
+
+mysql&gt; select @@sql_mode;
+
++-------------------------------------------------------------+
+
+| @@sql_mode                                                  |
+
++-------------------------------------------------------------+
+
+| REAL_AS_FLOAT,PIPES_AS_CONCAT,ANSI_QUOTES,IGNORE_SPACE,ANSI | 
+
++-------------------------------------------------------------+
+
+1 row in set (0.04 sec)
+
+mysql&gt; select &apos;bejing&apos;||&apos;2008&apos;;
+
++------------------+
+
+| &apos;bejing&apos;||&apos;2008&apos; |
+
++------------------+
+
+| bejing2008       | 
+
++------------------+
+
+1 row in set (0.03 sec)
+</code></pre></li>
+</ul>
+<h3 id="常用的sql-mode"><a href="#常用的sql-mode" class="headerlink" title="常用的sql_mode"></a>常用的sql_mode</h3><blockquote>
+<p>sql_mode 值&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;描述</p>
+<p>ANSI&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;等同于 REAL_AS_FLOAT、PIPES_AS_CONCAT、ANSI_QUOTES、IGNORE_SPACE 和 ANSI组合模式，这种模式使语法和行为更符合标准的SQL   </p>
+<p>STRICT_TRANS_TABLES &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;适用于事务表和非事务表，它是严格模式，不允许非法日期，STRICT_TRANS_TA也不允许超过字段长度的值插入字段中，对于插入不正确的值给出错误而不是警告</p>
+<p>BLES&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRADITIONAL 模式等同于 STRICT_TRANS_TABLES、STRICT_ALL_TABLES、TRADITIONAL</p>
+<p> NO_ZERO_IN_DATE、NO_ZERO_DATE、ERROR_FOR_DIVISION_BY_ZERO、TRADITIONAL 和 NO_AUTO_CREATE_USER 组合模式，所以它也是严格模式，对于插入不正确的值是给出错误而不是警告。可以应用在事务表和非事务表，用在事务表时，只要出现错误  就会立即回滚</p>
+</blockquote>
+<pre><code>mysql&gt; show create table actor\G;
+
+    *************************** 1. row ***************************
+
+           Table: actor
+
+    Create Table: CREATE TABLE `actor` (
+
+      `actor_id` smallint(6) NOT NULL,
+
+      `first_name` varchar(50) DEFAULT NULL,
+
+      `last_name` varchar(50) DEFAULT NULL,
+
+      PRIMARY KEY (`actor_id`)
+
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+    1 row in set (0.04 sec)
+
+ERROR: 
+
+No query specified
+
+mysql&gt; set session sql_mode=&apos;ansi&apos;;
+
+Query OK, 0 rows affected (0.07 sec)
+
+mysql&gt; show create table actor\G;
+
+*************************** 1. row ***************************
+
+       Table: actor
+
+Create Table: CREATE TABLE &quot;actor&quot; (
+
+  &quot;actor_id&quot; smallint(6) NOT NULL,
+
+  &quot;first_name&quot; varchar(50) DEFAULT NULL,
+
+  &quot;last_name&quot; varchar(50) DEFAULT NULL,
+
+  PRIMARY KEY (&quot;actor_id&quot;)
+
+)
+
+1 row in set (0.04 sec)
+
+ERROR: 
+
+No query specified
+</code></pre>
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/07/12/mysql优化数据类型/" style="float: left;">
+        ← mysql优化数据类型
+    </a>
+    
+    
+    <a class="pull-right" href="/2016/07/12/mysql优化/">
+        sql优化 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo"></div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Saxon mnuo. All Rights Reserved.
+                </p>
+              <!--<p>Contanc <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>-->
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+</body>
+</html>

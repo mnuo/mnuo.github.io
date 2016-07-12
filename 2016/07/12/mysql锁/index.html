@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<!--
+***************  *      *     *
+      8          *    *       *
+      8          *  *         *
+      8          **           *
+      8          *  *         *
+      8          *    *       *
+      8          *      *     *
+      8          *        *   ***********    -----Theme By Kieran(http://go.kieran.top)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
+
+<head>
+  <title>mysql锁 | mnuo</title>
+  <!-- Meta data -->
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="mnuo">
+    <meta name="author" content="Saxon mnuo">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="/img/favicon.ico" type="image/ico">
+
+    <link rel="alternate" href="/atom.xml" title="mnuo" type="application/atom+xml">
+    <link rel="stylesheet" href="/css/all.css" media="screen" type="text/css">
+	
+    <link rel="stylesheet" href="/highlightjs/vs.css" type="text/css">
+    
+    
+
+    <!-- Custom stylesheet, (add custom styles here, always load last) -->
+    <!-- Load our stylesheet for IE8 -->
+    <!--[if IE 8]>
+    <link rel="stylesheet" type="text/css" href="/css/ie8.css" />
+    <![endif]-->
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.useso.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.useso.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- Load our fonts individually if IE8+, to avoid faux bold & italic rendering -->
+    <!--[if IE]>
+    <link href='http://fonts.useso.com/css?family=Montserrat:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Montserrat:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.useso.com/css?family=Open+Sans:600' rel='stylesheet' type='text/css'>
+    <![endif]-->
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="/js/jquery-1.11.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/js/html5shiv.min.js"></script>
+    <script src="/js/respond.min.js"></script>
+    <![endif]-->
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+
+  
+  <style>.col-md-8.col-md-offset-2.opening-statement img{display:none;}</style>
+</head>
+
+<!--
+<body class="post-template">
+-->
+<body id="index" class="lightnav animsition">
+
+      <!-- ============================ Off-canvas navigation =========================== -->
+
+    <div class="sb-slidebar sb-right sb-style-overlay sb-momentum-scrolling">
+        <div class="sb-close" aria-label="Close Menu" aria-hidden="true">
+            <img src="/img/close.png" alt="Close"/>
+        </div>
+        <!-- Lists in Slidebars -->
+        <ul class="sb-menu">
+            <li><a href="/" class="animsition-link" title="Home">HOME</a></li>
+            <li><a href="/archives" class="animsition-link" title="archive">archives</a></li>
+            <!-- Dropdown Menu -->
+			 
+            
+        	<li>
+        		<a class="sb-toggle-submenu">Categories<span class="sb-caret"></span></a>
+            	<ul class="sb-submenu">
+				  	
+				    <li><a href="/categories/MySQL/" class="animsition-link">MySQL<small>(16)</small></a></li>
+				    
+				</ul>
+        	</li>
+			
+            
+        </ul>
+        <!-- Lists in Slidebars -->
+        <!--<ul class="sb-menu secondary">
+            <li><a href="/about.html" class="animsition-link" title="about">About</a></li>
+            <li><a href="/atom.xml" class="animsition-link" title="rss">RSS</a></li>
+        </ul>-->
+    </div>
+    
+    <!-- ============================ END Off-canvas navigation =========================== -->
+
+    <!-- ============================ #sb-site Main Page Wrapper =========================== -->
+
+    <div id="sb-site">
+        <!-- #sb-site - All page content should be contained within this id, except the off-canvas navigation itself -->
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <div id="navigation" class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <!-- Nav logo -->
+                    <div class="logo">
+                        <a href="/" title="Logo" class="animsition-link">
+                         <img src="/img/logo.png" alt="Logo" width="35px;"/> 
+                        </a>
+                    </div>
+                    <!-- // Nav logo -->
+                    <!-- Info-bar -->
+                    <nav>
+                        <ul class="nav">
+                            <li><a href="/" class="animsition-link">mnuo</a></li>
+                            <li class="nolink"><span>Always </span>Creative.</li>
+                            
+                            
+                            
+                            
+                            
+                            <li class="nolink"><span>Welcome!</span></li>
+                        </ul>
+                    </nav>
+                    <!--// Info-bar -->
+                </div>
+                <!-- // .container -->
+                <div class="learnmore sb-toggle-right">More</div>
+                <button type="button" class="navbar-toggle menu-icon sb-toggle-right" title="More">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar before"></span>
+                <span class="icon-bar main"></span>
+                <span class="icon-bar after"></span>
+                </button>
+            </div>
+            <!-- // .navbar-inner -->
+        </div>
+
+        <!-- ============================ Header & Logo bar =========================== -->
+
+        <!-- ============================ Hero Image =========================== -->
+
+        <section id="hero" class="scrollme">
+            <div class="container-fluid element-img" style="background: url(/img/bg_img.jpg) no-repeat center center fixed;background-size: cover">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                        <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                            <div>
+                            	
+                                <h2>YOU'VE MADE A <span>BRAVE</span> DECISION, WELCOME.</h2>
+                                <p></p>
+				    			
+                                <h2></h2>
+                                <p>每一个不曾起舞的日子都是对生命的辜负。</p>
+				    			
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- // .col-md-12 -->
+                </div>
+                <div class="herofade beige-dk"></div>
+            </div>
+        </section>
+
+        <!-- Height spacing helper -->
+        <div class="heightblock"></div>
+        <!-- // End height spacing helper -->
+
+        <!-- ============================ END Hero Image =========================== -->
+      
+<section id="intro">
+    <div class="container">
+        <div class="row col-md-offset-2">
+            <div class="col-md-8">
+    			<span class="post-meta">
+      <time datetime="2016-07-12T08:12:08.000Z" itemprop="datePublished">
+          2016-07-12
+      </time>
+    
+    
+    | 
+    <a href='/tags/MySql/'>MySql</a>
+    
+    
+</span>
+                <h1>mysql锁</h1>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-2">
+      		<h4 id="1-mysql锁概述"><a href="#1-mysql锁概述" class="headerlink" title="1 mysql锁概述:"></a>1 mysql锁概述:</h4><blockquote>
+<p>表级锁：开销小，加锁快；不会出现死锁；锁定粒度大，发生锁冲突的概率最高,并发度最低。</p>
+<p>行级锁：开销大，加锁慢；会出现死锁；锁定粒度最小，发生锁冲突的概率最低,并发度也最高。</p>
+<p>页面锁：开销和加锁时间界于表锁和行锁之间；会出现死锁；锁定粒度界于表锁和行锁之间，并发度一般。</p>
+</blockquote>
+<h4 id="2-MyISAM表锁"><a href="#2-MyISAM表锁" class="headerlink" title="2 MyISAM表锁"></a>2 MyISAM表锁</h4><pre><code>mysql&gt; show status like &apos;table%&apos;;
+
++----------------------------+-------+
+
+| Variable_name              | Value |
+
++----------------------------+-------+
+
+| Table_locks_immediate      | 549   |
+
+| Table_locks_waited         | 3     |
+
+| Table_open_cache_hits      | 16    |
+
+| Table_open_cache_misses    | 0     |
+
+| Table_open_cache_overflows | 0     |
+
++----------------------------+-------+
+
+5 rows in set (0.00 sec)
+</code></pre><p>如果 Table_locks_waited 的值比较高，则说明存在着较严重的表级锁争用情况。</p>
+<ul>
+<li><p>1) 表级锁的模式</p>
+<p>  MySQL 的表级锁有两种模式： 表共享读锁 （Table Read Lock） 和表独占写锁 （Table Write Lock）。   </p>
+<pre><code>请求锁模式
+
+    是否兼容
+
+当前锁模式
+
+        None     读锁     写锁
+
+读锁     是         是         否
+
+写锁     是         否         否
+</code></pre><p>  可见，对 MyISAM 表的读操作，不会阻塞其他用户对同一表的读请求，但会阻塞对同一表的写请求；对 MyISAM 表的写操作，则会阻塞其他用户对同一表的读和写操作；MyISAM 表的读操作与写操作之间，以及写操作之间是串行的！根据如表 20-2 所示的例子可以知道，当一个线程获得对一个表的写锁后， 只有持有锁的线程可以对表进行更新操作。 其他线程的读、写操作都会等待，直到锁被释放为止。</p>
+</li>
+</ul>
+<ul>
+<li><p>2) 如何加锁</p>
+<p>  当使用lock table 时,不仅需要一次锁定用到的所有表,而且同一个表在SQL语句中出现多少次,就要通过与SQL语句中相同的别名锁定多少次,否则也会出错</p>
+</li>
+</ul>
+<ul>
+<li><p>3) 并发插入(Concurrent Insert)</p>
+<p>  上文提到过 MyISAM 表的读和写是串行的，但这是就总体而言的。在一定条件下，MyISAM表也支持查询和插入操作的并发进行。</p>
+<p>  MyISAM存储引擎有一个系统变量concurrent_insert，专门用以控制其并发插入的行为，其值分别可以为0、1或2。</p>
+<pre><code>当concurrent_insert设置为0时，不允许并发插入。
+
+当concurrent_insert设置为1时，如果MyISAM表中没有空洞（即表的中间没有被删除的行），MyISAM允许在一个进程读表的同时，另一个进程从表尾插入记录。这也是MySQL的默认设置。
+
+ 当concurrent_insert设置为2时，无论MyISAM表中有没有空洞，都允许在表尾并发插入记录。
+</code></pre></li>
+</ul>
+<ul>
+<li><p>(4) MyISAM 锁调度</p>
+<p>  MyISAM 存储引擎的读锁和写锁是互斥的，读写操作是串行的。那么，一个进程请求某个 MyISAM 表的读锁，同时另一个进程也请求同一表的写锁，MySQL 如何处理呢？答案是写进程先获得锁。不仅如此，即使读请求先到锁等待队列，写请求后到，写锁也会插到读锁请求之前！这是因为 MySQL 认为写请求一般比读请求要重要。这也正是 MyISAM 表不太适合于有大量更新操作和查询操作应用的原因，因为，大量的更新操作会造成查询操作很难获得读锁，从而可能永远阻塞</p>
+<pre><code>通过指定启动参数low-priority-updates，使MyISAM引擎默认给予读请求以优先的权利。
+
+通过执行命令SET LOW_PRIORITY_UPDATES=1，使该连接发出的更新请求优先级降低。
+
+通过指定INSERT、UPDATE、DELETE语句的LOW_PRIORITY属性，降低该语句的优先级。
+</code></pre></li>
+</ul>
+<h4 id="3-InnoDB锁问题"><a href="#3-InnoDB锁问题" class="headerlink" title="3 InnoDB锁问题"></a>3 InnoDB锁问题</h4><p>InnoDB 与 MyISAM 的最大不同有两点：一是支持事务（TRANSACTION）；二是采用了行级锁。</p>
+<ul>
+<li><p>1) 背景知识</p>
+<ul>
+<li><p>1&gt; 事务(Transaction)及其ACID属性<br>  事务是由一组sql组成的逻辑单元,具有4个属性:</p>
+<blockquote>
+<p>☆ 原子性(Atomicity): 事务是一个原子操作,其对数据的修改,要么成功,要么失败</p>
+<p>☆ 一致性(Consistent): 在事务开始和完成时,数据都必须保持一致状态</p>
+<p>☆ 隔离性(Isolation): 数据库系统提供一定的隔离机制,保证事务在不受外部并发操作影响的独立环境执行</p>
+<p>☆ 持久性(Durable): 事务完成后,它对于数据的修改时永久性的</p>
+</blockquote>
+</li>
+<li><p>2&gt; 并发事务带来的问题</p>
+<p>  相对于串行处理来说,并发事务处理能力大大增加数据库资源的利用率,提高数据库系统的数据吞吐量,从而支持更多的用户,然而也带来了一些问题:</p>
+<blockquote>
+<p>☆ 更新丢失(Lost Update): 当两个或多个事务选择同一行，然后基于最初选定的值更新该行时，由于每个事务都不知道其他事务的存在，就会发生丢失更新问题－－最后的更新覆盖了由其他事务所做的更新</p>
+<p>☆ 脏读(Dirty Reads): 一个事务正在对一条数据做修改,在这个事务完成并提交前,这条记录的数据就处于不一致状态;这时另一个事务也来读取这条记录,如果不加控制,第二个事务读取了这些脏数据,并据此做进一步操作,就会产生对未提交数据的依赖关系,这种现象就叫脏读</p>
+<p>☆ 不可重复读(Non-repeatable Reads):一个事务在读取某些数据后的某个时间，再次读取以前读过的数据，却发现其读出的数据已经发生了改变、或某些记录已经被删除了！这种现象就叫做“不可重复读” 。</p>
+<p>☆ 幻读(Phantom Reads):一个事务按相同的查询条件重新读取以前检索过的数据，却发现其他事务插入了满足其查询条件的新数据，这种现象就称为“幻读” 。</p>
+</blockquote>
+<p>  以上四种情况:更新丢失是完全可以避免的</p>
+</li>
+<li><p>3&gt; 事务隔离级别</p>
+<pre><code>                                       读数据一致性                        脏读         不可重复读         幻读
+
+未提交读(Read uncommitted) 最低级别只能保证不读取物理上损坏的数据             是                是              是
+
+已提交读(Read committed)                 语句级                                 否             是            是
+
+可重复读(Repeatable read)                事务级                                 否             否               是
+
+可序列化(Serializable)                 最高级别,事务级                         否             否               否
+</code></pre></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>2) 获取InnoDB行锁争用情况</p>
+<p>  通过检查InnoDB_row_lock状态变量来分析系统上的上锁的争夺情况</p>
+<pre><code>show status like &apos;innodb_row_lock%&apos;;
+
++-------------------------------+-------+
+
+| Variable_name                 | Value |
+
++-------------------------------+-------+
+
+| Innodb_row_lock_current_waits | 0     |
+
+| Innodb_row_lock_time          | 0     |
+
+| Innodb_row_lock_time_avg      | 0     |
+
+| Innodb_row_lock_time_max      | 0     |
+
+| Innodb_row_lock_waits         | 0     |
+
++-------------------------------+-------+
+
+5 rows in set (0.00 sec)
+
+mysql&gt; 如果发现锁争用比较严重,如InnoDB_row_lock_waits 和 InnoDB_row_lock_time_avg的值比较高,还可以通过设置InnoDB Monitors 来进一步观察发生锁冲突的表,数据行等,并分析锁争用的原因
+</code></pre></li>
+<li><p>3) Innodb 的行锁模式及加锁方法</p>
+<blockquote>
+<p>☆ 共享锁（S）：允许一个事务去读一行，阻止其他事务获得相同数据集的排他锁。</p>
+<p>☆ 排他锁（X)：允许获得排他锁的事务更新数据，阻止其他事务取得相同数据集的共享读锁和排他写锁。 另外，为了允许行锁和表锁共存，实现多粒度锁机制，InnoDB 还有两种内部使用的意向锁（Intention Locks），这两种意向锁都是表锁。</p>
+<p>☆ 意向共享锁（IS）：事务打算给数据行加行共享锁，事务在给一个数据行加共享锁前必须先取得该表的 IS 锁。</p>
+<p>☆ 意向排他锁（IX）：事务打算给数据行加行排他锁，事务在给一个数据行加排他锁前必须先取得该表的 IX 锁。</p>
+</blockquote>
+</li>
+</ul>
+
+            <div class="clearfix"></div>
+            <hr class="nogutter">
+        </div>
+        <nav class="pagination" role="pagination">
+    
+    <a class="pull-left" href="/2016/07/12/mysql日志/" style="float: left;">
+        ← mysql日志
+    </a>
+    
+    
+    <a class="pull-right" href="/2016/07/12/mysql优化数据类型/">
+        mysql优化数据类型 →
+    </a>
+    
+</nav>
+
+        <div class="duoshuo"></div>
+    </div>
+</section>
+
+
+      
+<!-- ============================ Footer =========================== -->
+
+<footer>
+    <div class="container">
+            <div class="copy">
+                <p>
+                    &copy; 2014<script>new Date().getFullYear()>2010&&document.write("-"+new Date().getFullYear());</script>, Content By Saxon mnuo. All Rights Reserved.
+                </p>
+              <!--<p>Contanc <a href="//go.kieran.top" style="color: #767D84">Kieran</a></p>-->
+            </div>
+            <div class="social">
+                <ul>
+                    
+                    
+                    
+                    
+                    
+                </ul>
+            </div>
+            <div class="clearfix"> </div>
+        </div>
+</footer>
+
+<!-- ============================ END Footer =========================== -->
+      <!-- Load our scripts -->
+        
+<!-- Resizable 'on-demand' full-height hero -->
+<script type="text/javascript">
+    
+    var resizeHero = function () {
+        var hero = $(".cover,.heightblock"),
+            window1 = $(window);
+        hero.css({
+            "height": window1.height()
+        });
+    };
+    
+    resizeHero();
+    
+    $(window).resize(function () {
+        resizeHero();
+    });
+</script>
+<script src="/js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+<script src="/js/jquery.flexslider-min.js"></script><!-- Flexslider plugin -->
+<script src="/js/scripts.js"></script><!-- Theme scripts -->
+
+<!-- Initiate flexslider plugin -->
+<script type="text/javascript">
+    $(document).ready(function($) {
+      $('.flexslider').flexslider({
+        animation: "fade",
+        prevText: "",
+        nextText: "",
+        directionNav: true
+      });
+    });
+</script>
+
+</body>
+</html>
