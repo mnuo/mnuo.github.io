@@ -1,5 +1,5 @@
 ---
-title: 大型分布式网站--2 分布式系统基础设施--memcached
+title: 大型分布式网站--2 分布式系统基础设施(2memcached)
 date: 2016-08-011 16:12:08 
 tags: 分布式java基础应用和实践
 category: 分布式java基础应用和实践
