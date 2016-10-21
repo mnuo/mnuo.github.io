@@ -32,3 +32,6 @@ category: Github
 + 2 git commit -m '注释'
 + 3 git push origin master
 
+### 5 
+
+> 1 git add file1 file2 ... add多个,中间用空格隔开
