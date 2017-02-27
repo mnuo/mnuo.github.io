@@ -17,5 +17,8 @@ category: Mave
         - group   类型的仓库，组仓库用来方便我们开发人员进行设置的仓库
 
 ### 2 参考文章
-    [maven--私服的搭建（Nexus的使用）] 
-[maven--私服的搭建（Nexus的使用）]: http://blog.csdn.net/shenshen123jun/article/details/9084293
+    maven--私服的搭建（Nexus的使用）
+[链接] [1] 
+
+  [1]: http://blog.csdn.net/shenshen123jun/article/details/9084293        "链接"
+ 
