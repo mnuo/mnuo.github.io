@@ -1,6 +1,6 @@
 ---
-title: Hadoop 集群安装
-date: 2017-05-16 1:12:08 
+title: Hadoop 分布式安装
+date: 2017-05-17 13:12:08 
 tags: Hadoop
 category: Hadoop
 ---
@@ -270,71 +270,8 @@ category: Hadoop
         http://192.168.159.132:8088/ --master
         http://192.168.159.134:50075/  --slave1
         http://192.168.159.135:50075/  -- slave1
-+ 查看集群状态
-        hadoop@master:~/hadoop-2.7.3$ ./bin/hdfs dfsadmin -report
-        Configured Capacity: 39891361792 (37.15 GB)
-        Present Capacity: 21550776320 (20.07 GB)
-        DFS Remaining: 21550718976 (20.07 GB)
-        DFS Used: 57344 (56 KB)
-        DFS Used%: 0.00%
-        Under replicated blocks: 0
-        Blocks with corrupt replicas: 0
-        Missing blocks: 0
-        Missing blocks (with replication factor 1): 0
-        
-        Live datanodes (2):
-        
-        Name: 192.168.159.134:50010 (slave1)
-        Hostname: slave1
-        Decommission Status : Normal
-        Configured Capacity: 19945680896 (18.58 GB)
-        DFS Used: 28672 (28 KB)
-        Non DFS Used: 10196709376 (9.50 GB)
-        DFS Remaining: 9748942848 (9.08 GB)
-        DFS Used%: 0.00%
-        DFS Remaining%: 48.88%
-        Configured Cache Capacity: 0 (0 B)
-        Cache Used: 0 (0 B)
-        Cache Remaining: 0 (0 B)
-        Cache Used%: 100.00%
-        Cache Remaining%: 0.00%
-        Xceivers: 1
-        Last contact: Sun May 14 04:39:40 CST 2017
-        
-        
-        Name: 192.168.159.135:50010 (slave2)
-        Hostname: slave2
-        Decommission Status : Normal
-        Configured Capacity: 19945680896 (18.58 GB)
-        DFS Used: 28672 (28 KB)
-        Non DFS Used: 8143876096 (7.58 GB)
-        DFS Remaining: 11801776128 (10.99 GB)
-        DFS Used%: 0.00%
-        DFS Remaining%: 59.17%
-        Configured Cache Capacity: 0 (0 B)
-        Cache Used: 0 (0 B)
-        Cache Remaining: 0 (0 B)
-        Cache Used%: 100.00%
-        Cache Remaining%: 0.00%
-        Xceivers: 1
-        Last contact: Sun May 14 04:39:39 CST 2017
-+  运行示例程序
-        首先提交作业
-        [plain] view plain copy print?在CODE上查看代码片派生到我的代码片
-        $ bin/hdfs dfs -mkdir /user  
-        $ bin/hdfs dfs -mkdir /user/<username>  
-        $ bin/hdfs dfs -put etc/hadoop input  
-        $ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output 'dfs[a-z.]+'  
-        
-        查看结果
-        [plain] view plain copy print?在CODE上查看代码片派生到我的代码片
-        $ bin/hdfs dfs -get output output  
-        $ cat output/* 
 
-主要参考文章: 
-        
-        http://www.linuxdiyf.com/linux/27090.html
-        http://blog.csdn.net/kongxx/article/details/42318089
+主要参考文章: http://www.linuxdiyf.com/linux/27090.html
 
 
 

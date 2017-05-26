@@ -42,13 +42,14 @@ category: Hadoop
 
 ### 3 示例操作
 #### 3.1 准备文件
-        hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -mkdir -p /user/hdfs/log_kpi
-        hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -copyFromLocal /home/hadoop/datafile/access.log.10 /user/hdfs/log_kpi/
-        hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls -R /
-        drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user
-        drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user/hdfs
-        drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:28 /user/hdfs/log_kpi
-        -rw-r--r--   1 hadoop supergroup    3025757 2017-05-14 16:28 /user/hdfs/log_kpi/access.log.10
++ access.log.10放到节点上面
+		hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -mkdir -p /user/hdfs/log_kpi
+		hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -copyFromLocal /home/hadoop/datafile/access.log.10 /user/hdfs/log_kpi/
+		hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls -R /
+		drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user
+		drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user/hdfs
+		drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:28 /user/hdfs/log_kpi
+		-rw-r--r--   1 hadoop supergroup    3025757 2017-05-14 16:28 /user/hdfs/log_kpi/access.log.10
 
 #### 3.2 代码示例: (PV代码)
 + KPI
@@ -191,8 +192,6 @@ category: Hadoop
 				String str=this.httpReferer.replace("\"", "").replace("http://", "").replace("https://", "");
 				return str.indexOf("/")>0?str.substring(0, str.indexOf("/")):str;
 			}
-			
-
 			public String getRemoteAddr() {
 				return remoteAddr;
 			}
