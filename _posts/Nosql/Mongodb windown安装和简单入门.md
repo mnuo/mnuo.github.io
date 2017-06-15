@@ -156,6 +156,8 @@ MongoDB 是一个介于关系数据库和非关系数据库之间的产品，是
 + dbAdminAnyDatabase 任何数据库的管理权限(dbAdmin相似)
 + __system 什么权限都有
 
+### 5 安装mongodb可视化工具robomongo
+
 参考文章:
 http://www.cnblogs.com/lzrabbit/p/3682510.html
 http://www.cnblogs.com/sheepswallow/p/4863578.html
