@@ -1,0 +1,211 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Zookeeper安装及简单应用 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Zookeeper安装及简单应用</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Zookeeper安装及简单应用</h1><div class="post-meta">May 25, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><p>Zookeeper是一个分布式应用所设计的分布的,开源的协调服务,它主要用来解决 分布式应用中经常遇到的一些数据管理问题,简化分布式应用协调及其管理的难度,提高性能的分布式服务。<br>它向外部应用暴露一组通用服务: 分布式同步(Distributed Synchronization),命令服务(Naming Server),集群维护(Group Maintenance)等。<br>Zookeeper本身可以单机运行,不过它的长处在于通过分布式Zookeeper集群(Leader,多个Follower),基于一定的策略来保证Zookeeper集群的稳定性和可用性,从而实现分布式应用的可靠性。</p>
+<h3 id="1-Zookeeper-集群安装"><a href="#1-Zookeeper-集群安装" class="headerlink" title="1 Zookeeper 集群安装"></a>1 Zookeeper 集群安装</h3><ul>
+<li><p>下载: </p>
+<pre><code>hadoop@master:~$ wget http://mirror.bit.edu.cn/apache/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz
+</code></pre></li>
+<li><p>解压修改文件名称:</p>
+<pre><code>hadoop@master:~$ tar -zxvf zookeeper-3.4.9.tar.gz
+hadoop@master:~$ mv zookeeper-3.4.9 zookeeper-3.4.9_1
+</code></pre></li>
+<li>配置环境变量:        <pre><code># set zookeeper environment
+export ZOOKEEPER_HOME=/home/hadoop/zookeeper-3.4.9_1
+export PATH=$PATH:$ZOOKEEPER_HOME/bin:$ZOOKEEPER_HOME/conf
+</code></pre></li>
+<li>修改配置文件 zoo.cfg, <pre><code>hadoop@master:~/zookeeper-3.4.9_1/conf$ mv zoo_sample.cfg zoo.cfg
+hadoop@master:~/zookeeper-3.4.9_1/conf$ vim zoo.cfg
+    # the directory where the snapshot is stored.
+    # do not use /tmp for storage, /tmp here is just
+    # example sakes.
+    dataDir=/home/hadoop/zookeeper-3.4.9_1/data
+    # the directory where the log is stored.
+    dataLogDir=/home/hadoop/zookeeper-3.4.9_1/logs
+    # the port at which the clients will connect
+    clientPort=2181
+    # the servers setting
+    server.1=192.168.159.132:2881:3881
+    server.2=192.168.159.134:2881:3881
+    server.3=192.168.158.135:2881:3881
+在dataDir所指定的目录下创建一个文件名为myid的文件，文件中的内容只有一行，为本主机对应的id值，也就是server.id中的id
+hadoop@master:~/zookeeper-3.4.9_1$ mkdir logs
+hadoop@master:~/zookeeper-3.4.9_1$ mkdir data
+hadoop@master:~/zookeeper-3.4.9_1$ cd data/
+hadoop@master:~/zookeeper-3.4.9_1/data$ vim myid
+</code></pre></li>
+<li><p>同以上操作分别配置其它的节点</p>
+</li>
+<li><p>启动,分别在节点上启动zookeeper</p>
+<pre><code>hadoop@master:~/zookeeper-3.4.9_1$ bin/zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_1/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+hadoop@master:~/zookeeper-3.4.9_1$ jps
+61920 ResourceManager
+61570 NameNode
+14827 QuorumPeerMain
+14845 Jps
+61775 SecondaryNameNode
+其中QuorumPeerMain就是zookeeper的进程
+
+hadoop@slave1:~/zookeeper-3.4.9_2$ bin/zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_2/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+hadoop@slave1:~/zookeeper-3.4.9_2$ jps
+8272 NodeManager
+8180 DataNode
+63735 Jps
+63708 QuorumPeerMain
+
+hadoop@slave2:~/zookeeper-3.4.9_3$ bin/zkServer.sh start
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_3/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+hadoop@slave2:~/zookeeper-3.4.9_3$ jps
+61636 QuorumPeerMain
+53931 DataNode
+54028 NodeManager
+61661 Jps
+</code></pre></li>
+<li><p>查看zookeeper状态:</p>
+<pre><code>hadoop@master:~/zookeeper-3.4.9_1$ bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_1/bin/../conf/zoo.cfg
+Mode: follower
+
+hadoop@slave1:~/zookeeper-3.4.9_2$ bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_2/bin/../conf/zoo.cfg
+Mode: leader
+
+hadoop@slave2:~/zookeeper-3.4.9_3$ bin/zkServer.sh status
+ZooKeeper JMX enabled by default
+Using config: /home/hadoop/zookeeper-3.4.9_3/bin/../conf/zoo.cfg
+Mode: follower
+
+通过上面状态查询结果可见，slave1是集群的Leader，其余的两个结点是Follower。
+</code></pre></li>
+<li><p>关闭节点:</p>
+<pre><code>hadoop@master:~/zookeeper-3.4.9_1$ bin/zkServer.sh stop
+</code></pre></li>
+</ul>
+<h3 id="2-Zookeeper命令行操作"><a href="#2-Zookeeper命令行操作" class="headerlink" title="2 Zookeeper命令行操作"></a>2 Zookeeper命令行操作</h3><ul>
+<li>连接命令: <pre><code>hadoop@master:~/zookeeper-3.4.9_1$ bin/zkCli.sh -server 192.168.159.134:2181
+</code></pre></li>
+<li>查看目录/:<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 2] ls /
+[zookeeper]
+</code></pre></li>
+<li>创建一个node节点:<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 3] create /node conan
+Created /node
+[zk: 192.168.159.134:2181(CONNECTED) 4] ls /
+[node, zookeeper]
+</code></pre></li>
+<li>查看/node信息:<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 5] get /node
+conan
+cZxid = 0x100000004
+ctime = Mon May 15 20:46:56 CST 2017
+mZxid = 0x100000004
+mtime = Mon May 15 20:46:56 CST 2017
+pZxid = 0x100000004
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 5
+numChildren = 0
+</code></pre></li>
+<li>修改/node信息:<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 6] set /node fens.me
+cZxid = 0x100000004
+ctime = Mon May 15 20:46:56 CST 2017
+mZxid = 0x100000005
+mtime = Mon May 15 20:47:42 CST 2017
+pZxid = 0x100000004
+cversion = 0
+dataVersion = 1
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 7
+numChildren = 0
+[zk: 192.168.159.134:2181(CONNECTED) 7] get /node
+fens.me
+cZxid = 0x100000004
+ctime = Mon May 15 20:46:56 CST 2017
+mZxid = 0x100000005
+mtime = Mon May 15 20:47:42 CST 2017
+pZxid = 0x100000004
+cversion = 0
+dataVersion = 1
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 7
+numChildren = 0
+</code></pre></li>
+<li><p>删除/node:</p>
+<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 8] delete /node
+[zk: 192.168.159.134:2181(CONNECTED) 9] ls /
+[zookeeper]
+</code></pre></li>
+<li><p>退出连接:</p>
+<pre><code>[zk: 192.168.159.134:2181(CONNECTED) 10] quit
+Quitting...
+2017-05-15 20:59:15,375 [myid:] - INFO  [main:ZooKeeper@684] - Session: 0x25c0c16ef3a0000 closed
+2017-05-15 20:59:15,385 [myid:] - INFO  [main-EventThread:ClientCnxn$EventThread@519] - EventThread shut down for session: 0x25c0c16ef3a0000
+</code></pre></li>
+</ul>
+<h3 id="3-JAVA编程实现"><a href="#3-JAVA编程实现" class="headerlink" title="3 JAVA编程实现:"></a>3 JAVA编程实现:</h3><ul>
+<li><p>pom.xml</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;
+    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;
+    &lt;version&gt;3.4.9&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+<li><p>代码示例:</p>
+<pre><code>public static void main(String[] args) throws Exception {
+    //创建一个与服务器的连接
+    ZooKeeper zk = new ZooKeeper(&quot;192.168.159.132:2181&quot;, 60000, new Watcher(){
+        //监控所有触发事件
+        public void process(WatchedEvent event) {
+            System.out.println(&quot;EVENT: &quot; + event.getType());
+        }
+    });
+
+    //查看根节点:
+    System.out.println(&quot;ls / =&gt; &quot; + zk.getChildren(&quot;/&quot;, true));
+
+    //创建一个目录节点
+    if(zk.exists(&quot;/node&quot;, true) == null){
+        zk.create(&quot;/node&quot;, &quot;conan&quot;.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        System.out.println(&quot;create /node conan&quot;);
+        //查看node节点数据
+        System.out.println(&quot;ls /node =&gt; &quot; + new String(zk.getData(&quot;/node&quot;, false, null)));
+        //查看根节点
+        System.out.println(&quot;ls / =&gt; &quot; + zk.getChildren(&quot;/&quot;, true));
+    }
+    //创建一个子节点目录
+    if(zk.exists(&quot;/node/sub1&quot;, true) == null){
+        zk.create(&quot;/node/sub1&quot;, &quot;sub1&quot;.getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        System.out.println(&quot;create /node/sub1 sub1&quot;);
+        //查看/node节点
+        System.out.println(&quot;ls /node =&gt; &quot; + zk.getChildren(&quot;/node&quot;, true));
+    }
+    //修改节点
+    if(zk.exists(&quot;/node&quot;, true) != null){
+        zk.setData(&quot;/node&quot;, &quot;change&quot;.getBytes(), -1);
+        //查看node节点数据
+        System.out.println(&quot;ls /node =&gt; &quot; + new String(zk.getData(&quot;/node&quot;, false, null)));
+    }
+    //删除节点
+    if(zk.exists(&quot;/node/sub1&quot;, true) != null){
+        zk.delete(&quot;/node/sub1&quot;, -1);
+        zk.delete(&quot;/node&quot;, -1);
+        //查看根节点
+        System.out.println(&quot;ls / =&gt; &quot; + zk.getChildren(&quot;/&quot;, true));
+    }
+    //关闭连接
+    zk.close();
+}
+</code></pre></li>
+</ul>
+<p>文章参考:<br><a href="http://blog.csdn.net/haihongazar/article/details/52606801" target="_blank" rel="noopener">http://blog.csdn.net/haihongazar/article/details/52606801</a></p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/25/hadoop系列学习/Zookeeper实现分布式队列Queue/">Zookeeper实现分布式队列Queue</a><a class="next" href="/2017/05/25/hadoop系列学习/Zookeeper实现分布式FIFO队列/">Zookeeper实现分布式FIFO队列</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

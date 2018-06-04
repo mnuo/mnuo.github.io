@@ -1,0 +1,189 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>大型分布式网站--3 互联网安全架构(3认证和协议) | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">大型分布式网站--3 互联网安全架构(3认证和协议)</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">大型分布式网站--3 互联网安全架构(3认证和协议)</h1><div class="post-meta">Aug 10, 2016<span> | </span><span class="category"><a href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></span></div><div class="post-content"><h3 id="3-互联网安全架构–认证和协议"><a href="#3-互联网安全架构–认证和协议" class="headerlink" title="3 互联网安全架构–认证和协议"></a>3 互联网安全架构–认证和协议</h3><h5 id="1-摘要认证"><a href="#1-摘要认证" class="headerlink" title="1 摘要认证"></a>1 摘要认证</h5><p>这是一种常用的技术，用于证明某人知道某个秘密，而不要求他以容易被窃听的明文形式发送该秘密。</p>
+<p>原理:</p>
+<blockquote>
+<p>摘要认证与基础认证的工作原理很相似，用户先发出一个没有认证证书的请求，Web服务器回复一个带有WWW-Authenticate头的响应，指明访问所请求的资源需要证书。但是和基础认证发送以Base 64编码的用户名和密码不同，在摘要认证中服务器让客户选一个随机数（称作”nonce“），然后浏览器使用一个单向的加密函数生成一个消息摘要（message digest），该摘要是关于用户名、密码、给定的nonce值、HTTP方法，以及所请求的URL。消息摘要函数也被称为散列算法，是一种在一个方向上很容易计算，反方向却不可行的加密算法。与基础认证对比，解码基础认证中的Base 64是很容易办到的。在服务器口令中，可以指定任意的散列算法。在RFC 2617中，描述了以MD5散列函数作为默认算法。<a href="https://github.com/mnuo/javapenetrateinto/tree/master/src/main/java/com/mnuocom/largedistributedweb/chapter3/digestauthentication/DigestAuthenticationdemoDemo.java" target="_blank" rel="noopener">digestauthenticationdemo</a> </p>
+</blockquote>
+<ul>
+<li><p>1 客户端参数摘要生成</p>
+<blockquote>
+<p>请求参数需要先排好序,服务端与客户端需要事先约定好排序的方式,否则生成的摘要可能就相差了,排好序后,将参数名称与参数值串起来,加上约定好的secret,生成带摘要的字符串,最后使用如MD5之类的摘要算法生成摘要串,当然摘要算法也需要事先约定好<br><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largedistributejava-3.3-digest1.jpg" alt=""></p>
+</blockquote>
+<p>  Map&lt;String, String&gt; params = new HashMap&lt;&gt;();<br>  params.put(“username”, “zhangsan”);<br>  params.put(“password”, “123123”);<br>  String digest = getDigest(params);//生成的摘要<br>  System.out.println(“客户端生成的摘要: “ + digest);</p>
+</li>
+<li><p>2  服务端参数摘要校验</p>
+<blockquote>
+<p>服务端接收到请求的参数后,按照与客户端相同的方式将参数排序,然后将参数的名称与参数的值串起来,生成待摘要字符串,并且使用与客户端相同的摘要算法生成摘要串,最后将服务端生成的摘要串与客户端通过header或者其他形式传递过来的摘要串进行比较,如果一致,表示参数没有遭到篡改,反之,则说明参数遭到篡改.</p>
+</blockquote>
+<p>  boolean serverResult = validate(params, digest);<br>  System.out.println(“服务端参数摘要校验结果: “ + serverResult);</p>
+</li>
+<li><p>3  服务器端响应摘要生成</p>
+<blockquote>
+<p>服务端生成响应内容以后,在响应内容的后面加上secret,便是待摘要串,然后MD5等摘要算法生成响应的摘要串</p>
+</blockquote>
+<p>  String content = “登录成功”;<br>  String serverdigest = getDigest(content);<br>  System.out.println(“ 服务器端响应摘要: “ + serverdigest);</p>
+</li>
+<li><p>4 客户端响应摘要检验   </p>
+<p>  boolean clientResult = validate(content, serverdigest);<br>  System.out.println(“客户端响应摘要检验结果: “+ clientResult);</p>
+</li>
+</ul>
+<h4 id="2-签名认证"><a href="#2-签名认证" class="headerlink" title="2 签名认证"></a>2 签名认证</h4><p>签名认证的优势在于加密时使用的是私钥,而解密时使用的对外公开的公钥,私钥又私钥持有者保管,不需要泄露和传输给第三方,安全性大大提高,但相较于摘要认证,签名认证所使用的非对称加密算法将消耗更多的时间和硬件资源.<a href="https://github.com/mnuo/javapenetrateinto/tree/master/src/main/java/com/mnuocom/largedistributedweb/chapter3/signauthentication/SignAuthenticationdemoDemo.java" target="_blank" rel="noopener">signauthenticationdemo</a> </p>
+<pre><code>public static KeyPair keyPair = null;
+public static PublicKey pubKey = null;
+public static PrivateKey priKey = null;
+static {
+    try {
+        keyPair = RSAUtil.getKeyPair();//共同的keyPair
+        String pubStr = RSAUtil.getPublicKey(keyPair);//生成公钥
+        String priStr = RSAUtil.getPrivateKey(keyPair);
+
+
+        pubKey = RSAUtil.string2PublicKey(pubStr);
+        priKey = RSAUtil.string2PrivateKey(priStr);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+/**
+ * @param args
+ * @throws Exception 
+ */
+public static void main(String[] args) throws Exception {
+    //1 客户端参数签名生成
+    Map&lt;String, String&gt; params = new HashMap&lt;&gt;();
+    params.put(&quot;username&quot;, &quot;zhangsan&quot;);
+    params.put(&quot;password&quot;, &quot;123123&quot;);
+    String sign = getSign(params);//生成的摘要
+    System.out.println(&quot;客户端生成的签名: &quot; + sign);
+
+    //2  服务端参数签名校验
+    boolean serverResult = validate(params, sign);
+    System.out.println(&quot;服务端参数签名校验结果: &quot; + serverResult);
+
+    //3  服务器端响应签名生成
+    String content = &quot;登录成功&quot;;
+    String serverdigest = getSign(content);
+    System.out.println(&quot; 服务器端响应签名: &quot; + serverdigest);
+
+    //4 客户端响应签名检验
+    boolean clientResult = validate(content, serverdigest);
+    System.out.println(&quot;客户端响应签名检验结果: &quot;+ clientResult);
+
+}
+</code></pre><h4 id="3-HTTPS"><a href="#3-HTTPS" class="headerlink" title="3 HTTPS"></a>3 HTTPS</h4><h5 id="3-1-HTTPS协议原理"><a href="#3-1-HTTPS协议原理" class="headerlink" title="3.1 HTTPS协议原理"></a>3.1 HTTPS协议原理</h5><blockquote>
+<p>HTTPS全称是Hypertext Transfer Protocol over Secure Socket Layer 即基于SSL的HTTP协议,简单的说就是HTTP的安全版.HTTPS协议在HTTP协议与T<br>CP协议之间增加了一层安全层,所有请求和响应数据在经过网络传输之前,都会先进行加密,然后再进行传输.SSL及其继任者TLS是为网络通信提供安全与数据完整性保障的一种安全协议,利用加密技术,以维护互联网数据传输的安全,验证通信双方的身份,防止数据在网络传输的过程中被拦截和窃听.<br>HTTPS既支持单项认证,也支持双向认证,所谓的单向认证即只校验服务端证书的有效性,而双向认证则表示既校验服务端证书的有效性,同时也需要校验客户端证书的有效性.</p>
+</blockquote>
+<h5 id="3-2-SSL"><a href="#3-2-SSL" class="headerlink" title="3.2 SSL"></a>3.2 SSL</h5><p>SSL全称Secure Socket Layer,即安全套接层.它是一种网络安全协议,是网景在其推出的Web浏览器中同时提出的,目的是为了保障网络通信的安全,校验通信双方的身份,加密传输的数据,如图:</p>
+<p><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largedistributejava-3.5-ssl.jpg" alt=""></p>
+<p><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largedistributejava-3.5-ssl2.jpg" alt=""></p>
+<p>参考网址<a href="https://github.com/mnuo/javapenetrateinto/tree/master/src/main/java/com/mnuocom/largedistributedweb/chapter3/ssl/" target="_blank" rel="noopener">http://www.iteye.com/topic/1125183</a></p>
+<pre><code>C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -genkey -v -alias bluedash-ssl-demo-server -keystore ./server_ks -dname &quot;CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn&quot;
+正在为以下对象生成 1,024 位DSA密钥对和自签名证书 (SHA1withDSA) (有效期为 90 天):
+         CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+[正在存储./server_ks]
+
+C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -genkey -v -alias bluedash-ssl-demo-client -keyalg RSA -keystore ./client_ks -dname &quot;CN=localhost,OU=cn,O=cn,L=cn,
+正在为以下对象生成 2,048 位RSA密钥对和自签名证书 (SHA256withRSA) (有效期为 90 天):
+         CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+[正在存储./client_ks]
+
+
+C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -export -alias bluedash-ssl-demo-server -keystore ./server_ks -file server_key.cer
+输入密钥库口令: server
+存储在文件 &lt;server_key.cer&gt; 中的证书
+
+C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -import -trustcacerts -alias bluedash-ssl-demo-server -file ./server_key.cer -keystore ./client_ks
+输入密钥库口令: client
+所有者: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+发布者: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+序列号: 474422ed
+有效期开始日期: Wed Aug 10 14:21:17 CST 2016, 截止日期: Tue Nov 08 14:21:17 CST 2016
+证书指纹:
+         MD5: 4B:82:C3:EF:38:74:42:77:C7:74:CF:25:1C:3D:2E:A5
+         SHA1: 03:41:51:E8:65:F3:D7:33:D6:93:34:F5:FE:47:B6:7D:98:8F:97:2B
+         SHA256: 1C:E0:9E:5C:F4:CD:1D:63:48:D0:D0:F5:F1:5F:A8:7A:88:27:B6:41:A6:24:FB:64:E3:78:E4:25:EE:61:56:D2
+         签名算法名称: SHA1withDSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 9A 4C 9C 0C 73 80 48 1E   B7 AD A4 B2 83 76 3C 49  .L..s.H......v&lt;I
+0010: 96 CF 2F DC                                        ../.
+]
+]
+
+是否信任此证书? [否]:  y
+证书已添加到密钥库中
+
+C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -export -alias bluedash-ssl-demo-client -keystore ./client_ks -file client_key.cer
+输入密钥库口令: client
+存储在文件 &lt;client_key.cer&gt; 中的证书
+</code></pre><h5 id="3-3-HTTPS-WEB"><a href="#3-3-HTTPS-WEB" class="headerlink" title="3.3 HTTPS WEB"></a>3.3 HTTPS WEB</h5><ul>
+<li><p>第一步:</p>
+<pre><code>C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -genkey -alias sawade -keyalg RSA -keystore d:/keys/apachejava
+输入密钥库口令: 123123
+您的名字与姓氏是什么?
+  [Unknown]:  wade
+您的组织单位名称是什么?
+  [Unknown]:  saxon
+您的组织名称是什么?
+  [Unknown]:  saxon
+您所在的城市或区域名称是什么?
+  [Unknown]:  suzhou
+您所在的省/市/自治区名称是什么?
+  [Unknown]:  jiangsu
+该单位的双字母国家/地区代码是什么?
+  [Unknown]:  cn
+CN=wade, OU=saxon, O=saxon, L=suzhou, ST=jiangsu, C=cn是否正确?
+  [否]:  y
+
+输入 &lt;sawade&gt; 的密钥口令
+        (如果和密钥库口令相同, 按回车):
+</code></pre></li>
+<li><p>第二步: </p>
+<pre><code>C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -export -file d:/keys/sawade.crt -alias sawade -keystore d:/keys/apachejava
+输入密钥库口令: 123123
+存储在文件 &lt;d:/keys/sawade.crt&gt; 中的证书
+</code></pre></li>
+<li><p>第三步:<br>命令中不能有路径不能有空格 Program Files 换成: Progra~1</p>
+<pre><code>C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -import -keystore C:\Progra~1\Java\jdk1.8.0_71\jre\lib\security\cacerts -file D:/keys/sawade.crt -alias sawade
+输入密钥库口令:123123
+keytool 错误: java.io.IOException: Keystore was tampered with, or password was incorrect
+
+C:\Program Files\Java\jdk1.8.0_71\bin&gt;keytool -import -keystore C:\Progra~1\Java\jdk1.8.0_71\jre\lib\security\cacerts -file D:/keys/sawade.crt -alias sawade
+输入密钥库口令:
+所有者: CN=wade, OU=saxon, O=saxon, L=suzhou, ST=jiangsu, C=cn
+发布者: CN=wade, OU=saxon, O=saxon, L=suzhou, ST=jiangsu, C=cn
+序列号: ba31a53
+有效期开始日期: Wed Aug 10 15:05:13 CST 2016, 截止日期: Tue Nov 08 15:05:13 CST 2016
+证书指纹:
+         MD5: 31:DE:75:FE:A0:6C:94:A9:52:0A:E4:F1:5B:44:B1:2F
+         SHA1: BF:2C:32:A5:AA:36:25:33:64:BC:26:65:6F:DB:00:1A:89:83:B3:84
+         SHA256: 24:FE:5D:8E:A7:D3:08:D6:9E:8A:A9:42:5B:4C:D7:84:92:C4:52:71:ED:4C:91:C2:17:4E:8C:73:63:95:2D:E2
+         签名算法名称: SHA256withRSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 55 91 32 AB 23 15 B9 EA   AE 49 21 EE 17 33 AC 29  U.2.#....I!..3.)
+0010: 98 F7 44 FA                                        ..D.
+]
+]
+
+是否信任此证书? [否]:  y
+证书已添加到密钥库中
+</code></pre></li>
+<li><p>第四步:<br>修改: tomcat conf/server.xml </p>
+<pre><code>&lt;connector port=&quot;443&quot; protocol=&quot;HTTP/1.1&quot; SSLEnabled=&quot;true&quot; 
+    maxThreads=&quot;150&quot; scheme=&quot;https&quot; secure=&quot;true&quot;
+    clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot;
+    keystoreFile=&quot;D:/keys/apachejava&quot;
+    keystorePass=&quot;123123&quot;/&gt;
+</code></pre></li>
+</ul>
+</div><div class="tags"><a href="/tags/分布式java基础应用和实践/">分布式java基础应用和实践</a></div><div class="post-nav"><a class="pre" href="/2016/08/11/大型分布式网站--2 分布式系统基础设施(2memcached)/">大型分布式网站--2 分布式系统基础设施(2memcached)</a><a class="next" href="/2016/08/09/大型分布式网站--3 互联网安全架构(2常用的安全算法)/">大型分布式网站--3 互联网安全架构(2常用的安全算法)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

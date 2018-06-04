@@ -1,0 +1,255 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hadoop 分布式安装 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hadoop 分布式安装</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hadoop 分布式安装</h1><div class="post-meta">May 17, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><h3 id="1-添加用户"><a href="#1-添加用户" class="headerlink" title="1 添加用户"></a>1 添加用户</h3><pre><code>+ sudo adduser hadoop
+</code></pre><h5 id="1-1-添加用户成为sudoers"><a href="#1-1-添加用户成为sudoers" class="headerlink" title="1.1 添加用户成为sudoers"></a>1.1 添加用户成为sudoers</h5><pre><code>&gt; chmod u+w /etc/sudoers
+&gt; 编辑/etc/sudoers文件：&quot;root ALL=(ALL) ALL&quot;在下面添加&quot;hadoop ALL=(ALL) ALL&quot;(这里的zhc是你的用户名)，然后保存。
+&gt; 最后恢复没有写权限模式，撤销文件的写权限，chmod u-w /etc/sudoers
+</code></pre><h3 id="2-修改主机名-master"><a href="#2-修改主机名-master" class="headerlink" title="2 修改主机名 master"></a>2 修改主机名 master</h3><pre><code>sudo vim /etc/hostname
+</code></pre><h3 id="3-修改-etc-hosts"><a href="#3-修改-etc-hosts" class="headerlink" title="3 修改 /etc/hosts"></a>3 修改 /etc/hosts</h3><pre><code>sudo vim /etc/hosts
+如下:   
+    127.0.0.1       localhost
+    127.0.1.1       localhost.localdomain   localhost
+
+
+    # The following lines are desirable for IPv6 capable hosts
+    ::1     ip6-localhost ip6-loopback
+    fe00::0 ip6-localnet
+    ff00::0 ip6-mcastprefix
+    ff02::1 ip6-allnodes
+    ff02::2 ip6-allrouters
+
+    # hadoop nodes
+    192.168.159.132 master
+    192.168.159.134 slave1
+    192.168.159.135 slave2
+</code></pre><h3 id="4-安装jdk"><a href="#4-安装jdk" class="headerlink" title="4 安装jdk"></a>4 安装jdk</h3><pre><code>hadoop@master:~$ java -version
+java version &quot;1.8.0_111&quot;
+Java(TM) SE Runtime Environment (build 1.8.0_111-b14)
+Java HotSpot(TM) 64-Bit Server VM (build 25.111-b14, mixed mode)
+</code></pre><h3 id="5-安装-openssh-server"><a href="#5-安装-openssh-server" class="headerlink" title="5 安装 openssh-server"></a>5 安装 openssh-server</h3><pre><code>sudo apt-get install openssh-server
+sudo /etc/init.d/ssh start
+如下: 
+hadoop@master:~$ ssh localhost
+The authenticity of host &apos;localhost (127.0.0.1)&apos; can&apos;t be established.
+ECDSA key fingerprint is SHA256:SgoGKGREm5ugeBD2QHLd9rSiETfU6JLHo7iGJeCpDTg.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &apos;localhost&apos; (ECDSA) to the list of known hosts.
+hadoop@localhost&apos;s password:
+Welcome to Ubuntu 16.04 LTS (GNU/Linux 4.4.0-21-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+455 packages can be updated.
+191 updates are security updates.
+
+Last login: Sat May 13 14:30:02 2017 from 192.168.159.1
+hadoop@master:~$ ps -e | grep ssh
+  832 ?        00:00:00 sshd
+ 1171 ?        00:00:00 sshd
+ 1227 ?        00:00:00 sshd
+ 1308 pts/0    00:00:00 ssh
+ 1309 ?        00:00:00 sshd
+ 1338 ?        00:00:00 sshd
+</code></pre><h3 id="6-配置slave1-slave2"><a href="#6-配置slave1-slave2" class="headerlink" title="6 配置slave1, slave2"></a>6 配置slave1, slave2</h3><pre><code>通过虚拟机克隆,修改slave1,slave2 /etc/hostname
+</code></pre><h3 id="7-配置无密码登录ssh"><a href="#7-配置无密码登录ssh" class="headerlink" title="7 配置无密码登录ssh"></a>7 配置无密码登录ssh</h3><pre><code>ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+ssh localhost
+将生成的公钥发给slave1,slave2
+scp .ssh/authorized_keys hadoop@slave1:~/.ssh
+scp .ssh/authorized_keys hadoop@slave2:~/.ssh
+测试连接是否成功:
+hadoop@master:~$ ssh slave1
+    Welcome to Ubuntu 16.04 LTS (GNU/Linux 4.4.0-21-generic x86_64)
+
+     * Documentation:  https://help.ubuntu.com/
+
+    455 packages can be updated.
+    191 updates are security updates.
+
+    Last login: Sat May 13 23:50:34 2017 from 192.168.159.1
+
+hadoop@master:~$ ssh slave2
+    Welcome to Ubuntu 16.04 LTS (GNU/Linux 4.4.0-21-generic x86_64)
+
+     * Documentation:  https://help.ubuntu.com/
+
+    455 packages can be updated.
+    191 updates are security updates.
+
+    Last login: Sat May 13 22:16:44 2017 from 192.168.159.1
+</code></pre><h3 id="8-解压-hadoop2-7-3"><a href="#8-解压-hadoop2-7-3" class="headerlink" title="8 解压 hadoop2.7.3"></a>8 解压 hadoop2.7.3</h3><pre><code>tar -zxvf hadoop-2.7.3.tar.gz
+</code></pre><h3 id="9-配置hadoop"><a href="#9-配置hadoop" class="headerlink" title="9 配置hadoop"></a>9 配置hadoop</h3><ul>
+<li><p>1 配置hadoop(slave1,slave2,master)环境变量: sudo vim /etc/profile </p>
+<pre><code>JAVA_HOME=/usr/local/jdk1.8.0_111
+JRE_HOME=$JAVA_HOME/jre
+JAVA_BIN=$JAVA_HOME/bin
+CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+# set hadoop classpath
+export HADOOP_HOME=/home/hadoop/hadoop-2.7.3
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export JAVA_LIBRARY_PATH=$HADOOP_HOME/lib/native
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
+export HADOOP_PREFIX=$HADOOP_HOME
+export CLASSPATH=$CLASSPATH:.:$HADOOP_HOME/bin
+
+export JAVA_HOME JRE_HOME PATH CLASSPATH
+</code></pre></li>
+<li><p>2 修改配置文件$HADOOP_HOME/etc/hadoop/,将.template文件的这个后缀去掉</p>
+<ul>
+<li>vim core-size.xml<pre><code>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;fs.defaultFS&lt;/name&gt;
+        &lt;!-- master: /etc/hosts 配置的域名 master --&gt;
+        &lt;value&gt;hdfs://master:9000/&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre></li>
+<li>vim hdfs-site.xml<pre><code>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.namenode.name.dir&lt;/name&gt;
+        &lt;value&gt;/home/hadoop/hadoop-2.7.3/dfs/namenode&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.datanode.data.dir&lt;/name&gt;
+        &lt;value&gt;/home/hadoop/hadoop-2.7.3/dfs/datanode&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.replication&lt;/name&gt;
+        &lt;value&gt;1&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;dfs.namenode.secondary.http-address&lt;/name&gt;
+        &lt;value&gt;master:9001&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre></li>
+<li>vim mapred-site.xml<pre><code>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.framework.name&lt;/name&gt;
+        &lt;value&gt;yarn&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.jobhistory.address&lt;/name&gt;
+        &lt;value&gt;master:10020&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;mapreduce.jobhistory.webapp.address&lt;/name&gt;
+        &lt;value&gt;master:19888&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre></li>
+<li>vim yarn-site.xml<pre><code>&lt;configuration&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;
+        &lt;value&gt;mapreduce_shuffle&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;                                                             
+        &lt;name&gt;yarn.nodemanager.aux-services.mapreduce.shuffle.class&lt;/name&gt;
+        &lt;value&gt;org.apache.hadoop.mapred.ShuffleHandler&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.resourcemanager.address&lt;/name&gt;
+        &lt;value&gt;master:8032&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.resourcemanager.scheduler.address&lt;/name&gt;
+        &lt;value&gt;master:8030&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.resourcemanager.resource-tracker.address&lt;/name&gt;
+        &lt;value&gt;master:8031&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.resourcemanager.admin.address&lt;/name&gt;
+        &lt;value&gt;master:8033&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;yarn.resourcemanager.webapp.address&lt;/name&gt;
+        &lt;value&gt;master:8088&lt;/value&gt;
+    &lt;/property&gt;
+&lt;/configuration&gt;
+</code></pre></li>
+</ul>
+</li>
+<li>修改env环境变量文件: hadoop-env.sh、mapred-env.sh、yarn-env.sh 文件添加 JAVA_HOME：<pre><code>export JAVA_HOME=/usr/local/jdk1.8.0_111/
+</code></pre></li>
+<li>修改 slaves文件<pre><code>vim slaves
+    slave1
+    slave2
+</code></pre></li>
+<li><p>将配置scp到salve1,slave2</p>
+<pre><code>scp -r hadoop-2.7.0/ slave1:~/software
+scp -r hadoop-2.7.0/ slave2:~/software
+</code></pre><h3 id="10-format-hadoop-在master节点"><a href="#10-format-hadoop-在master节点" class="headerlink" title="10 format hadoop 在master节点"></a>10 format hadoop 在master节点</h3><pre><code>hadoop@master:~/hadoop-2.7.3$ ./bin/hdfs namenoade -format
+
+17/05/13 23:53:59 INFO namenode.NameNode: STARTUP_MSG:
+/************************************************************
+STARTUP_MSG: Starting NameNode
+STARTUP_MSG:   host = master/192.168.159.132
+STARTUP_MSG:   args = [-format]
+STARTUP_MSG:   version = 2.7.3
+STARTUP_MSG:   classpath = /home/scheduler/*.jar...
+STARTUP_MSG:   build = https://git-wip-us.apache.org/repos/asf/hado...
+STARTUP_MSG:   java = 1.8.0_111
+************************************************************/
+...
+/************************************************************
+SHUTDOWN_MSG: Shutting down NameNode at master/192.168.159.132
+************************************************************/
+
+☆ 如果不是不是第一次,需要将dfs,logs文件目录先rm掉
+</code></pre></li>
+</ul>
+<h3 id="11-启动或者关闭Hadoop"><a href="#11-启动或者关闭Hadoop" class="headerlink" title="11 启动或者关闭Hadoop"></a>11 启动或者关闭Hadoop</h3><ul>
+<li>启动<pre><code>hadoop@master:~/hadoop-2.7.3$ ./sbin/start-all.sh
+This script is Deprecated. Instead use start-dfs.sh and start-yarn.sh
+Starting namenodes on [master]
+master: starting namenode, logging to ~/logs/hadoop-hadoop-namenode-master.out
+slave2: starting datanode, logging to ~/logs/hadoop-hadoop-datanode-slave2.out
+slave1: starting datanode, logging to ~/logs/hadoop-hadoop-datanode-slave1.out
+Starting secondary namenodes [master]
+master: starting secondarynamenode, logging to ~/logs/hadoop-hadoop-secondarynamenode-master.out
+starting yarn daemons
+starting resourcemanager, logging to ~/logs/yarn-hadoop-resourcemanager-master.out
+slave2: starting nodemanager, logging to ~/logs/yarn-hadoop-nodemanager-slave2.out
+slave1: starting nodemanager, logging to ~/logs/yarn-hadoop-nodemanager-slave1.out
+hadoop@master:~/hadoop-2.7.3$ jps
+10161 Jps
+9746 SecondaryNameNode
+9891 ResourceManager
+9542 NameNode
+</code></pre></li>
+<li><p>关闭</p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ ./sbin/start-all.sh
+</code></pre></li>
+<li><p>验证 </p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ jps
+10161 Jps
+9746 SecondaryNameNode
+9891 ResourceManager
+9542 NameNode
+
+hadoop@slave2:~/hadoop-2.7.3$ jps
+4512 NodeManager
+4645 Jps
+4391 DataNode
+
+hadoop@slave1:~/hadoop-2.7.3$ jps
+6064 Jps
+5813 DataNode
+5935 NodeManager
+</code></pre></li>
+<li><p>浏览器访问:</p>
+<pre><code>http://192.168.159.132:50070/ --master
+http://192.168.159.132:8088/ --master
+http://192.168.159.134:50075/  --slave1
+http://192.168.159.135:50075/  -- slave1
+</code></pre></li>
+</ul>
+<p>主要参考文章: <a href="http://www.linuxdiyf.com/linux/27090.html" target="_blank" rel="noopener">http://www.linuxdiyf.com/linux/27090.html</a></p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/18/hadoop系列学习/Hadoop HDFS调用/">Hadoop 调用HDFS</a><a class="next" href="/2017/02/27/Maven 私服(Nexus)/">Maven 私服(Nexus)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

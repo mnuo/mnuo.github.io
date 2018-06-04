@@ -1,0 +1,187 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>大型分布式网站--1面向服务的体系架构(SOA) | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">大型分布式网站--1面向服务的体系架构(SOA)</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">大型分布式网站--1面向服务的体系架构(SOA)</h1><div class="post-meta">Aug 4, 2016<span> | </span><span class="category"><a href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></span></div><div class="post-content"><h3 id="1-面向服务的体系架构-SOA"><a href="#1-面向服务的体系架构-SOA" class="headerlink" title="1 面向服务的体系架构(SOA)"></a>1 面向服务的体系架构(SOA)</h3><h4 id="1-基于TCP协议的RPC"><a href="#1-基于TCP协议的RPC" class="headerlink" title="1 基于TCP协议的RPC"></a>1 基于TCP协议的RPC</h4><h5 id="1-1-PRC"><a href="#1-1-PRC" class="headerlink" title="1.1 PRC"></a>1.1 PRC</h5><blockquote>
+<p>Remote Process Call,即远程过程调用,他应用广泛实现方式也很多,拥有RMI,WebService等诸多成熟的方案,在业界得到了广泛的使用</p>
+</blockquote>
+<h5 id="1-2-对象序列化"><a href="#1-2-对象序列化" class="headerlink" title="1.2 对象序列化"></a>1.2 对象序列化</h5><pre><code>- 将对象转换成二进制流的过程称为对象的序列化
+- 将二进制转成对象的过程称为对象的反序列化
+
+方案:
+- Google的Protocal Buffers: 性能优异,支持跨平台,无法直接使用Java等面向对象编程语言
+- java内置序列化方式,Hessian:Hessian相对Protocal Buffers,效率稍低,但对各种语言有着良好的支持,且性能稳定,比java内置反式效率要高很多
+- JSON和XML
+
+例子:  
+java内置对象:
+
+        public static void main(String[] args) throws IOException, ClassNotFoundException {
+            //序列化,将对象存入ByteArrayOutputStream,即写入内存中,也可以存入文件中
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+
+            oos.writeObject(new Persion(&quot;张三&quot;));
+            byte[] zhangsan = bos.toByteArray();
+
+            //反序列化,将对象从内存中,读取出来
+            ByteArrayInputStream bis = new ByteArrayInputStream(zhangsan);
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            Persion object = (Persion) ois.readObject();
+            System.out.println(object.getName());
+        }
+Hessian:
+
+        public static void main(String[] args) throws Exception {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            //Hessian的序列化输出
+            HessianOutput ho = new HessianOutput(bos);
+            ho.writeObject(new Persion(&quot;李四&quot;));
+            byte[] data = bos.toByteArray();
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(data);
+            //Hessian反序列化读取对象
+            HessianInput hi = new HessianInput(bis);
+            Persion lizi = (Persion) hi.readObject();
+
+            System.out.println(lizi.getName());
+        }
+</code></pre><h5 id="1-3-基于TCP的RPC例子"><a href="#1-3-基于TCP的RPC例子" class="headerlink" title="1.3 基于TCP的RPC例子"></a>1.3 基于TCP的RPC例子</h5><pre><code>/javapenetrateinto/src/main/java/com/mnuocom/largedistributedweb/chapter1/tcprpc
+</code></pre><h4 id="2-基于HTTP协议的RPC"><a href="#2-基于HTTP协议的RPC" class="headerlink" title="2 基于HTTP协议的RPC"></a>2 基于HTTP协议的RPC</h4><h5 id="2-1-HTTP协议栈"><a href="#2-1-HTTP协议栈" class="headerlink" title="2.1 HTTP协议栈"></a>2.1 HTTP协议栈</h5><p>HTTP是Hypertext Transfer Protocol(超文本传输协议)的缩写</p>
+<p><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largeDistributed-1.2-http-req-resp.jpg" alt=""></p>
+<p>例子: 客户端会向服务端发送一条命令,服务端收到命令后,会判断命令是否为HELLO 如果是”HELLO”,则返回给客户端的相应为”hello”,否则返回个客户端的相应为”bye”.</p>
+<h5 id="2-2-HTTP请求与响应"><a href="#2-2-HTTP请求与响应" class="headerlink" title="2.2 HTTP请求与响应"></a>2.2 HTTP请求与响应</h5><p><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largedistributed-1.2-http-comunite.jpg" alt=""></p>
+<h5 id="2-3-通过HttpClient发送请求"><a href="#2-3-通过HttpClient发送请求" class="headerlink" title="2.3 通过HttpClient发送请求"></a>2.3 通过HttpClient发送请求</h5><h5 id="2-4-HTTP相对TCP的优势"><a href="#2-4-HTTP相对TCP的优势" class="headerlink" title="2.4 HTTP相对TCP的优势"></a>2.4 HTTP相对TCP的优势</h5><h5 id="2-5-JSON和XML"><a href="#2-5-JSON和XML" class="headerlink" title="2.5 JSON和XML"></a>2.5 JSON和XML</h5><p>JSON(JavaScript Object Notation) 是一种轻量级的数据交换语言,以文字为基础,且易于让人阅读.尽管JSON是JavaScript的一个子集,但其独立于语言的文本格式,使得JSON成为理想的数据交换语言</p>
+<p>XML:</p>
+<pre><code>Person person = new Person(&quot;zhangsan&quot;,&quot;jiangsu&quot;);
+
+//将person对象转化成xml
+XStream stream = new XStream(new DomDriver());
+stream.alias(&quot;person&quot;, Person.class);
+String personXML = stream.toXML(person);
+System.out.println(personXML);
+/*FileWriter writer = new FileWriter(new File(&quot;d://person.xml&quot;));
+writer.write(personXML);
+writer.flush();
+writer.close();*/
+Person person2 = (Person) stream.fromXML(personXML);
+System.out.println(person2.getName() + &quot;,&quot;+ person2.getAddress());
+</code></pre><h5 id="2-6-RESTful-和-RPC"><a href="#2-6-RESTful-和-RPC" class="headerlink" title="2.6 RESTful 和 RPC"></a>2.6 RESTful 和 RPC</h5><p>URL链接风格:</p>
+<ul>
+<li><p>RPC   </p>
+<blockquote>
+<p>直接在HTTP请求的参数中标明需要远程调用的服务接口,服务需要的参数即可: http: //localhost:80/service/getListRelease.action?pageNumber=1&amp;pageSize=10&amp;pressRelease.pressType=0</p>
+</blockquote>
+</li>
+<li><p>REST (Representational State Transfer) 表现层状态转换</p>
+<blockquote>
+<p><img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-largedistributed-1.2-restful.jpg" alt=""></p>
+</blockquote>
+</li>
+</ul>
+<h5 id="2-7-基于HTTP协议的RPC的实现"><a href="#2-7-基于HTTP协议的RPC的实现" class="headerlink" title="2.7 基于HTTP协议的RPC的实现"></a>2.7 基于HTTP协议的RPC的实现</h5><p>基于Java的Servlet接口,实现了基于HTTP协议的RPC风格的远程调用,服务和消费者和远端的服务提供方法</p>
+<h4 id="3-服务的路由和负载均衡"><a href="#3-服务的路由和负载均衡" class="headerlink" title="3 服务的路由和负载均衡"></a>3 服务的路由和负载均衡</h4><h5 id="3-1-服务化的演变"><a href="#3-1-服务化的演变" class="headerlink" title="3.1 服务化的演变"></a>3.1 服务化的演变</h5><p>公共的业务被拆分出来,形成可共用的服务,最大程度的保障了代码和逻辑的复用,避免重复建设,这种设计也称为SOA(Service-Oriented Architecture)</p>
+<h5 id="3-2-负载均衡算法"><a href="#3-2-负载均衡算法" class="headerlink" title="3.2 负载均衡算法"></a>3.2 负载均衡算法</h5><ul>
+<li>1 轮询(Round Robin)法</li>
+<li>2 随机(Random)法</li>
+<li>3 原地址哈希(Hash)法</li>
+<li>4 加权轮询法(Weight Round Robin)</li>
+<li>5 加权随机法(Weight Random)</li>
+</ul>
+<h5 id="3-3-动态配置规则"><a href="#3-3-动态配置规则" class="headerlink" title="3.3 动态配置规则"></a>3.3 动态配置规则</h5><p>固定的策略在有些时候还是无力满足千变万化的需求,对于开发者来说一方面需要支持特定用户需求,另一方面又得尽可能的复用代码,避免重复开发,导致维护成本增加,这便将这部分特殊的需求剥离出来,采用动态配置规则的方法来实现</p>
+<blockquote>
+<p>由于Groovy 脚本语言能够直接编译成Java的class字节码,运行在Java虚拟机上,切能够很好的更Java进行交互,因此这里通过Groovy语言,利用其动态特性,来实现负载均衡规则的动态配置</p>
+</blockquote>
+<h5 id="3-4-ZooKeeper"><a href="#3-4-ZooKeeper" class="headerlink" title="3.4 ZooKeeper"></a>3.4 ZooKeeper</h5><p>ZoopKeeper 是Hadoop下的一个子项目,他是一个针对大型分布式系统的可靠的协调系统,提供的功能包括配置维护,名字服务,分布式同步,组服务等.Zookeeper是可以集群复制的,集群间通过Zab(Zookeeper Atomic Broadcast)协议来保持数据的一致性.该协议看起来像是paxos协议的包中变形,该协议包括两个阶段:leader election阶段和Atomic broadcas阶段</p>
+<ul>
+<li><p>1 install</p>
+<p>  1.1 下载</p>
+<pre><code>wget http://mirrors.hust.edu.cn/apache/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz
+</code></pre><p>  1.2 处理</p>
+<pre><code>tar -zxvf zookeeper-3.4.8.tar.gz
+  mv zookeeper-3.4.8 zookeeper
+rm zookeeper-3.4.8.tar.gz
+</code></pre><p>  1.3 配置 </p>
+<pre><code>- 环境变量:
+
+    vim /etc/profile
+    export ZOOKEEPER_INSTALL=/usr/zookeeper
+    export PATH=$PATH:$ZOOKEEPER_INSTALL/bin
+
+- zoo.cfg
+
+    cd zookeeper/conf/
+    cp zoo_sample.cfg zoo.cfg
+    vim zoo.cfg
+        # The number of milliseconds of each tick
+        tickTime=2000
+        #zookeeper服务器心跳时间,单位ms
+        # The number of ticks that the initial
+        # synchronization phase can take
+        initLimit=10
+        #投票选举新leader的初始化时间
+        # The number of ticks that can pass between
+        # sending a request and getting an acknowledgement
+        syncLimit=5
+        #leader与follower心跳检测最大容忍时间,响应超过syncLimit*tickTime,leader认为follower死掉,从服务器列表中删除follower
+        # the directory where the snapshot is stored.
+        # do not use /tmp for storage, /tmp here is just
+        # example sakes.
+        dataDir=/tmp/zookeeper/data
+        dataLogDir=/tmp/zookeeper/log
+        # the port at which the clients will connect
+        clientPort=2181
+</code></pre><p>  1.4 创建目录:</p>
+<pre><code>mkdir -p /tmp/zookeeper/log
+mkdir -p /tmp/zookeeper/data
+</code></pre><p>  1.5 启动 :</p>
+<pre><code>cd bin/
+./zkServer.sh start(restart/stop/status)
+</code></pre><p>  1.6 测试是否成功:</p>
+<pre><code>jps
+
+./zkCli.sh -server 127.0.0.1:2181
+</code></pre></li>
+</ul>
+<p>例子 来自:<a href="http://greemranqq.iteye.com/blog/2171449" target="_blank" rel="noopener">http://greemranqq.iteye.com/blog/2171449</a>:</p>
+<pre><code>/**
+ * @author saxon
+ * 例子:
+ *     假设我是一家KTV的老板,我同事拥有5家KTV,我肯定得时刻监视我KTV的情况,这时候我会给每家KTV设置一个视频监控,然后每一家
+ * 都连接到我的视频监控里面,那么我就可以在家里看到所有的KTV情况了,如果某一家出现问题,我就能及时发现,并且做出反应
+ */
+public class ZookeeperDemo {
+    //根节点
+    public static final String ROOT = &quot;/root-ktv&quot;;
+
+    public static void main(String[] args) throws Exception {
+        //创建一个与服务器的连接
+        ZooKeeper zk = new ZooKeeper(&quot;127.0.0.1:2181&quot;, 3000, new Watcher(){
+            //监控所有被触发的事件
+            @Override
+            public void process(WatchedEvent event) {
+                System.out.println(&quot;状态: &quot; + event.getState() + &quot; : &quot; + 
+                        event.getType() + &quot;　：　&quot; + event.getWrapper() + 
+                        &quot; : &quot; + event.getPath());
+            }
+        });
+        //创建一个总的目录ktv,并不控制权限,这里需要用持久节点,不然下面的节点创建容易出错
+        zk.create(ROOT, &quot;root-ktv&quot;.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+
+        //然后在杭州开一个KTV,PERSISTEMT_SEQUENTIAL类型会自动加上0000000000自增的后缀
+        zk.create(ROOT + &quot;/杭州KTV&quot;, &quot;杭州ktv&quot;.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
+        //也可以在北京开一个 EPHEMERAL session过期了就会自动删除
+        zk.create(ROOT + &quot;/北京KTV&quot;, &quot;北京ktv&quot;.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        //同理,我可以在北京开多个,EPHEMERAL_SEQUENTIAL session过期自动删除,也会加数字的后缀
+        zk.create(ROOT + &quot;/北京KTV&quot;, &quot;北京ktv&quot;.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+
+        //我们也可以来看看,一共监视了多少家的ktv
+        List&lt;String&gt; ktvs = zk.getChildren(ROOT, true);
+
+        System.out.println(Arrays.toString(ktvs.toArray()));
+        /*for(String node : ktvs){
+            //删除节点
+            zk.delete(ROOT + &quot;/&quot; + node, -1);
+        }
+
+        zk.delete(ROOT, -1);
+        zk.close();*/
+    }
+}
+</code></pre></div><div class="tags"><a href="/tags/分布式java基础应用和实践/">分布式java基础应用和实践</a></div><div class="post-nav"><a class="pre" href="/2016/08/05/大型分布式网站--2 分布式系统基础设施/">大型分布式网站--2 分布式系统基础设施</a><a class="next" href="/2016/08/01/分布式java基础应用和实践--5性能调优/">分布式java基础应用和实践--5性能调优</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

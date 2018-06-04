@@ -1,0 +1,313 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Redis 入门基础(2) | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Redis 入门基础(2)</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Redis 入门基础(2)</h1><div class="post-meta">Jun 9, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><p>我们除了可以使用redis.clients.jedis.Jedis.set(String key, String value) insert string之外，还可以使用redis.clients.jedis.BinaryJedis.set(byte[] key, byte[] value) 保存我们自定义的POJO类</p>
+<ul>
+<li><p>代码如下: </p>
+<pre><code>public class JedisPojoDemo {
+    /**
+     * @param args
+     * @throws Exception 
+     */
+    public static void main(String[] args) throws Exception {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolManager.getInstance().getResource();
+            jedis.auth(&quot;123123&quot;);
+
+            Person person = new Person(&quot;Ricky&quot;, 27);
+            //序列化
+            byte[] byteArray = serialize(person);
+
+            //set 
+            jedis.set(&quot;Ricky&quot;.getBytes(), byteArray);
+
+            //get
+            byteArray = jedis.get(&quot;Ricky&quot;.getBytes());
+
+            //反序列化
+            person = deserialize(byteArray);
+
+            System.out.println(person);
+        } finally {
+            if(jedis != null) jedis.close();
+        }
+        JedisPoolManager.getInstance().destroy();
+    }
+    public static Person deserialize(byte[] bytes) throws Exception{
+        ObjectInputStream ois = null;
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+            ois = new ObjectInputStream(bis);
+            return (Person) ois.readObject();
+        } finally {
+            ois.close();
+        }
+    }
+    public static byte[] serialize(Person person) throws IOException{
+        ByteArrayOutputStream bos = null;
+        ObjectOutputStream oos = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(person);
+            oos.flush();
+            return bos.toByteArray();
+        } finally {
+            oos.close();
+            bos.close();
+        }
+    }
+}
+class Person implements Serializable{
+    private static final long serialVersionUID = 5735319877294608703L;
+    private String name;
+    private int age;
+
+    public Person() {
+    }
+    public Person(String name, int age){
+        this.name = name;
+        this.age = age;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+    @Override
+    public String toString() {
+        return &quot;name: &quot; + this.name + &quot; age: &quot; + this.age;
+    }
+}
+</code></pre></li>
+<li><p>运行结果: </p>
+<pre><code>name: Ricky age: 27
+</code></pre></li>
+</ul>
+<h3 id="2-高级用法"><a href="#2-高级用法" class="headerlink" title="2 高级用法"></a>2 高级用法</h3><ul>
+<li><p>事务</p>
+<pre><code>所谓事务,即一个连续操作,是否是执行一个事务,要么成功,要么失败,没有中间状态。而Redis事务很简单他主要目的是保障,一个client发起的事务中的命令可以连续的执行而中间不会插入其他的client的命令,也就是事务的连贯性。
+我们调用jedis.watch()方法来监控key,如果调用后key值发生变化,则整个事务会执行失败,另外事务中某个操作失败并不会回滚,可以使用discard()取消事务
+
+Jedis jedis = null;
+try {
+    jedis = JedisPoolManager.getInstance().getResource();
+    jedis.auth(&quot;123123&quot;);
+    jedis.watch(&quot;foo&quot;);
+    Transaction transaction = jedis.multi();
+    transaction.set(&quot;foo&quot;, &quot;bar&quot;);//断点到这里，先不执行。然后用redis-cli连接redis，修改foo的值为444，修改完后，该断点往下执行
+    transaction.set(&quot;you&quot;, &quot;you1&quot;);
+    transaction.exec();//能执行，不会抛异常，但是foo=444，you=you。说明该事务被打断，不执行，设置you=you1失败了
+    System.out.println(jedis.get(&quot;foo&quot;));
+    System.out.println(jedis.get(&quot;you&quot;));
+} catch (Exception e) {
+    e.printStackTrace();
+}finally {
+    if(jedis != null) jedis.close();
+}
+JedisPoolManager.getInstance().destroy();
+运行结果: 
+    4444
+    you
+</code></pre></li>
+<li><p>管道</p>
+<pre><code>有时候你需要发送一系列不同的命令,其中最笨也是最有效的方法是,通过管道流水式发送,并且每次不需要等待响应,而是在这系列命令结束之后在获取响应
+Jedis jedis = null;
+try {
+    jedis = JedisPoolManager.getInstance().getResource();
+    jedis.auth(&quot;123123&quot;);
+    Pipeline p = jedis.pipelined();
+    p.set(&quot;fool&quot;, &quot;bar&quot;);
+    p.zadd(&quot;foo&quot;, 1, &quot;barowitch&quot;);
+    p.zadd(&quot;foo&quot;, 0, &quot;barinasky&quot;);
+    p.zadd(&quot;foo&quot;, 0, &quot;barikoviev&quot;);
+    Response&lt;String&gt; pipeString = p.get(&quot;fool&quot;);
+    Response&lt;Set&lt;String&gt;&gt; setpipe = p.zrange(&quot;foo&quot;, 0, -1);
+    p.sync();
+    int setsize = setpipe.get().size();
+    System.out.println(&quot;fool: &quot; + pipeString.get());
+    System.out.println(&quot;foo size: &quot; + setsize);
+    Set&lt;String&gt; set = setpipe.get();
+
+    for(String string : set){
+        System.out.println(string);
+    }
+
+} finally {
+    if(jedis != null) jedis.close();
+}
+JedisPoolManager.getInstance().getResource();
+运行结果:
+2017-06-09 11:11:51 [com.monuo.jedis.util.JedisPoolManager]-[INFO] host-&gt; 192.168.159.132, port-&gt; 6379
+fool: bar
+foo size: 3
+barikoviev
+barinasky
+barowitch
+</code></pre></li>
+<li><p>Publish/Subscribe</p>
+<pre><code>To subscribe to a channel in Redis, create an instance of JedisPubSub and call subscribe on the Jedis instance:
+public class JedisSubsribeDemo {
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        Jedis jedis = null;
+        try {
+            jedis = JedisPoolManager.getInstance().getResource();
+            jedis.auth(&quot;123123&quot;);
+            MyListener l = new MyListener();
+            jedis.subscribe(l, &quot;foo&quot;);
+        }finally {
+            if(jedis != null) jedis.close();
+        }
+        JedisPoolManager.getInstance().getResource();
+    }
+
+}
+class MyListener extends JedisPubSub {
+    public void onMessage(String channel, String message) {
+        System.out.println(&quot;onMessage: channel: &quot; + channel + &quot; message: &quot; + message);
+    }
+
+    public void onSubscribe(String channel, int subscribedChannels) {
+        System.out.println(&quot;onSubscribe: channel: &quot; + channel + &quot; subscribedChannels: &quot; + subscribedChannels);
+    }
+
+    public void onUnsubscribe(String channel, int subscribedChannels) {
+        System.out.println(&quot;onUnsubscribe: channel: &quot; + channel + &quot; subscribedChannels: &quot; + subscribedChannels);
+    }
+
+    public void onPSubscribe(String pattern, int subscribedChannels) {
+        System.out.println(&quot;onPSubscribe: pattern: &quot; + pattern + &quot; subscribedChannels: &quot; + subscribedChannels);
+    }
+
+    public void onPUnsubscribe(String pattern, int subscribedChannels) {
+        System.out.println(&quot;onPUnsubscribe: pattern: &quot; + pattern + &quot; subscribedChannels: &quot; + subscribedChannels);
+    }
+
+    public void onPMessage(String pattern, String channel,
+        String message) {
+        System.out.println(&quot;onPMessage: pattern: &quot; + pattern + &quot; channel: &quot; + channel + &quot; message: &quot; + message);
+    }
+}
+运行结果: 
+onSubscribe: channel: foo subscribedChannels: 1
+</code></pre><h3 id="3-redis-集群搭建"><a href="#3-redis-集群搭建" class="headerlink" title="3 redis 集群搭建"></a>3 redis 集群搭建</h3><p>系统： Ubuntu 16.04<br>Redis版本：3.2.9<br>机器：</p>
+<pre><code>master：192.168.159.132:7000(主节点)、192.168.159.132:7001(不一定是192.168.159.132:7000的从节点)
+slave1：192.168.159.134:7000(主节点)、192.168.159.134:7001(不一定是192.168.159.134:7000的从节点)
+slave2：192.168.159.135:7000(主节点)、192.168.159.135:7001(不一定是192.168.159.135:7000的从节点)
+</code></pre></li>
+<li><p>1 master创建目录</p>
+<pre><code>hadoop@master:~$ mkdir rediscluster
+hadoop@master:~$ chmod -R 777 rediscluster
+hadoop@master:~$ cd rediscluster
+hadoop@master:~/rediscluster$ mkdir 7000 7001 //分别对应redis的端口
+</code></pre></li>
+<li><p>2 创建redis.config并加入以下内容</p>
+<pre><code>hadoop@master:~/rediscluster/7000$ vim redis.config
+# 端口7000
+port 7000
+cluster-enabled yes
+cluster-config-file nodes.conf
+
+cluster-node-timeout 5000
+appendonly yes
+# 非保护模式,不设置这个本来没有设置这个参数结果创建集群抛出异常:
+# (error) DENIED Redis is running in protected mode because protected mode is enabled, ...
+# 1) ...
+# 2) Alternatively you can just disable the protected mode by editing the Redis configuration file,
+# and setting the protected mode option to &apos;no&apos;, and then restarting the server. 
+# 3) If you started the server manually just for testing, restart it with the &apos;--protected-mode no&apos; option. 
+# 4) Setup a bind address or an authentication password.
+# NOTE: You only need to do one of the above things in order for the server to start accepting connections from the outside.
+protected-mode no
+
+将redis.config cp到7001目录下修改port为7001
+hadoop@master:~/rediscluster/7000$ cp ./redis.conf ../7001/redis.conf
+</code></pre></li>
+<li>3 将master上的rediscluster scp到slave1和slave2：<pre><code>scp -r rediscluster/ hadoop@slave1:~/
+scp -r rediscluster/ hadoop@slave2:~/
+</code></pre></li>
+<li>4 安装redis(参考上篇文章),然后将redis都scp到slave1,slave2    <pre><code>hadoop@master:~$ scp -r redis-3.2.9/ hadoop@slave1:~/    
+hadoop@master:~$ scp -r redis-3.2.9/ hadoop@slave2:~/
+</code></pre></li>
+<li>5 三台机器分别复制redis-3.2.9/src/redis-server到rediscluster</li>
+<li>6 分别进入master,slave1,slave2 的 7000和7001 启动redis<pre><code>../redis-server ./redis.conf 
+</code></pre></li>
+<li>7 在master安装ruby:<pre><code>sudo apt-get update
+sudo apt-get install ruby
+</code></pre></li>
+<li>8 在master 上安装ruby程序和redis的第三方接口(redis-3.3.0.gem下载地址: <a href="https://rubygems.org/gems/redis/versions/3.3.0" target="_blank" rel="noopener">https://rubygems.org/gems/redis/versions/3.3.0</a>)<pre><code>hadoop@master:~$ sudo gem install --local redis-3.3.0.gem
+</code></pre></li>
+<li><p>9 在master的redis安装目录的src下创建集群</p>
+<pre><code>hadoop@master:~/redis-3.2.9/src$ ./redis-trib.rb create --replicas 1 192.168.159.132:7000 192.168.159.132:7001  192.168.159.134:7000 192.168.159.134:7001 192.168.159.135:7000 192.168.159.135:7001
+&gt;&gt;&gt; Creating cluster
+&gt;&gt;&gt; Performing hash slots allocation on 6 nodes...
+Using 3 masters:
+192.168.159.132:7000
+192.168.159.134:7000
+192.168.159.135:7000
+Adding replica 192.168.159.134:7001 to 192.168.159.132:7000
+Adding replica 192.168.159.132:7001 to 192.168.159.134:7000
+Adding replica 192.168.159.135:7001 to 192.168.159.135:7000
+...
+[OK] All 16384 slots covered.
+</code></pre></li>
+<li><p>10 查看是否成功</p>
+<pre><code>.hadoop@master:~/redis-3.2.9/src$ ./redis-trib.rb check 192.168.159.132:7001
+&gt;&gt;&gt; Performing Cluster Check (using node 192.168.159.132:7001)
+S: 82b2491d66302ae11ecf4b27eb8e532237988818 192.168.159.132:7001
+   slots: (0 slots) slave
+   replicates 35c429fefd3c1bbcb35ceae9a617be814c9e72b6
+S: 86d798e4f7bce7cf9f339aafaa56910bcd3310c5 192.168.159.134:7001
+   slots: (0 slots) slave
+   replicates 561f416f5e9127ccad6381d2e409ea642c31bab1
+M: 561f416f5e9127ccad6381d2e409ea642c31bab1 192.168.159.132:7000
+   slots:0-5460 (5461 slots) master
+   1 additional replica(s)
+M: be564fe41ddd6472318b2191a7c52f8ee3f9a979 192.168.159.135:7000
+   slots:10923-16383 (5461 slots) master
+   1 additional replica(s)
+M: 35c429fefd3c1bbcb35ceae9a617be814c9e72b6 192.168.159.134:7000
+   slots:5461-10922 (5462 slots) master
+   1 additional replica(s)
+S: 890de0abc46d1d6ed12d63a103ccc7460949daf5 192.168.159.135:7001
+   slots: (0 slots) slave
+   replicates be564fe41ddd6472318b2191a7c52f8ee3f9a979
+[OK] All nodes agree about slots configuration.
+&gt;&gt;&gt; Check for open slots...
+&gt;&gt;&gt; Check slots coverage...
+[OK] All 16384 slots covered.
+</code></pre></li>
+</ul>
+<h3 id="4-使用JedisCluster操作集群-使用ShardedJedisPool时报错-网上说使用JedisCluster"><a href="#4-使用JedisCluster操作集群-使用ShardedJedisPool时报错-网上说使用JedisCluster" class="headerlink" title="4 使用JedisCluster操作集群,使用ShardedJedisPool时报错,网上说使用JedisCluster"></a>4 使用JedisCluster操作集群,使用ShardedJedisPool时报错,网上说使用JedisCluster</h3><p><a href="https://samebug.io/exceptions/271929/redis.clients.jedis.exceptions.JedisMovedDataException/moved-1539-17231591036379#" target="_blank" rel="noopener">https://samebug.io/exceptions/271929/redis.clients.jedis.exceptions.JedisMovedDataException/moved-1539-17231591036379#</a><br>ShardedJedis doesn’t work with Redis Cluster. Use JedisCluster instead.</p>
+<ul>
+<li>测试代码<pre><code>String key = &quot;2&quot;;  
+// 这东西 可以直接看到key 的分片数，就能知道放哪个 节点  
+System.out.println(JedisClusterCRC16.getSlot(key));  
+Set&lt;HostAndPort&gt; jedisClusterNodes = new HashSet&lt;HostAndPort&gt;();  
+jedisClusterNodes.add(new HostAndPort(&quot;192.168.159.132&quot;, 7000));  
+jedisClusterNodes.add(new HostAndPort(&quot;192.168.159.134&quot;, 7001));  
+jedisClusterNodes.add(new HostAndPort(&quot;192.168.159.135&quot;, 7002));  
+jc  = new JedisCluster(jedisClusterNodes);  
+System.out.println(jc .get(key));  
+jc .setnx(key, &quot;bar&quot;);  
+String value = jc .get(key);  
+System.out.println(value);  
+for (int i = 1; i &lt;= 10000; i++) {  
+     long start = System.currentTimeMillis();  
+     jc.set(&quot;k:&quot; + i, &quot;v&quot; + i);  
+     System.out.print(&quot;set &quot; + i +&quot;th value in &quot; + (System.currentTimeMillis() - start) + &quot; ms&quot;);  
+     start = System.currentTimeMillis();  
+     String value = jc.get(&quot;k:&quot; + i);  
+     System.out.println(&quot;, get &quot; + i +&quot;th value: &quot; + value + &quot; in &quot; + (System.currentTimeMillis() - start) + &quot; ms&quot;);  
+ }  
+</code></pre>java代码地址:<br><a href="https://github.com/mnuo/myhadoop/tree/master/redis" target="_blank" rel="noopener">https://github.com/mnuo/myhadoop/tree/master/redis</a><br>参考文章:<br><a href="http://blog.csdn.net/top_code/article/details/51292240" target="_blank" rel="noopener">http://blog.csdn.net/top_code/article/details/51292240</a><br><a href="http://greemranqq.iteye.com/blog/2230137" target="_blank" rel="noopener">http://greemranqq.iteye.com/blog/2230137</a><br><a href="http://blog.csdn.net/chenyuangege/article/details/51519370" target="_blank" rel="noopener">http://blog.csdn.net/chenyuangege/article/details/51519370</a><br><a href="http://blog.csdn.net/u012810317/article/details/51272432" target="_blank" rel="noopener">http://blog.csdn.net/u012810317/article/details/51272432</a><br><a href="http://blog.csdn.net/xiaoyangsavvy/article/details/72391844" target="_blank" rel="noopener">http://blog.csdn.net/xiaoyangsavvy/article/details/72391844</a></li>
+</ul>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a><a class="next" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

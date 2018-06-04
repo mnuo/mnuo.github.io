@@ -1,0 +1,315 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hadoop 调用HDFS | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hadoop 调用HDFS</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hadoop 调用HDFS</h1><div class="post-meta">May 18, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><h3 id="1-什么是HDFS"><a href="#1-什么是HDFS" class="headerlink" title="1 什么是HDFS"></a>1 什么是HDFS</h3><pre><code>HDFS全称是: Hadoop 分布式文件系统(Hadoop Distributed File System), 是Hadoop的核心之一。要实现MapReduce算法,数据必须上传到HDFS上。HDFS提供了一套类似Linux的命令。
+</code></pre><h3 id="2-查看HDFS的命令"><a href="#2-查看HDFS的命令" class="headerlink" title="2 查看HDFS的命令"></a>2 查看HDFS的命令</h3><pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs
+Usage: hadoop fs [generic options]
+        [-appendToFile &lt;localsrc&gt; ... &lt;dst&gt;]
+        [-cat [-ignoreCrc] &lt;src&gt; ...]
+        [-checksum &lt;src&gt; ...]
+        [-chgrp [-R] GROUP PATH...]
+        [-chmod [-R] &lt;MODE[,MODE]... | OCTALMODE&gt; PATH...]
+        [-chown [-R] [OWNER][:[GROUP]] PATH...]
+        [-copyFromLocal [-f] [-p] [-l] &lt;localsrc&gt; ... &lt;dst&gt;]
+        [-copyToLocal [-p] [-ignoreCrc] [-crc] &lt;src&gt; ... &lt;localdst&gt;]
+        [-count [-q] [-h] &lt;path&gt; ...]
+        [-cp [-f] [-p | -p[topax]] &lt;src&gt; ... &lt;dst&gt;]
+        [-createSnapshot &lt;snapshotDir&gt; [&lt;snapshotName&gt;]]
+        [-deleteSnapshot &lt;snapshotDir&gt; &lt;snapshotName&gt;]
+        [-df [-h] [&lt;path&gt; ...]]
+        [-du [-s] [-h] &lt;path&gt; ...]
+        [-expunge]
+        [-find &lt;path&gt; ... &lt;expression&gt; ...]
+        [-get [-p] [-ignoreCrc] [-crc] &lt;src&gt; ... &lt;localdst&gt;]
+        [-getfacl [-R] &lt;path&gt;]
+        [-getfattr [-R] {-n name | -d} [-e en] &lt;path&gt;]
+        [-getmerge [-nl] &lt;src&gt; &lt;localdst&gt;]
+        [-help [cmd ...]]
+        [-ls [-d] [-h] [-R] [&lt;path&gt; ...]]
+        [-mkdir [-p] &lt;path&gt; ...]
+        [-moveFromLocal &lt;localsrc&gt; ... &lt;dst&gt;]
+        [-moveToLocal &lt;src&gt; &lt;localdst&gt;]
+        [-mv &lt;src&gt; ... &lt;dst&gt;]
+        [-put [-f] [-p] [-l] &lt;localsrc&gt; ... &lt;dst&gt;]
+        [-renameSnapshot &lt;snapshotDir&gt; &lt;oldName&gt; &lt;newName&gt;]
+        [-rm [-f] [-r|-R] [-skipTrash] &lt;src&gt; ...]
+        [-rmdir [--ignore-fail-on-non-empty] &lt;dir&gt; ...]
+        [-setfacl [-R] [{-b|-k} {-m|-x &lt;acl_spec&gt;} &lt;path&gt;]|[--set &lt;acl_spec&gt; &lt;path&gt;]]
+        [-setfattr {-n name [-v value] | -x name} &lt;path&gt;]
+        [-setrep [-R] [-w] &lt;rep&gt; &lt;path&gt; ...]
+        [-stat [format] &lt;path&gt; ...]
+        [-tail [-f] &lt;file&gt;]
+        [-test -[defsz] &lt;path&gt;]
+        [-text [-ignoreCrc] &lt;src&gt; ...]
+        [-touchz &lt;path&gt; ...]
+        [-truncate [-w] &lt;length&gt; &lt;path&gt; ...]
+        [-usage [cmd ...]]
+</code></pre><h3 id="3-代码实"><a href="#3-代码实" class="headerlink" title="3 代码实"></a>3 代码实</h3><ul>
+<li><p>1 mkdir</p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -mkdir -p /tmp/new/
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp
+Found 2 items
+drwx------   - hadoop supergroup          0 2017-05-14 04:58 /tmp/hadoop-yarn
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 06:49 /tmp/new
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -mkdir -p /tmp/new1/one
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp
+Found 3 items
+drwx------   - hadoop supergroup          0 2017-05-14 04:58 /tmp/hadoop-yarn
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 06:49 /tmp/new
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 06:53 /tmp/new1
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp/new1
+Found 1 items
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 06:53 /tmp/new1/one
+</code></pre></li>
+<li><p>2 rmr </p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -rmr /tmp/new/one
+rmr: DEPRECATED: Please use &apos;rm -r&apos; instead.
+17/05/14 08:03:30 INFO fs.TrashPolicyDefault: Namenode trash configuration: Deletion interval = 0 minutes, Emptier interval = 0 minutes.
+Deleted /tmp/new/one
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp/new
+Found 1 items
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 07:50 /tmp/new/two
+</code></pre></li>
+<li><p>3 copyFromLocal</p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -copyFromLocal /home/hadoop/hadoop-2.7.3/etc/hadoop/core-site.xml  /tmp/new/
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp/new
+Found 1 items
+-rw-r--r--   1 hadoop supergroup       1019 2017-05-14 08:08 /tmp/new/core-site.xml
+</code></pre></li>
+<li><p>4 cat </p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -cat /tmp/new/test.xml
+&lt;RBSPMessage&gt;
+    &lt;Version/&gt;
+    ......
+</code></pre></li>
+<li><p>5 copyToLocal</p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -copyToLocal /tmp/new/test.xml /home/hadoop/datafiles/
+</code></pre></li>
+<li>6 touchz<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -touchz /tmp/new/empty
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /tmp/new
+Found 3 items
+-rw-r--r--   1 hadoop supergroup       1019 2017-05-14 08:08 /tmp/new/core-site.xml
+-rw-r--r--   1 hadoop supergroup          0 2017-05-14 09:07 /tmp/new/empty
+-rw-r--r--   3 hadoop supergroup       1864 2017-05-14 08:15 /tmp/new/test.xml
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -cat /tmp/new/empty
+</code></pre></li>
+</ul>
+<p>以上内容，并非我的原创，主要参考来源地址：<a href="http://blog.fens.me/hadoop-hdfs-api/" target="_blank" rel="noopener">http://blog.fens.me/hadoop-hdfs-api/</a></p>
+<p>代码:<br>            /**</p>
+<pre><code> * HdfsDao.java created at 2017年5月18日 上午10:15:08
+ */
+package org.monuo.myhadoop.dao;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.BlockLocation;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.log4j.Logger;
+import org.monuo.myhadoop.common.util.ResourceConsts;
+
+/**
+ * @author saxon
+ */
+public class HdfsDao {
+    public static Logger logger = Logger.getLogger(HdfsDao.class);
+    public static String HDFS = &quot;&quot;;
+    static {
+        try {
+            HDFS = ResourceConsts.getValue(&quot;hadoop_config&quot;, &quot;HDFS_URI&quot;);
+            System.setProperty(&quot;hadoop.home.dir&quot;, &quot;D:/appservers/hadoop-2.7.3&quot;);//可以在本地设置HADOOP_HOME环境变量
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //hdfs路径
+    private String hdfsPath;
+    //Hadoop系统配置
+    private Configuration conf;
+
+    public HdfsDao(Configuration conf) {
+        this(HDFS, conf);
+    }
+    public HdfsDao(String hdfs, Configuration conf) {
+        this.hdfsPath = hdfs;
+        this.conf = conf;
+    }
+
+    public static JobConf config() {
+        JobConf conf = new JobConf();
+        conf.setJobName(&quot;HdfsDao&quot;);
+//      conf.addResource(&quot;classpath:/hadoop/core-site.xml&quot;);
+//      conf.addResource(&quot;classpath:/hadoop/hdfs-site.xml&quot;);
+//      conf.addResource(&quot;classpath:/hadoop/mapred-site.xml&quot;);
+        return conf;
+    }
+    /**
+     * @param args
+     * @throws IOException 
+     */
+    public static void main(String[] args) throws IOException {
+        JobConf conf = config();
+        HdfsDao hdfs = new HdfsDao(conf);
+//        hdfs.mkdirs(&quot;/tmp/new/two&quot;);
+//        hdfs.rmr(&quot;/tmp/new/two&quot;);
+//        hdfs.copyFile(&quot;d:/mnuo/test.xml&quot;, &quot;/tmp/new&quot;);
+//        hdfs.cat(&quot;/tmp/new/test.xml&quot;);
+//        hdfs.download(&quot;/tmp/new/core-site.xml&quot;, &quot;d:/&quot;);
+//        hdfs.createFile(&quot;/tmp/new/text&quot;, &quot;Hello World!&quot;);
+//        hdfs.cat(&quot;/tmp/new/text&quot;);
+//        hdfs.renameFile(&quot;/tmp/new/text&quot;, &quot;/tmp/new/text1&quot;);
+        hdfs.location(&quot;/tmp/new/&quot;, &quot;text1&quot;);
+        hdfs.ls(&quot;/tmp/new&quot;);
+    }
+    /**
+     * 遍历文件
+     * @param folder
+     * @throws IOException 
+     */
+    public void ls(String folder) throws IOException{
+        Path path = new Path(folder);
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        FileStatus[] list = fs.listStatus(path);
+        logger.info(&quot;ls: &quot; + folder);
+        logger.info(&quot;\n=========================&quot;);
+        for(FileStatus f : list){
+            logger.info(&quot;\n name: &quot;+f.getPath()+&quot;, folder: &quot;+f.isDirectory()+&quot;, size: &quot;+f.getLen()+&quot;\n&quot;);
+        }
+        logger.info(&quot;\n=========================&quot;);
+        fs.close();
+
+    }
+    /**
+     * 创建目录
+     * @param folder
+     * @throws IOException 
+     */
+    public void mkdirs(String folder) throws IOException{
+        Path path = new Path(folder);
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        if(!fs.exists(path)){
+            fs.mkdirs(path);
+            logger.info(&quot; create folder: &quot; + folder);
+        }
+        fs.close();
+    }
+    /**
+     * 删除目录或文件
+     * @param folder
+     * @throws IOException 
+     */
+    public void rmr(String folder) throws IOException{
+        Path path = new Path(folder);
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.deleteOnExit(path);
+        logger.info(&quot;Delete: &quot; + folder);
+        fs.close();
+    }
+    /**
+     * 复制文件到远程HDFS
+     * @param local
+     * @param remote
+     * @throws IOException
+     */
+    public void copyFile(String local, String remote) throws IOException{
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.copyFromLocalFile(new Path(local), new Path(remote));
+        logger.info(&quot;copy from : &quot; + local + &quot; to : &quot; + remote);
+        fs.close();
+    }
+    /**
+     * 查看文件内容
+     * @param remoteFile
+     * @throws IOException
+     */
+    public String cat(String remoteFile) throws IOException{
+        Path path = new Path(remoteFile);
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        FSDataInputStream fsdis = null;
+        logger.info(&quot;\ncat: &quot; + remoteFile);
+        OutputStream outputStream = new ByteArrayOutputStream();
+        String string = null;
+        try {
+            fsdis = fs.open(path);
+            IOUtils.copyBytes(fsdis, outputStream, 4096, false);
+            string = outputStream.toString();
+        } finally {
+            IOUtils.closeStream(fsdis);
+            fs.close();
+        }
+        logger.info(string);
+        return string;
+    }
+    /**
+     * 从远程下载文件
+     * @param remote
+     * @param local
+     * @throws IOException
+     */
+    public void download(String remote, String local) throws IOException{
+        Path path = new Path(remote);
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.copyToLocalFile(path, new Path(local));
+        logger.info(&quot;\n download: from &quot; + remote + &quot; to &quot; + local);
+        fs.close();
+    }
+    /**
+     * 创建新文件
+     * @param file
+     * @param content
+     * @throws IOException
+     */
+    public void createFile(String file, String content) throws IOException{
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        byte[] buff = content.getBytes();
+        FSDataOutputStream fsos = null;
+        try {
+            fsos = fs.create(new Path(file));
+            fsos.write(buff, 0, buff.length);
+        } finally {
+            if(fsos != null) fsos.close();
+            fs.close();
+        }
+        logger.info(&quot;\n create file: &quot; + file);
+    }
+    /**
+     * 重命名文件
+     * @param src
+     * @param dst
+     * @throws IOException
+     */
+    public void renameFile(String src, String dst) throws IOException{
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.rename(new Path(src), new Path(dst));
+        logger.info(&quot;rename file: from &quot;+ src + &quot; to &quot; + dst);
+        fs.close();
+    }
+    /**
+     * 返回文件位置
+     * @param folder
+     * @param file
+     * @throws IOException
+     */
+    public void location(String folder, String file) throws IOException{
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        FileStatus f = fs.getFileStatus(new Path(hdfsPath + folder + file));
+        BlockLocation[] list = fs.getFileBlockLocations(f, 0, f.getLen());
+        logger.info(&quot;file location: &quot; + hdfsPath + folder + file);
+        for (BlockLocation bl : list) {
+            String[] hosts = bl.getHosts();
+            for (String host : hosts) {
+                logger.info(&quot;host:&quot; + host);
+            }
+        }
+        fs.close();
+
+    }
+}
+</code></pre></div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/18/hadoop系列学习/Hadoop MapReduce初步认识/">Hadoop MapReduce初步认识</a><a class="next" href="/2017/05/17/hadoop系列学习/Hadoop 分布式安装/">Hadoop 分布式安装</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

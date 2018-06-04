@@ -1,0 +1,475 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Redis 入门基础(1) | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Redis 入门基础(1)</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Redis 入门基础(1)</h1><div class="post-meta">Jun 8, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><p>Redis 是一个开源的,高效的key-value存储系统,也是nosql中最常见的一种,Redis非常适合用来做缓存系统。<br>Redis支持多种语言的调用,官方推荐的java版客户端是Jedis,它非常强大和稳定,支持事务,管道及有Jedis自己的实现,我们对Redis数据操作都可以用Jedis来完成。</p>
+<h3 id="Redis-安装"><a href="#Redis-安装" class="headerlink" title="Redis 安装"></a>Redis 安装</h3><ul>
+<li>下载编译<pre><code>hadoop@master:~$ wget http://download.redis.io/releases/redis-3.2.9.tar.gz
+hadoop@master:~$ tar -zxvf redis-3.2.9.tar.gz
+hadoop@master:~$ cd redis-3.2.9/
+hadoop@master:~/redis-3.2.9$ make
+</code></pre></li>
+<li><p>启动</p>
+<pre><code>hadoop@master:~/redis-3.2.9$ src/redis-server
+26094:C 16 May 22:15:10.234 # Warning: no config file specified, using the default config. In order to specify a config file use src/redis-server /path/to/redis.conf
+26094:M 16 May 22:15:10.236 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+                _._
+           _.-``__ &apos;&apos;-._
+      _.-``    `.  `_.  &apos;&apos;-._           Redis 3.2.9 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ &apos;&apos;-._
+ (    &apos;      ,       .-`  | `,    )     Running in standalone mode
+ |`-._`-...-` __...-.``-._|&apos;` _.-&apos;|     Port: 6379
+ |    `-._   `._    /     _.-&apos;    |     PID: 26094
+  `-._    `-._  `-./  _.-&apos;    _.-&apos;
+ |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|
+ |    `-._`-._        _.-&apos;_.-&apos;    |           http://redis.io
+  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;
+ |`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|
+ |    `-._`-._        _.-&apos;_.-&apos;    |
+  `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;
+      `-._    `-.__.-&apos;    _.-&apos;
+          `-._        _.-&apos;
+              `-.__.-&apos;
+
+...
+26094:M 16 May 22:15:10.293 * The server is now ready to accept connections on port 6379
+</code></pre></li>
+<li>验证<pre><code>hadoop@master:~/redis-3.2.9$ src/redis-cli
+127.0.0.1:6379&gt; set foo bar
+OK
+127.0.0.1:6379&gt; get foo
+&quot;bar&quot;
+</code></pre></li>
+</ul>
+<h3 id="Redis快速入门"><a href="#Redis快速入门" class="headerlink" title="Redis快速入门"></a>Redis快速入门</h3><ul>
+<li>字符串<pre><code>127.0.0.1:6379&gt; set name &apos;baidu&apos;
+OK
+127.0.0.1:6379&gt; get name
+&quot;baidu&quot;
+</code></pre></li>
+<li>哈希<pre><code>127.0.0.1:6379&gt; HMSET user:1 username yiibai password yiibai points 200
+OK
+127.0.0.1:6379&gt; HGETALL user:1
+1) &quot;username&quot;
+2) &quot;yiibai&quot;
+3) &quot;password&quot;
+4) &quot;yiibai&quot;
+5) &quot;points&quot;
+6) &quot;200&quot;
+</code></pre></li>
+<li>列表<pre><code>127.0.0.1:6379&gt; lpush tutoriallist redis
+(integer) 1
+127.0.0.1:6379&gt; lpush tutoriallist mongodb
+(integer) 2
+127.0.0.1:6379&gt; lpush tutoriallist rabitmq
+(integer) 3
+127.0.0.1:6379&gt; lrange tutoriallist 0 10
+1) &quot;rabitmq&quot;
+2) &quot;mongodb&quot;
+3) &quot;redis&quot;
+127.0.0.1:6379&gt;
+</code></pre></li>
+<li>集合<pre><code>127.0.0.1:6379&gt; sadd tutoriallist redis
+(error) WRONGTYPE Operation against a key holding the wrong kind of value
+127.0.0.1:6379&gt; del tutoriallist
+(integer) 1
+127.0.0.1:6379&gt; sadd tutoriallist redis
+(integer) 1
+127.0.0.1:6379&gt; sadd tutoriallist mongodb
+(integer) 1
+127.0.0.1:6379&gt; sadd tutoriallist rabitmq
+(integer) 1
+127.0.0.1:6379&gt; sadd tutoriallist rabitmq
+(integer) 0
+127.0.0.1:6379&gt; smembers tutoriallist
+1) &quot;rabitmq&quot;
+2) &quot;mongodb&quot;
+3) &quot;redis&quot;
+</code></pre></li>
+<li>有序集合<pre><code>127.0.0.1:6379&gt; del tutoriallist
+(integer) 1
+127.0.0.1:6379&gt; zadd tutoriallist 0 redis
+(integer) 1
+127.0.0.1:6379&gt; zadd tutoriallist 0 mongodb
+(integer) 1
+127.0.0.1:6379&gt; zadd tutoriallist 0 rabitmq
+(integer) 1
+127.0.0.1:6379&gt; zadd tutoriallist 0 rabitmq
+(integer) 0
+127.0.0.1:6379&gt; ZRANGEBYSCORE tutoriallist 0 1000
+1) &quot;mongodb&quot;
+2) &quot;rabitmq&quot;
+3) &quot;redis&quot;
+</code></pre></li>
+<li><p>Redis-keys</p>
+</li>
+<li><p>Redis-Strings</p>
+<pre><code>127.0.0.1:6379&gt; set yiibai redis
+OK
+127.0.0.1:6379&gt; get yiibai
+&quot;redis&quot;
+127.0.0.1:6379&gt; del yiibai
+(integer) 1
+127.0.0.1:6379&gt; get yiibai
+</code></pre></li>
+<li><p>Redis-哈希</p>
+<pre><code>127.0.0.1:6379&gt; HMSET yiibai name &quot;redis tutorial&quot; description &quot;redis basic commands for caching&quot; likes 20 visitors 23000
+OK
+127.0.0.1:6379&gt; hgetall yiibai
+1) &quot;name&quot;
+2) &quot;redis tutorial&quot;
+3) &quot;description&quot;
+4) &quot;redis basic commands for caching&quot;
+5) &quot;likes&quot;
+6) &quot;20&quot;
+7) &quot;visitors&quot;
+8) &quot;23000&quot;
+</code></pre></li>
+<li><p>Redis-列表</p>
+</li>
+<li>Redis-集合</li>
+<li><p>Redis-有序集</p>
+<pre><code>127.0.0.1:6379&gt; ZADD tutorials 1 redis
+(integer) 1
+127.0.0.1:6379&gt; ZADD tutorials 2 mongodb
+(integer) 1
+127.0.0.1:6379&gt; ZADD tutorials 3 rabitmq
+(integer) 1
+127.0.0.1:6379&gt; ZADD tutorials 3 rabitmq
+(integer) 0
+127.0.0.1:6379&gt; ZADD tutorials 4 rabitmq
+(integer) 0
+127.0.0.1:6379&gt; zrange tutorials 0 10 withscores
+1) &quot;redis&quot;
+2) &quot;1&quot;
+3) &quot;mongodb&quot;
+4) &quot;2&quot;
+5) &quot;rabitmq&quot;
+6) &quot;4&quot;
+</code></pre></li>
+<li><p>Redis- HyperLogLog</p>
+<pre><code>127.0.0.1:6379&gt; PFADD tutorials &quot;redis&quot;
+(integer) 1
+127.0.0.1:6379&gt; PFADD tutorials &quot;mongodb&quot;
+(integer) 1
+127.0.0.1:6379&gt; PFADD tutorials &quot;mysql&quot;
+(integer) 1
+127.0.0.1:6379&gt; pfcount tutorials
+</code></pre></li>
+<li><p>Redis-订阅</p>
+<pre><code>127.0.0.1:6379&gt; SUBSCRIBE redisChat
+Reading messages... (press Ctrl-C to quit)
+1) &quot;subscribe&quot;
+2) &quot;redisChat&quot;
+3) (integer) 1
+</code></pre></li>
+<li>Redis - 事务<pre><code>27.0.0.1:6379&gt; MULTI
+OK
+127.0.0.1:6379&gt; SET tutorial redis
+QUEUED
+127.0.0.1:6379&gt; get turorial
+QUEUED
+127.0.0.1:6379&gt; incr visitors
+QUEUED
+127.0.0.1:6379&gt; EXEC
+1) OK
+2) (nil)
+3) (integer) 1
+</code></pre></li>
+<li>Redis - 脚本<pre><code>127.0.0.1:6379&gt; EVAL &quot;return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}&quot; 2 key1 key2 first second
+1) &quot;key1&quot;
+2) &quot;key2&quot;
+3) &quot;first&quot;
+4) &quot;second&quot;
+</code></pre></li>
+<li>Redis - 连接<pre><code>127.0.0.1:6379&gt; PING
+PONG
+</code></pre></li>
+<li>Redis - 备份<pre><code>127.0.0.1:6379&gt; SAVE
+OK
+</code></pre></li>
+<li>还原Redis数据<pre><code>要恢复Redis的数据只需移动 Redis 的备份文件（dump.rdb）到 Redis 目录，然后启动服务器。为了得到你的 Redis 目录，使用配置命令如下所示：
+127.0.0.1:6379&gt; CONFIG get dir
+1) &quot;dir&quot;
+2) &quot;/user/yiibai/redis-2.8.13/src&quot;
+在上述命令的输出在 /user/yiibai/redis-2.8.13/src 目录，在安装redis的服务器安装位置。
+</code></pre></li>
+<li>Bgsave<pre><code>要创建Redis的备份备用命令BGSAVE也可以。这个命令将开始执行备份过程，并在后台运行。
+127.0.0.1:6379&gt; BGSAVE
+Background saving started
+</code></pre></li>
+<li><p>Redis - 安全</p>
+<pre><code>可以Redis的数据库更安全，所以相关的任何客户端都需要在执行命令之前进行身份验证。客户端输入密码匹配需要使用Redis设置在配置文件中的密码。
+127.0.0.1:6379&gt; CONFIG get requirepass
+1) &quot;requirepass&quot;
+2) &quot;&quot;
+默认情况下，此属性为空，表示没有设置密码，此实例。您可以通过执行以下命令来更改这个属性
+127.0.0.1:6379&gt; CONFIG set requirepass &quot;yiibai&quot;
+OK
+127.0.0.1:6379&gt; CONFIG get requirepass
+1) &quot;requirepass&quot;
+2) &quot;yiibai&quot;
+</code></pre></li>
+<li><p>设置密码，</p>
+<pre><code>如果客户端运行命令没有验证，会提示（错误）NOAUTH，需要通过验证。错误将返回客户端。因此，客户端需要使用AUTHcommand进行认证。
+127.0.0.1:6379&gt; AUTH password
+</code></pre></li>
+<li><p>Redis - 基准</p>
+<pre><code>Redis基准是公用工具同时运行Ñ命令检查Redis的性能。
+下面给出的例子检查redis调用100000命令。
+redis-benchmark -n 100000
+
+PING_INLINE: 141043.72 requests per second
+PING_BULK: 142857.14 requests per second
+SET: 141442.72 requests per second
+GET: 145348.83 requests per second
+INCR: 137362.64 requests per second
+LPUSH: 145348.83 requests per second
+LPOP: 146198.83 requests per second
+SADD: 146198.83 requests per second
+SPOP: 149253.73 requests per second
+LPUSH (needed to benchmark LRANGE): 148588.42 requests per second
+LRANGE_100 (first 100 elements): 58411.21 requests per second
+LRANGE_300 (first 300 elements): 21195.42 requests per second
+LRANGE_500 (first 450 elements): 14539.11 requests per second
+LRANGE_600 (first 600 elements): 10504.20 requests per second
+MSET (10 keys): 93283.58 requests per second
+</code></pre></li>
+<li><p>Redis - 客户端连接</p>
+<pre><code>Redis接受配置监听TCP端口和Unix套接字客户端的连接，如果启用。当一个新的客户端连接被接受以下操作进行：
+客户端套接字置于非阻塞状态，因为Redis使用复用和非阻塞I/O操作。
+TCP_NODELAY选项设定是为了确保我们没有在连接时延迟。
+创建一个可读的文件时，这样Redis能够尽快收集客户端的查询作为新的数据可供读取的套接字。
+
+客户端的最大数量
+在Redis的配置（redis.conf）属性调用maxclients，它描述客户端可以连接到Redis的最大数量。命令的基本语法是：
+config get maxclients
+
+1) &quot;maxclients&quot;
+2) &quot;10000&quot;
+
+默认情况下，此属性设置为10000（这取决于操作系统的文件描述符限制最大数量），但你可以改变这个属性。
+例子
+在下面给出的例子中，在启动服务器我们设置客户端的最大数量为10万。
+redis-server --maxclients 100000
+</code></pre></li>
+<li>Redis - 管道传输<pre><code>Redis是一个TCP服务器，并支持请求/响应协议。在redis一个请求完成下面的步骤：
+    客户端发送一个查询到服务器，并从套接字中读取，通常在阻塞的方式，对服务器的响应。
+    服务器处理命令并将响应返回给客户端。
+管道传输的含义
+    管道的基本含义是，客户端可以发送多个请求给服务器，而无需等待答复所有，并最后读取在单个步骤中的答复。
+要检查redis的管道，只要启动Redis实例，然后在终端键入以下命令。
+$(echo -en &quot;PING\r\n SET tutorial redis\r\nGET tutorial\r\nINCR visitor\r\nINCR visitor\r\nINCR visitor\r\n&quot;; sleep 10) | nc localhost 6379
++PONG
++OK
+redis
+:1
+:2
+:3
+</code></pre><h3 id="Jedis-客户端"><a href="#Jedis-客户端" class="headerlink" title="Jedis 客户端"></a>Jedis 客户端</h3><h4 id="基本用法"><a href="#基本用法" class="headerlink" title="基本用法"></a>基本用法</h4></li>
+<li><p>pom.xml</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;redis.clients&lt;/groupId&gt;
+        &lt;artifactId&gt;jedis&lt;/artifactId&gt;
+        &lt;version&gt;2.9.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+<li><p>JedisDemo</p>
+<pre><code>public static void main(String[] args) {
+    Jedis jedis = null;
+    try {
+        jedis = JedisPoolManager.getInstance().getResource();
+        jedis.auth(&quot;123123&quot;);
+
+        //simple key - value
+        jedis.set(&quot;redis&quot;, &quot;myredis&quot;);
+        System.out.println(jedis.get(&quot;redis&quot;));
+
+        jedis.append(&quot;redis&quot;, &quot;yourredis&quot;);
+        jedis.append(&quot;mq&quot;, &quot;RabitMq&quot;);
+        System.out.println(&quot;mq: &quot; + jedis.get(&quot;redis&quot;));
+
+        //incr
+        String pv = jedis.set(&quot;pv&quot;, &quot;0&quot;);
+        System.out.println(&quot;pv: &quot; + pv);
+        jedis.incr(&quot;pv&quot;);
+        jedis.incrBy(&quot;pv&quot;, 10);
+        System.out.println(&quot;pv: &quot; + pv);
+
+        //mset
+        jedis.mset(&quot;firstname&quot;, &quot;ricky&quot;, &quot;lastname&quot;, &quot;Fung&quot;);
+        System.out.println(jedis.mget(&quot;firstname&quot;, &quot;lastname&quot;));
+
+        //map
+        Map&lt;String, String&gt; city = new HashMap&lt;&gt;();
+        city.put(&quot;beijing&quot;, &quot;1&quot;);
+        city.put(&quot;shanghai&quot;, &quot;2&quot;);
+
+        jedis.hmset(&quot;city&quot;, city);
+        System.out.println(jedis.hget(&quot;city&quot;, &quot;beijing&quot;));
+        System.out.println(jedis.hlen(&quot;city&quot;));
+        System.out.println(jedis.hmget(&quot;city&quot;, &quot;beijing&quot;,&quot;shanghai&quot;));
+
+        //list
+        jedis.lpush(&quot;hobbies&quot;, &quot;reading&quot;);
+        jedis.lpush(&quot;hobbies&quot;, &quot;basketball&quot;);
+        jedis.lpush(&quot;hobbies&quot;, &quot;shopping&quot;);
+
+        List&lt;String&gt; hobbies = jedis.lrange(&quot;hobbies&quot;, 0, -1);
+        System.out.println(&quot;hobbies: &quot; + hobbies);
+
+        //set 
+        jedis.sadd(&quot;name&quot;, &quot;ricky&quot;);
+        jedis.sadd(&quot;name&quot;, &quot;kings&quot;);
+        jedis.sadd(&quot;name&quot;, &quot;demon&quot;);
+
+        System.out.println(&quot;size:&quot;+jedis.scard(&quot;name&quot;));
+        System.out.println(&quot;exists:&quot;+jedis.sismember(&quot;name&quot;, &quot;ricky&quot;));
+        System.out.println(String.format(&quot;all members: %s&quot;, jedis.smembers(&quot;name&quot;)));
+        System.out.println(String.format(&quot;rand member: %s&quot;, jedis.srandmember(&quot;name&quot;)));
+
+        //remove
+        jedis.srem(&quot;name&quot;, &quot;demon&quot;);
+
+        //hset
+        jedis.hset(&quot;address&quot;, &quot;country&quot;, &quot;CN&quot;);
+        jedis.hset(&quot;address&quot;, &quot;province&quot;, &quot;BJ&quot;);
+        jedis.hset(&quot;address&quot;, &quot;city&quot;, &quot;Beijing&quot;);
+        jedis.hset(&quot;address&quot;, &quot;district&quot;, &quot;Chaoyang&quot;);
+
+        System.out.println(&quot;city:&quot;+jedis.hget(&quot;address&quot;, &quot;city&quot;));
+        System.out.println(&quot;keys:&quot;+jedis.hkeys(&quot;address&quot;));
+        System.out.println(&quot;values:&quot;+jedis.hvals(&quot;address&quot;));
+
+          //zadd
+        jedis.zadd(&quot;gift&quot;, 0, &quot;car&quot;); 
+        jedis.zadd(&quot;gift&quot;, 0, &quot;bike&quot;); 
+        Set&lt;String&gt; gift = jedis.zrange(&quot;gift&quot;, 0, -1);
+        System.out.println(&quot;gift:&quot;+gift);
+    } finally {
+        if(jedis != null) {
+          jedis.close();
+        }
+    }
+    JedisPoolManager.getInstance().destroy();
+}
+</code></pre></li>
+<li><p>JedisPoolManager</p>
+<pre><code>public class JedisPoolManager {
+    public static Logger logger = Logger.getLogger(JedisPoolManager.class);
+    private volatile static JedisPoolManager manager;
+    private final JedisPool pool;
+
+    private JedisPoolManager() {
+        try {
+            //加载redis配置
+            Properties props = PropertyUtils.load(&quot;redis/redis.properties&quot;);
+
+            //创建Jedis池配置实例
+            JedisPoolConfig config = new JedisPoolConfig();
+
+            //设置池配置项
+            String maxTotal = props.getProperty(&quot;redis.pool.maxTotal&quot;, &quot;4&quot;);
+            config.setMaxTotal(Integer.parseInt(maxTotal));
+
+            String maxIdle = props.getProperty(&quot;redis.pool.maxIdle&quot;, &quot;4&quot;);
+            config.setMaxIdle(Integer.parseInt(maxIdle));
+
+            String minIdle = props.getProperty(&quot;redis.pool.minIdle&quot;, &quot;1&quot;);
+            config.setMinIdle(Integer.parseInt(minIdle));
+
+            String maxWaitMillis = props.getProperty(&quot;redis.pool.maxWaitMillis &quot;, &quot;1&quot;);
+            config.setMaxWaitMillis (Long.parseLong(maxWaitMillis));
+
+            String testOnBorrow = props.getProperty(&quot;redis.pool.testOnBorrow&quot;, &quot;true&quot;);
+            config.setTestOnBorrow(&quot;true&quot;.equals(testOnBorrow));
+
+            String testOnReturn = props.getProperty(&quot;redis.pool.testOnReturn&quot;, &quot;true&quot;);
+            config.setTestOnReturn(&quot;true&quot;.equals(testOnReturn));
+
+            String server = props.getProperty(&quot;redis.server&quot;);
+            if(StringUtils.isEmpty(server)){
+                throw new IllegalArgumentException(&quot;JedisPool redis.server is empty!&quot;);
+            }
+
+            String[] host_arr = server.split(&quot;,&quot;);
+            if(host_arr.length&gt;1){
+                throw new IllegalArgumentException(&quot;JedisPool redis.server length &gt; 1&quot;);
+            }
+
+            String[] arr = host_arr[0].split(&quot;:&quot;);
+            //根据配置实例化jedis池
+            logger.info(&quot;********** init Jedis pool ***********&quot;);
+            logger.info(&quot;host-&gt; &quot; + arr[0] + &quot;, port-&gt; &quot; + arr[1]);
+
+            pool = new JedisPool(config, arr[0], Integer.parseInt(arr[1]));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(&quot;init JedisPool error&quot;, e);
+        }
+    }
+
+    public static JedisPoolManager getInstance(){
+        if(manager == null){
+            synchronized (JedisPoolManager.class) {
+                if(manager == null){
+                    manager = new JedisPoolManager();
+                }
+            }
+        }
+        return manager;
+    }
+
+    public Jedis getResource(){
+        return pool.getResource();
+    }
+
+    public void destroy(){
+        pool.destroy();
+    }
+
+    public void close(){
+        pool.close();
+    }
+}
+</code></pre></li>
+<li><p>问题解决</p>
+<ul>
+<li>Caused by: java.util.NoSuchElementException: Unable to validate object<pre><code>testOnBorrow：在borrow一个jedis实例时，是否提前进行validate操作；如果为true，则得到的jedis实例均是可用的,改成false
+修改redis.config 注释掉bind: 127.0.0.1
+</code></pre></li>
+<li><p>Exception in thread “main” </p>
+<pre><code>redis.clients.jedis.exceptions.JedisDataException: 
+DENIED Redis is running in protected mode because protected mode is enabled,
+ no bind address was specified, 
+ no authentication password is requested to clients. 
+ In this mode connections are only accepted from the loopback interface.
+ If you want to connect from external computers to Redis you may adopt one of the following solutions: 
+ 1) Just disable protected mode sending the command &apos;CONFIG SET protected-mode no&apos; from the loopback interface by connecting to Redis from the same host the server is running, however MAKE SURE Redis is not publicly accessible from internet if you do so.
+ Use CONFIG REWRITE to make this change permanent. 
+ 2) Alternatively you can just disable the protected mode by editing the Redis configuration file, and setting the protected mode option to &apos;no&apos;, and then restarting the server. 
+ 3) If you started the server manually just for testing, restart it with the &apos;--protected-mode no&apos; option.
+ 4) Setup a bind address or an authentication password. NOTE: You only need to do one of the above things in order for the server to start accepting connections from the outside.
+
+根据4添加密码
+redis 127.0.0.1:6379&gt; 
+redis 127.0.0.1:6379&gt; config get requirepass
+1) &quot;requirepass&quot;
+2) (nil)
+显示密码是空的，
+然后设置密码：
+redis 127.0.0.1:6379&gt; config set requirepass test123
+OK
+再次查询密码：
+redis 127.0.0.1:6379&gt; config get requirepass
+(error) ERR operation not permitted
+此时报错了！
+现在只需要密码认证就可以了。
+redis 127.0.0.1:6379&gt; auth test123
+OK
+再次查询密码：
+redis 127.0.0.1:6379&gt; config get requirepass
+1) &quot;requirepass&quot;
+2) &quot;test123&quot;
+密码已经得到修改。
+</code></pre></li>
+</ul>
+</li>
+</ul>
+<p>参考文章</p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a><a class="next" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

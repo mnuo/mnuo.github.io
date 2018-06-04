@@ -1,0 +1,388 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>大型分布式网站--2 分布式系统基础设施(2memcached) | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">大型分布式网站--2 分布式系统基础设施(2memcached)</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">大型分布式网站--2 分布式系统基础设施(2memcached)</h1><div class="post-meta">Aug 11, 2016<span> | </span><span class="category"><a href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></span></div><div class="post-content"><h3 id="memcached简介及java的使用方法"><a href="#memcached简介及java的使用方法" class="headerlink" title="memcached简介及java的使用方法"></a>memcached简介及java的使用方法</h3><p>(1-5部分来自:<a href="http://blog.csdn.net/seelye/article/details/8511073" target="_blank" rel="noopener">http://blog.csdn.net/seelye/article/details/8511073</a>)</p>
+<h4 id="1-What-is-Memcached"><a href="#1-What-is-Memcached" class="headerlink" title="1 What is Memcached?"></a>1 What is Memcached?</h4><blockquote>
+<p>Memcached是danga.com(运营LiveJournal的技术团队) 开发的一套分布式内存对象缓存系统,用于在动态系统中减少<strong><em>数据库</em></strong>负载,提升性能.</p>
+</blockquote>
+<h4 id="2-适用场合"><a href="#2-适用场合" class="headerlink" title="2 适用场合"></a>2 适用场合</h4><ul>
+<li>1 分布式应用. 由于memcached本身基于分布式的系统,所以尤其适合大型的分布式系统.</li>
+<li>2 数据库前段缓存.数据库常常是网站系统的瓶颈.数据库的大并发量访问,常常造成网站内存溢出.当然我们也可以使用hibernate的缓存机制.但memecached是基于分布式的,并可独立于网站应用本身,所以更适合大型网站进行应用的拆分.</li>
+<li>3 服务器间数据共享.举例来讲,我们即将网站的登录系统,查询系统拆分成两个应用,放在不同的服务器上,并进行集群,那这个时候用户登录后,登录信息如何从登录系统服务器同步到查询系统服务器呢?这时候,我们便可以使用memcached,登录系统将登录信息缓存起来,查询系统便可以获得登录信息,就像获取本地信息一样.</li>
+</ul>
+<h4 id="3-不适用场合"><a href="#3-不适用场合" class="headerlink" title="3 不适用场合"></a>3 不适用场合</h4><blockquote>
+<p>那些不需要分布的,不需要共享的,或者干脆规模小到只有一台服务器的应用,memcached不会带来任何好处,相反还会拖慢系统效率,因为网络连接同样需要资源.</p>
+</blockquote>
+<h4 id="4-Install-for-window"><a href="#4-Install-for-window" class="headerlink" title="4 Install for window"></a>4 Install for window</h4><ul>
+<li><p>1 下载window版 </p>
+<p>  <a href="http://www.urielkatz.com/archive/detail/memcached-64-bit-windows/" target="_blank" rel="noopener">http://www.urielkatz.com/archive/detail/memcached-64-bit-windows/</a></p>
+</li>
+<li><p>2 安装:</p>
+<p>  C:\Users\Administrator\Downloads\memcached-win64&gt;memcached.exe -d install # 安装<br>  C:\Users\Administrator\Downloads\memcached-win64&gt;memcached.exe -d start    # 启动</p>
+<p>  <img src="http://7xsqwa.com1.z0.glb.clouddn.com/mnuo-memcached-install-over.jpg" alt=""></p>
+</li>
+</ul>
+<h4 id="5-客户端"><a href="#5-客户端" class="headerlink" title="5 客户端"></a>5 客户端</h4><ul>
+<li><p>1 java_memcached-release    </p>
+<ul>
+<li>比较通用的Memecached客户端框架</li>
+<li>依赖的jar   <ul>
+<li>A. commons-pool-1.5.6.jar</li>
+<li>B. java_memcached-release_2.6.3.jar</li>
+<li>C. slf4j-api-1.6.1.jar</li>
+<li>D. slf4j-simple-1.6.1.jar</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>2 alisoft-xplatform-asf-cache   </p>
+<ul>
+<li>阿里软件的架构师岑文初进行封装的。里面的注释都是中文的，比较好</li>
+<li>依赖的jar   <ul>
+<li>A. alisoft-xplatform-asf-cache-2.5.1.jar</li>
+<li>B. commons-logging-1.0.4.jar</li>
+<li>C. hessian-3.0.1.jar</li>
+<li>D. log4j-1.2.9.jar</li>
+<li>E. stax-api-1.0.1.jar</li>
+<li>F. wstx-asl-2.0.2.jar</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>3 官方memcached-java-client</p>
+</li>
+</ul>
+<h4 id="6-memcached-java-client"><a href="#6-memcached-java-client" class="headerlink" title="6 memcached-java-client"></a>6 memcached-java-client</h4><p>1 配置:</p>
+<pre><code>static {
+    String[] servers = {
+            &quot;127.0.0.1:11211&quot;
+    };
+    SockIOPool pool = SockIOPool.getInstance();
+    pool.setServers(servers);//设置服务器
+    pool.setFailback(true);//容错
+    pool.setInitConn(10);//设置初始连接数
+    pool.setMinConn(5);//设置最小连接数
+    pool.setMaxConn(25);//设置最大连接数
+    pool.setMaintSleep(30);//设置连接池维护线程的睡眠时间
+    pool.setNagle(false);//设置是否使用Nagele算法
+    pool.setSocketTO(3000);//设置socket的读取等待超时时间
+    pool.setAliveCheck(true);//设置连接心跳检测开关
+    pool.setHashingAlg(SockIOPool.CONSISTENT_HASH);//设置Hash算法
+    pool.initialize();
+}
+</code></pre><p>2 API:<br>        //设置缓存<br>        memCachedClient.add(“key”, (int)1);<br>        memCachedClient.set(“key”, (int)2);<br>        memCachedClient.replace(“key”, (int)3);</p>
+<pre><code>memCachedClient.add(&quot;key1&quot;, (int)1);
+memCachedClient.set(&quot;key1&quot;, (int)2);
+
+memCachedClient.add(&quot;key2&quot;, (int)1);
+//获取缓存的值
+System.out.println(&quot;key: &quot; + memCachedClient.get(&quot;key&quot;));
+System.out.println(&quot;key1: &quot; + memCachedClient.get(&quot;key1&quot;));
+System.out.println(&quot;key2: &quot; + memCachedClient.get(&quot;key2&quot;));
+Map&lt;String, Object&gt; map = memCachedClient.getMulti(new String[]{&quot;key1&quot;,&quot;key2&quot;});
+
+Set&lt;Entry&lt;String, Object&gt;&gt; mapset = map.entrySet();
+Iterator&lt;Entry&lt;String, Object&gt;&gt; iterable = mapset.iterator();
+
+while(iterable.hasNext()){
+    Entry&lt;String, Object&gt; entiry = iterable.next();
+    System.out.println(entiry.getKey() + &quot; : &quot; + entiry.getValue());
+}
+
+//prepend and append 
+memCachedClient.add(&quot;key4&quot;, &quot;hello world!&quot;);
+System.out.println(&quot;key4: &quot; + memCachedClient.get(&quot;key4&quot;));
+memCachedClient.prepend(&quot;key4&quot;, &quot;hello &quot;);
+memCachedClient.append(&quot;key4&quot;, &quot;!&quot;);
+System.out.println(&quot;prepend and append: &quot; + memCachedClient.getCounter(&quot;key4&quot;));
+
+//修改某个key某个版本的值
+MemcachedItem item = memCachedClient.gets(&quot;key1&quot;);
+memCachedClient.cas(&quot;key1&quot;, (Integer) item.getValue() + 5, item.getCasUnique());
+
+System.out.println(&quot;cas 之后: &quot; + memCachedClient.get(&quot;key1&quot;));
+
+//incr 增加
+memCachedClient.incr(&quot;key2&quot;);
+System.out.println(&quot;incr: &quot; + memCachedClient.get(&quot;key2&quot;));
+//decr 减少
+memCachedClient.decr(&quot;key2&quot;);
+System.out.println(&quot;incr: &quot; + memCachedClient.get(&quot;key2&quot;));
+</code></pre><h4 id="7-memcached-java-client-AND-Sring"><a href="#7-memcached-java-client-AND-Sring" class="headerlink" title="7 memcached-java-client AND Sring"></a>7 memcached-java-client AND Sring</h4><p>参考<a href="http://www.oschina.net/code/snippet_250396_9181" target="_blank" rel="noopener">http://www.oschina.net/code/snippet_250396_9181</a></p>
+<ul>
+<li><p>1 sring 配置文件</p>
+<pre><code>&lt;!-- 读取配置文件 memcached.properties --&gt;  
+&lt;bean class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;  
+    &lt;property name=&quot;order&quot; value=&quot;1&quot;/&gt;  
+        &lt;property name=&quot;ignoreUnresolvablePlaceholders&quot; value=&quot;true&quot;/&gt;  
+        &lt;property name=&quot;locations&quot;&gt;  
+        &lt;list&gt;  
+            &lt;value&gt;classpath:memcached/memcached.properties&lt;/value&gt;  
+        &lt;/list&gt;  
+    &lt;/property&gt;  
+&lt;/bean&gt;  
+ &lt;!-- Memcached配置 --&gt;  
+&lt;bean id=&quot;memcachedPool&quot; class=&quot;com.whalin.MemCached.SockIOPool&quot;  
+    factory-method=&quot;getInstance&quot; init-method=&quot;initialize&quot; destroy-method=&quot;shutDown&quot;&gt;  
+    &lt;property name=&quot;servers&quot;&gt;  
+        &lt;list&gt;  
+            &lt;value&gt;${memcached.server}&lt;/value&gt;  
+        &lt;/list&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;initConn&quot;&gt;  
+        &lt;value&gt;${memcached.initConn}&lt;/value&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;minConn&quot;&gt;  
+        &lt;value&gt;${memcached.minConn}&lt;/value&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;maxConn&quot;&gt;  
+        &lt;value&gt;${memcached.maxConn}&lt;/value&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;maintSleep&quot;&gt;  
+        &lt;value&gt;${memcached.maintSleep}&lt;/value&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;nagle&quot;&gt;  
+        &lt;value&gt;${memcached.nagle}&lt;/value&gt;  
+    &lt;/property&gt;  
+    &lt;property name=&quot;socketTO&quot;&gt;  
+        &lt;value&gt;${memcached.socketTO}&lt;/value&gt;  
+    &lt;/property&gt;  
+&lt;/bean&gt; 
+</code></pre></li>
+<li><p>2 memcached配置文件</p>
+<pre><code>#######################Memcached配置#######################  
+#服务器地址  
+memcached.server=127.0.0.1:11211
+#初始化时对每个服务器建立的连接数目  
+memcached.initConn=20
+#每个服务器建立最小的连接数  
+memcached.minConn=10 
+#每个服务器建立最大的连接数  
+memcached.maxConn=50
+#自查线程周期进行工作，其每次休眠时间  
+memcached.maintSleep=3000
+#Socket的参数，如果是true在写数据时不缓冲，立即发送出去  
+memcached.nagle=false
+#Socket阻塞读取数据的超时时间  
+memcached.socketTO=3000
+</code></pre></li>
+<li><p>3 封装类</p>
+<pre><code>private static final Logger logger = Logger.getLogger(MemcachedUtils.class);  
+private static MemCachedClient cachedClient;  
+
+static {  
+    if (cachedClient == null)  
+        cachedClient = new MemCachedClient();  
+}  
+
+public MemcachedUtils() {  
+}  
+
+/** 
+ * 向缓存添加新的键值对。如果键已经存在，则之前的值将被替换。 
+ * @param key 键 
+ * @param value 值 
+ * @return 
+ */  
+public static boolean set(String key, Object value) {  
+    return setExp(key, value, null);  
+}  
+
+/** 
+ * 向缓存添加新的键值对。如果键已经存在，则之前的值将被替换。 
+ * @param key 
+ * @param value 
+ * @param expire  过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+public static boolean set(String key, Object value, Date expire) {  
+    return setExp(key, value, expire);  
+}  
+
+/** 
+ * 向缓存添加新的键值对。如果键已经存在，则之前的值将被替换。 
+ *  
+ * @param key 
+ * @param value 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+private static boolean setExp(String key, Object value, Date expire) {  
+    boolean flag = false;  
+    try {  
+        flag = cachedClient.set(key, value, expire);  
+    } catch (Exception e) {  
+        // 记录Memcached日志  
+        MemcachedLog.writeLog(&quot;Memcached set方法报错，key值：&quot; + key + &quot;\r\n&quot; + exceptionWrite(e));  
+    }  
+    return flag;  
+}  
+
+/** 
+ * 仅当缓存中不存在键时，add 命令才会向缓存中添加一个键值对。 
+ * @param key 
+ * @param value 
+ * @return 
+ */  
+public static boolean add(String key, Object value) {  
+    return addExp(key, value, null);  
+}  
+
+/** 
+ * 仅当缓存中不存在键时，add 命令才会向缓存中添加一个键值对。 
+ * @param key 
+ * @param value 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+public static boolean add(String key, Object value, Date expire) {  
+    return addExp(key, value, expire);  
+}  
+
+/** 
+ * 仅当缓存中不存在键时，add 命令才会向缓存中添加一个键值对。 
+ * @param key 
+ * @param value 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+private static boolean addExp(String key, Object value, Date expire) {  
+    boolean flag = false;  
+    try {  
+        flag = cachedClient.add(key, value, expire);  
+    } catch (Exception e) {  
+        // 记录Memcached日志  
+        MemcachedLog.writeLog(&quot;Memcached add方法报错，key值：&quot; + key + &quot;\r\n&quot; + exceptionWrite(e));  
+    }  
+    return flag;  
+}  
+
+/** 
+ * 仅当键已经存在时，replace 命令才会替换缓存中的键。 
+ * @param key 
+ * @param value 
+ * @return 
+ */  
+public static boolean replace(String key, Object value) {  
+    return replaceExp(key, value, null);  
+}  
+
+/** 
+ * 仅当键已经存在时，replace 命令才会替换缓存中的键。 
+ * @param key 
+ * @param value 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+public static boolean replace(String key, Object value, Date expire) {  
+    return replaceExp(key, value, expire);  
+}  
+
+/** 
+ * 仅当键已经存在时，replace 命令才会替换缓存中的键。 
+ * @param key 
+ * @param value 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+private static boolean replaceExp(String key, Object value, Date expire) {  
+    boolean flag = false;  
+    try {  
+        flag = cachedClient.replace(key, value, expire);  
+    } catch (Exception e) {  
+        MemcachedLog.writeLog(&quot;Memcached replace方法报错，key值：&quot; + key + &quot;\r\n&quot; + exceptionWrite(e));  
+    }  
+    return flag;  
+}  
+
+/** 
+ * get 命令用于检索与之前添加的键值对相关的值。 
+ * @param key 
+ * @return 
+ */  
+public static Object get(String key) {  
+    Object obj = null;  
+    try {  
+        obj = cachedClient.get(key);  
+    } catch (Exception e) {  
+        MemcachedLog.writeLog(&quot;Memcached get方法报错，key值：&quot; + key + &quot;\r\n&quot; + exceptionWrite(e));  
+    }  
+    return obj;  
+}  
+
+/** 
+ * 删除 memcached 中的任何现有值。 
+ * @param key 
+ * @return 
+ */  
+public static boolean delete(String key) {  
+    return deleteExp(key, null);  
+}  
+
+/** 
+ * 删除 memcached 中的任何现有值。 
+ * @param key 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+public static boolean delete(String key, Date expire) {  
+    return deleteExp(key, expire);  
+}  
+
+/** 
+ * 删除 memcached 中的任何现有值。 
+ * @param key 
+ * @param expire 过期时间 New Date(1000*10)：十秒后过期 
+ * @return 
+ */  
+@SuppressWarnings(&quot;deprecation&quot;)
+private static boolean deleteExp(String key, Date expire) {  
+    boolean flag = false;  
+    try {  
+        flag = cachedClient.delete(key, expire);  
+    } catch (Exception e) {  
+        MemcachedLog.writeLog(&quot;Memcached delete方法报错，key值：&quot; + key + &quot;\r\n&quot; + exceptionWrite(e));  
+    }  
+    return flag;  
+}  
+
+/** 
+ * 清理缓存中的所有键/值对 
+ * @return 
+ */  
+public static boolean flashAll() {  
+    boolean flag = false;  
+    try {  
+        flag = cachedClient.flushAll();  
+    } catch (Exception e) {  
+        MemcachedLog.writeLog(&quot;Memcached flashAll方法报错\r\n&quot; + exceptionWrite(e));  
+    }  
+    return flag;  
+}  
+
+/** 
+ * 返回异常栈信息，String类型 
+ * @param e 
+ * @return 
+ */  
+private static String exceptionWrite(Exception e) {  
+    StringWriter sw = new StringWriter();  
+    PrintWriter pw = new PrintWriter(sw);  
+    e.printStackTrace(pw);  
+    pw.flush();  
+    return sw.toString();  
+}  
+</code></pre></li>
+</ul>
+<ul>
+<li>4 测试方法:<pre><code>@Test
+public void testMemcachedSpring() throws Exception { 
+    new ClassPathXmlApplicationContext(&quot;memcached/spring-memcached.xml&quot;);
+    MemcachedUtils.set(&quot;aa&quot;, &quot;bb&quot;, new Date(1000*10));  //10秒过期
+    Object obj = MemcachedUtils.get(&quot;aa&quot;);  
+    System.out.println(&quot;***************************&quot;);  
+    System.out.println(obj.toString());  
+    //sleep 15秒
+    Thread.sleep(15000);
+    System.out.println(MemcachedUtils.get(&quot;aa&quot;));  //print null
+}  
+</code></pre></li>
+</ul>
+</div><div class="tags"><a href="/tags/分布式java基础应用和实践/">分布式java基础应用和实践</a></div><div class="post-nav"><a class="pre" href="/2016/08/11/大型分布式网站--2 分布式系统基础设施(3 memcached-session)/">大型分布式网站--2 分布式系统基础设施(3 memcached-session)</a><a class="next" href="/2016/08/10/大型分布式网站--3 互联网安全架构(3认证和协议)/">大型分布式网站--3 互联网安全架构(3认证和协议)</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

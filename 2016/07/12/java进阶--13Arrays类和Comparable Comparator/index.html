@@ -1,0 +1,258 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>java进阶--13Arrays类和对象比较 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">java进阶--13Arrays类和对象比较</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">java进阶--13Arrays类和对象比较</h1><div class="post-meta">Jul 12, 2016<span> | </span><span class="category"><a href="/categories/Java/">Java</a></span></div><div class="post-content"><h4 id="1-Arrasys"><a href="#1-Arrasys" class="headerlink" title="1 Arrasys"></a>1 Arrasys</h4><p>Arrays 主要用到方法:</p>
+<ul>
+<li>Arrays.sort();//排序</li>
+<li>Arrays.banarySearch(Object[] arr, object obj);//二分查找法,但是在调用此方法之前需要先sort</li>
+<li>Arrays.equals(Object[] arr1, Object[] arr2);//比较,只有当长度,并且对应每个位置的元素值相等时才是true</li>
+<li><p>Arrays.fill();填充</p>
+<pre><code>/**
+ * ArraysDemo.java created at Jun 20, 2016 10:55:11 PM
+ */
+package com.mnuocom.javapenetrateinto.arraycomparate;
+
+import java.util.Arrays;
+
+/**
+ * @author saxon
+ * Arrays 主要用到方法:
+ *     Arrays.sort();//排序
+ *  Arrays.banarySearch(Object[] arr, object obj);//二分查找法,但是在调用此方法之前需要先sort
+ *  Arrays.equals(Object[] arr1, Object[] arr2);//比较,只有当长度,并且对应每个位置的元素值相等时才是true
+ *  Arrays.fill();填充
+ */
+public class ArraysDemo {
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        int[] arr1 = new int[]{30,10,4,22};
+        Arrays.sort(arr1);//比较
+        System.out.println(Arrays.toString(arr1));
+
+        int[] arr2 = new int[]{30,10,4,22,44};
+        Arrays.sort(arr2);//比较
+        System.out.println(Arrays.binarySearch(arr2, 10));
+        System.out.println(Arrays.binarySearch(arr2, 5));
+
+        System.out.println(arr1.equals(arr2));
+        System.out.println(Arrays.equals(arr1, arr2));
+
+        Arrays.fill(arr1, 50);
+        System.out.println(Arrays.toString(arr1));
+    }
+
+}
+</code></pre></li>
+</ul>
+<h4 id="2-Comparable"><a href="#2-Comparable" class="headerlink" title="2 Comparable"></a>2 Comparable</h4><ul>
+<li><p>要实现对象的比较排序,对象要实现comparable接口,并且实现conparaTo(Object o)方法</p>
+<pre><code>/**
+ * @author saxon
+ * 要实现对象的比较排序,对象要实现comparable接口,并且实现conparaTo(Object o)方法
+ */
+public class ComparableDemo {
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        Person[] arr = new Person[]{
+                            new Person(&quot;张三&quot;, 22),
+                            new Person(&quot;李四&quot;, 12),
+                            new Person(&quot;王五&quot;, 32),
+                            new Person(&quot;赵六&quot;, 21),
+                            new Person(&quot;前妻&quot;, 20)
+                        };
+        Arrays.sort(arr);
+        System.out.println(Arrays.toString(arr));
+    }
+
+}
+class Person implements Comparable&lt;Object&gt;{
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+</code></pre></li>
+</ul>
+<pre><code>    @Override
+    public String toString() {
+        return &quot;\n{name: &quot; + this.name + &quot; ,age: &quot; + this.age + &quot;}&quot;;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Person person = (Person) o;
+        return this.age - person.age;
+    }
+
+}
+</code></pre><h4 id="3-Comparator"><a href="#3-Comparator" class="headerlink" title="3 Comparator"></a>3 Comparator</h4><ul>
+<li><p>Comparator 接口是重新编写一个比较类实现Comparator接口,重写compare方法</p>
+<pre><code>/**
+ * @author saxon
+ * Comparator 接口是重新编写一个比较类实现Comparator接口,重写compare方法
+ * Comparator和Comparable的区别:
+ *     1 Comparable 和 Comparator 都是实现对象排序的接口
+ *  2 java.lang.Comparable 是类在定义的时候实现comparable接口,方法里面重写comparato
+ *  3 java.util.Comparator 是当对象需要比较排序的时候单独定义一个比较规则类,这个类里面有compare()和equals方法
+ * 
+ */
+public class ComparatorDemo {
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        Person1[] arr = new Person1[]{
+                new Person1(&quot;张三&quot;, 22),
+                new Person1(&quot;李四&quot;, 12),
+                new Person1(&quot;王五&quot;, 32),
+                new Person1(&quot;赵六&quot;, 21),
+                new Person1(&quot;前妻&quot;, 20)
+            };
+            Arrays.sort(arr, new PersonComparator());
+            System.out.println(Arrays.toString(arr));
+
+    }
+
+}
+class PersonComparator implements Comparator&lt;Person1&gt;{
+
+    @Override
+    public int compare(Person1 o1, Person1 o2) {
+        return o1.getAge() - o2.getAge();
+    }
+
+}
+class Person1{
+    private String name;
+    private int age;
+
+    public Person1(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;\n{name: &quot; + this.name + &quot; ,age: &quot; + this.age + &quot;}&quot;;
+    }
+}
+</code></pre></li>
+</ul>
+<h4 id="4-Comparable和Comparator区别"><a href="#4-Comparable和Comparator区别" class="headerlink" title="4 Comparable和Comparator区别"></a>4 Comparable和Comparator区别</h4><ul>
+<li>1 Comparable 和 Comparator 都是实现对象排序的接口</li>
+<li>2 java.lang.Comparable 是类在定义的时候实现comparable接口,方法里面重写comparato</li>
+<li>3 java.util.Comparator 是当对象需要比较排序的时候单独定义一个比较规则类,这个类里面有compare()和equals方法</li>
+</ul>
+<h4 id="5-二叉数"><a href="#5-二叉数" class="headerlink" title="5 二叉数"></a>5 二叉数</h4><pre><code>/**
+ * @author saxon
+ * 通过comparable实现二叉树
+ */
+public class BinaryTreeDemo {
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        BinaryTree bt = new BinaryTree();
+        bt.add(new Person(&quot;张三&quot;, 22));
+        bt.add(new Person(&quot;李四&quot;, 12));
+        bt.add(new Person(&quot;王五&quot;, 32));
+        bt.add(new Person(&quot;赵六&quot;, 21));
+        bt.add(new Person(&quot;前妻&quot;, 20));
+        Object[] objects = bt.toArray();
+        System.out.println(Arrays.toString(objects));
+    }
+
+}
+class BinaryTree {
+    class Node{
+        private Comparable&lt;Object&gt; data;
+
+        public Node(Comparable&lt;Object&gt; data){
+            this.data = data;
+        }
+        private Node left;
+        private Node right;
+
+        public void addNode(Node newNode){
+            if(this.data.compareTo(newNode.data) &gt; 0){
+                if(this.left == null){
+                    this.left = newNode;
+                }else{
+                    this.left.addNode(newNode);
+                }
+            }else{
+                if(this.right == null){
+                    this.right = newNode;
+                }else{
+                    this.right.addNode(newNode);
+                }
+            }
+        }
+
+        public void toArrayNode(){
+            if(this.left != null){
+                this.left.toArrayNode();
+            }
+            BinaryTree.this.result[BinaryTree.this.index ++] = this.data;
+            if(this.right != null){
+                this.right.toArrayNode();
+            }
+        }
+    }
+    private Node root;//根节点
+    private int count = 0;//node节点数
+    private int index = 0;//
+    private Object[] result;
+
+    public void add(Comparable&lt;Object&gt; obj){
+        if(this.root == null){
+            this.root = new Node(obj);
+        }else{
+            this.root.addNode(new Node(obj));
+        }
+        count ++;
+    }
+
+    public Object[] toArray(){
+        if(this.count &gt; 0){
+            this.index = 0;
+            this.result = new Object[this.count];
+            this.root.toArrayNode();
+            return this.result;
+        }else{
+            return null;
+        }
+    }
+}
+</code></pre></div><div class="tags"><a href="/tags/java/">java</a></div><div class="post-nav"><a class="pre" href="/2016/07/12/java进阶--15map/">java进阶--15Map</a><a class="next" href="/2016/07/12/java进阶--12文件/">java进阶--12文件</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

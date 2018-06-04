@@ -1,0 +1,321 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>常用SQL技巧和常见问题 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">常用SQL技巧和常见问题</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">常用SQL技巧和常见问题</h1><div class="post-meta">Jul 12, 2016<span> | </span><span class="category"><a href="/categories/MySQL/">MySQL</a></span></div><div class="post-content"><h4 id="1-正则表达式的使用"><a href="#1-正则表达式的使用" class="headerlink" title="1 正则表达式的使用"></a>1 正则表达式的使用</h4><pre><code>^            在字符串开始处进行匹配
+
+$            在字符串的末尾进行匹配
+
+.            在匹配任意单个字符，包括换行符
+
+[...]        匹配出括号内的任意字符
+
+[^...]        匹配不出括号内的任意字符
+
+a*            匹配0个或多个a（包括空串）
+
+a+            匹配1个或多个a（不包换空串）        
+
+a？         匹配 1 个或零个 a
+
+a1|a2       匹配 a1 或 a2
+
+a(m)        匹配 m 个 a
+
+a(m,)       匹配 m 个或更多个 a
+
+a(m,n)      匹配 m 到 n 个 a
+
+a(,n)       匹配 0 到 n 个 a
+
+（…）       将模式元素组成单一元素
+</code></pre><blockquote>
+</blockquote>
+<pre><code>mysql&gt; select &apos;abcdefg&apos; REGEXP &apos;g$&apos;;
++-----------------------+
+| &apos;abcdefg&apos; REGEXP &apos;g$&apos; |
++-----------------------+
+|                     1 | 
++-----------------------+
+1 row in set (0.10 sec)
+mysql&gt; select &apos;tabcgefg&apos; REGEXP &apos;a&apos;;
++-----------------------+
+| &apos;tabcgefg&apos; REGEXP &apos;a&apos; |
++-----------------------+
+|                     1 | 
++-----------------------+
+1 row in set (0.04 sec)
+</code></pre><ul>
+<li><p>使用：</p>
+<pre><code>mysql&gt; select name, email from t where email REGEXP &apos;@163[.,]com$&apos;;
+
++------------+--------------------+
+
+| name       | email              |
+
++------------+--------------------+
+
+| beijing    | beijing@163.com    | 
+
+| beijing126 | beijin125g@163.com | 
+
+| beijing188 | beijin1g@163.com   | 
+
++------------+--------------------+
+
+3 rows in set (0.04 sec)
+</code></pre></li>
+<li><p>巧用rand() 提取随机行</p>
+<pre><code> mysql&gt; select * from t order by rand() limit 1;
+
++---------+-----------------+
+
+| name    | email           |
+
++---------+-----------------+
+
+| beijing | beijing@163.com | 
+
++---------+-----------------+
+
+1 row in set (0.04 sec)
+</code></pre></li>
+</ul>
+<ul>
+<li><p>利用Group by 的with rollup自句做统计<br>使用GROUP BY的WITH ROLLUP字句可以检索出更多的分组聚合信息，它不仅仅能像一般的GROUP BY语句那样检索出各组的聚合信息，还能检索出本组类的整体聚合信息，具体如下例所示。</p>
+<pre><code>mysql&gt; select year, country, product, sum(profit) from sales group by year, country, product;
+
++------+---------+---------+-------------+
+
+| year | country | product | sum(profit) |
+
++------+---------+---------+-------------+
+
+| 2004 | china   | tnt1    |        2001 | 
+
+| 2004 | china   | tnt2    |        2002 | 
+
+| 2004 | china   | tnt3    |        2003 | 
+
+| 2005 | china   | tnt1    |        4011 | 
+
+| 2005 | china   | tnt2    |        4013 | 
+
+| 2005 | china   | tnt3    |        4015 | 
+
+| 2006 | china   | tnt1    |        2010 | 
+
+| 2006 | china   | tnt2    |        2011 | 
+
+| 2006 | china   | tnt3    |        2012 | 
+
++------+---------+---------+-------------+
+
+9 rows in set (0.05 sec)
+
+mysql&gt; select year, country, product, sum(profit) from sales group by year, country, product with rollup;
+
++------+---------+---------+-------------+
+
+| year | country | product | sum(profit) |
+
++------+---------+---------+-------------+
+
+| 2004 | china   | tnt1    |        2001 | 
+
+| 2004 | china   | tnt2    |        2002 | 
+
+| 2004 | china   | tnt3    |        2003 | 
+
+| 2004 | china   | NULL    |        6006 | 
+
+| 2004 | NULL    | NULL    |        6006 | 
+
+| 2005 | china   | tnt1    |        4011 | 
+
+| 2005 | china   | tnt2    |        4013 | 
+
+| 2005 | china   | tnt3    |        4015 | 
+
+| 2005 | china   | NULL    |       12039 | 
+
+| 2005 | NULL    | NULL    |       12039 | 
+
+| 2006 | china   | tnt1    |        2010 | 
+
+| 2006 | china   | tnt2    |        2011 | 
+
+| 2006 | china   | tnt3    |        2012 | 
+
+| 2006 | china   | NULL    |        6033 | 
+
+| 2006 | NULL    | NULL    |        6033 | 
+
+| NULL | NULL    | NULL    |       24078 | 
+
++------+---------+---------+-------------+
+
+16 rows in set (0.06 sec)
+</code></pre></li>
+<li><p>用 BIT GROUP FUNCTIONS 做统计</p>
+<pre><code>mysql&gt; create table order_rab(id int, customer_id int, kind int);
+
+Query OK, 0 rows affected (0.13 sec)
+
+mysql&gt; insert into order_rab values(1,1,5),(2,1,5),(3,2,3),(4,2,4);
+
+Query OK, 4 rows affected (0.04 sec)
+
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql&gt; select * from order_rab;
+
++------+-------------+------+
+
+| id   | customer_id | kind |
+
++------+-------------+------+
+
+|    1 |           1 |    5 | 
+
+|    2 |           1 |    5 | 
+
+|    3 |           2 |    3 | 
+
+|    4 |           2 |    4 | 
+
++------+-------------+------+
+
+4 rows in set (0.03 sec)
+
+mysql&gt; select customer_id,bit_or(kind) from order_rab group by customer_id;
+
++-------------+--------------+
+
+| customer_id | bit_or(kind) |
+
++-------------+--------------+
+
+|           1 |            5 | 
+
+|           2 |            7 | 
+
++-------------+--------------+
+
+2 rows in set (0.05 sec)
+
+mysql&gt; select customer_id,bit_and(kind) from order_rab group by customer_id;
+
++-------------+---------------+
+
+| customer_id | bit_and(kind) |
+
++-------------+---------------+
+
+|           1 |             5 | 
+
+|           2 |             0 | 
+
++-------------+---------------+
+
+2 rows in set (0.04 sec)
+</code></pre></li>
+</ul>
+<h4 id="数据库名-表名的大小写问题"><a href="#数据库名-表名的大小写问题" class="headerlink" title="数据库名,表名的大小写问题:"></a>数据库名,表名的大小写问题:</h4><p>操作系统是CentOS。部分服务器的操作系统又是Windows。 出现了一个小毛病。那就是MySQL大小写的问题。 在CentOS安装的MySQL的配置文件中(/etc/my.cnf)，是没有lower_case_table_names=1这行的。 在Windows安装的MySQL的配置文件中(my.ini)，是有lower_case_table_names=1这行的。 lower_case_table_names=1的用途是让MySQL实现不区分大小写。 所以当时出了些毛病，后来才发现是这个的问题。连忙在CentOS中的my.cnf(/etc/my.cnf)的[mysqld]区段下增加: lower_case_table_names=1</p>
+<h4 id="使用外键需要注意的问题"><a href="#使用外键需要注意的问题" class="headerlink" title="使用外键需要注意的问题"></a>使用外键需要注意的问题</h4><p>在MySQL中，INNODB 存储引擎支持对外部关键字约束条件的检查，而对于其他类型存储的表，当使用references tabl_name(col_name)自句定义列时可以使用外部关键字，但是该自句没有实际的效果，之作为备忘录或注释来提醒用户目前正定义的列指向另一个表中的一个列。</p>
+<ul>
+<li><p>myisam表外键不起作用:</p>
+<pre><code>mysql&gt; create table users(id int, name varchar(10), primary key(id))engin=myisam;
+
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near &apos;engin=myisam&apos; at line 1
+
+mysql&gt; create table users(id int, name varchar(10), primary key(id))engine=myisam;
+
+mysql&gt; create table books(id int, bookname varchar(10), userid int,primary key(id),constraint fk_userid_id foreign key(userid) references users(id))engine=myisam;
+
+Query OK, 0 rows affected (0.05 sec)
+
+mysql&gt; insert into books values(1,&apos;book1&apos;,1);
+
+Query OK, 1 row affected (0.04 sec)
+</code></pre></li>
+<li><p>innodb 表外键起作用</p>
+<pre><code>mysql&gt; create table users2(id int,name varchar(10), primary key(id)) engine=innodb;
+
+Query OK, 0 rows affected (0.10 sec)
+
+mysql&gt; create table books2(id int, bookname varchar(10),userid int,primary key(id),constraint fk_userid_id foreign key(userid) references users2(id))engine=innodb;
+
+Query OK, 0 rows affected (0.13 sec)
+
+mysql&gt; insert into books2 values(1,&apos;book1&apos;,1);
+
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`test`.`books2`, CONSTRAINT `fk_userid_id` FOREIGN KEY (`userid`) REFERENCES `users2` (`id`))
+
+mysql&gt; 
+</code></pre><ul>
+<li><p>查看：</p>
+<pre><code>mysql&gt; show table status from test where name=&apos;books&apos;\G;
+
+*************************** 1. row ***************************
+
+           Name: books
+
+         Engine: InnoDB
+
+        Version: 10
+
+     Row_format: Compact
+
+           Rows: 0
+
+ Avg_row_length: 0
+
+    Data_length: 16384
+
+Max_data_length: 0
+
+   Index_length: 16384
+
+      Data_free: 0
+
+ Auto_increment: NULL
+
+    Create_time: 2016-06-07 15:15:39
+
+    Update_time: NULL
+
+     Check_time: NULL
+
+      Collation: latin1_swedish_ci
+
+       Checksum: NULL
+
+ Create_options: 
+
+        Comment: 
+
+1 row in set (0.03 sec)
+
+mysql&gt; show create table users\G;
+
+*************************** 1. row ***************************
+
+       Table: users
+
+Create Table: CREATE TABLE `users` (
+
+  `id` int(11) NOT NULL DEFAULT &apos;0&apos;,
+
+  `name` varchar(10) DEFAULT NULL,
+
+  PRIMARY KEY (`id`)
+
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+1 row in set (0.04 sec)
+
+ERROR: 
+
+No query specified
+</code></pre></li>
+</ul>
+</li>
+</ul>
+</div><div class="tags"><a href="/tags/MySql/">MySql</a></div><div class="post-nav"><a class="pre" href="/2016/07/12/SQL Mode/">SQL Mode</a><a class="next" href="/2016/07/12/mysql安全和SQL注入/">mysql安全和SQL注入</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hadoop MapReduce初步认识 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hadoop MapReduce初步认识</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hadoop MapReduce初步认识</h1><div class="post-meta">May 18, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><h3 id="1-什么是MapReduce"><a href="#1-什么是MapReduce" class="headerlink" title="1 什么是MapReduce"></a>1 什么是MapReduce</h3><pre><code>MapReduce是一个计算框架,既然是计算框架,表现形式就是有个input输入,MapReduce操作这个input,通过本身定义好的计算模型,得到一个output输出。
+</code></pre><h3 id="2-Mapreduce运行机制"><a href="#2-Mapreduce运行机制" class="headerlink" title="2 Mapreduce运行机制"></a>2 Mapreduce运行机制</h3><h4 id="2-1-Mapreduce架构"><a href="#2-1-Mapreduce架构" class="headerlink" title="2.1 Mapreduce架构"></a>2.1 Mapreduce架构</h4><ul>
+<li><p>主从架构: </p>
+<pre><code>主节点: 只有一个JobTracker
+从节点: 有很多个TaskTrackers
+</code></pre></li>
+<li>JobTracker <pre><code>- 接受客户端提交的计算任务
+- 把计算任务分配给TaskTrackers执行
+- 监控TaskTracker执行情况
+</code></pre></li>
+<li>TaskTrackers<pre><code>- 执行JobTracker分配的计算任务
+</code></pre></li>
+</ul>
+<h4 id="2-2-Mapreduce作业运行机制"><a href="#2-2-Mapreduce作业运行机制" class="headerlink" title="2.2 Mapreduce作业运行机制"></a>2.2 Mapreduce作业运行机制</h4><pre><code>太烦,TODO一下
+</code></pre><h3 id="3-实例"><a href="#3-实例" class="headerlink" title="3 实例"></a>3 实例</h3><ul>
+<li><p>1 准备数据</p>
+<pre><code>hadoop@master:~/datafile$ vim words.txt
+hadoop@master:~/datafile$ cat words.txt
+hello world, hello me, hello you!
+
+hadoop@master:~/datafile$ cd ~/hadoop-2.7.3/
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -put /home/hadoop/datafile/words.txt /
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /
+Found 2 items
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 07:50 /tmp
+-rw-r--r--   1 hadoop supergroup         50 2017-05-14 12:00 /words.txt
+hadoop@master:~/hadoop-2.7.3$
+</code></pre></li>
+<li><p>2 代码示例</p>
+<pre><code>package org.monuo.myhadoop.mapreduce;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
+
+/**
+ * 单词统计
+ * @author saxon
+ */
+public class WordCount {
+    /**
+     * Mapper 类
+     * @author saxon
+     */
+    public static class WordCountMapper extends MapReduceBase implements Mapper&lt;Object, Text, Text, IntWritable&gt;{
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+        /**
+         * map 方法完成工作就是读取文件,将文件中每个单词作为key键,值设置为1,然后将此键值对设置为map的输出,即reduce的输入
+         */
+        public void map(Object key, Text value, OutputCollector&lt;Text, IntWritable&gt; output, Reporter reporter)
+                throws IOException {
+            /**
+             * StringTokenizer: 字符串分隔解析类型.
+             * 1, StringTokenizer(String str): 构造一个用来解析str的StringTokenizer对象.java默认的分隔符是空格,制表符(\t),换行符(\n),回车键(\r)
+             * 2, StringTokenizer(String str, String delim):  构造一个用来解析str的StringTokenizer对象,并提供一个指定的分隔符
+             * 3, StringTokenizer(String str, String delim, boolean returnDelim): 构造一个用来解析str的StringTokenizer对象,并指定一个分隔符,同时指定是否返回分隔符
+             */
+            StringTokenizer itr = new StringTokenizer(value.toString());
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                output.collect(word, one);
+            }
+        }
+    }
+    /**
+     * Reduce类
+     * @author saxon
+     */
+    public static class WordCountReduce extends MapReduceBase implements Reducer&lt;Text, IntWritable, Text, IntWritable&gt;{
+        private IntWritable result = new IntWritable();
+        /**
+         * reduce的输入即是Map的输出,将相同键的单词的值进行统计累加,即可得出单词的统计个数,最后把单词作为键的,单词的个数作为值,输出到设置的文件中保存
+         */
+        public void reduce(Text key, Iterator&lt;IntWritable&gt; values, OutputCollector&lt;Text, IntWritable&gt; output,
+                Reporter reporter) throws IOException {
+            int sum = 0;
+            while(values.hasNext()){
+                sum += values.next().get();
+            }
+            result.set(sum);
+            output.collect(key, result);
+        }
+
+    }
+    /**
+     * @param args
+     * @throws IOException 
+     */
+    public static void main(String[] args) throws IOException {
+        System.setProperty(&quot;hadoop.home.dir&quot;, &quot;D:/appservers/hadoop-2.7.3&quot;);
+        String input = &quot;hdfs://192.168.159.132:9000/words.txt&quot;;//数据输入路径
+        String output = &quot;hdfs://192.168.159.132:9000/out&quot;;//输出路径设置为HDFS根目录下的out文件夹下,该目录不应该存在,否则出错
+
+        JobConf jobConf = new JobConf(WordCount.class);
+        jobConf.setJobName(&quot;WordCount&quot;);
+//        jobConf.addResource(&quot;classpath:/core-site.xml&quot;);
+//        jobConf.addResource(&quot;classpath:/mapreduce-site.xml&quot;);
+//        jobConf.addResource(&quot;classpath:/hdfs-site.xml&quot;);
+
+        jobConf.setOutputKeyClass(Text.class);//对应单词字符串
+        jobConf.setOutputValueClass(IntWritable.class);//对应单词的统计个数 int类型
+
+        jobConf.setMapperClass(WordCountMapper.class);//设置mapper类
+        //设置合并函数,合并函数的输出作为reduce的输入,提高性能,能有效降低map和reduce之间的数据传输量但是合并函数不能滥用,需要集合具体业务。
+        //由于本次应用是统计单子个数,所以使用合并函数不会对结果或者业务逻辑结果产生任何影响。例如:我们统计单词出现的平均值的业务逻辑时,就不能使用合并函数。此时使用,会影响最终结果
+        jobConf.setCombinerClass(WordCountReduce.class);
+        jobConf.setReducerClass(WordCountReduce.class);//设置reduce类
+
+        //设置输入格式,TextInputFormat是默认的输入格式,这里可以不写。它产生的键类型是LongWritable(代表文件中开始的偏移量),值类型是Text(文本类型)
+        jobConf.setInputFormat(TextInputFormat.class);
+        //设置输出格式,TextOutputFormat是默认的输出格式,每条记录写为文本行,它的键和值可以是任意类型,输出回调用toString(),输入字符串写入文本中,默认键和值使用制表符分隔
+        jobConf.setOutputFormat(TextOutputFormat.class);
+
+        FileInputFormat.setInputPaths(jobConf, new Path(input));//设置输入文件的路径
+        FileOutputFormat.setOutputPath(jobConf, new Path(output));//设置输出数据文件路径(该路径不能存在,否则报错)
+
+        JobClient.runJob(jobConf);//启动MapReduce
+
+        System.exit(0);
+    }
+
+}
+</code></pre></li>
+<li><p>查看结果</p>
+<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls /
+Found 4 items
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 15:35 /out
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 07:50 /tmp
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 12:29 /user
+-rw-r--r--   1 hadoop supergroup         50 2017-05-14 12:00 /words.txt
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -lsr /out
+lsr: DEPRECATED: Please use &apos;ls -R&apos; instead.
+-rw-r--r--   3 hadoop supergroup          0 2017-05-14 15:35 /out/_SUCCESS
+-rw-r--r--   3 hadoop supergroup         49 2017-05-14 15:35 /out/part-00000
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -cat /out/_SUCCESS
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -cat /out/part-00000
+fuck    1
+hello   3
+japanese!       1
+me,     1
+world,  1
+you,    1
+</code></pre></li>
+</ul>
+<h3 id="4-命令-hadoop-fs-rmr-hdfs-centos-9000"><a href="#4-命令-hadoop-fs-rmr-hdfs-centos-9000" class="headerlink" title="4 命令: hadoop fs -rmr hdfs://centos:9000/*"></a>4 命令: hadoop fs -rmr hdfs://centos:9000/*</h3><pre><code>这句命令的意思是删除HDFS根目录下的所有文件！！！ 
+当我们在测试开发阶段，特别是我所使用的是伪分布模式，所有的文件都是保存在我的本机的，如果测试所用文件很多，我们使用这个命令可以有效清除一些测试中间生成的文件，为我们本次测试清除文件。
+</code></pre><p>主要参考文章:<br>    <a href="http://blog.csdn.net/u010156024/article/details/50117659" target="_blank" rel="noopener">http://blog.csdn.net/u010156024/article/details/50117659</a><br>    <a href="http://blog.jobbole.com/84089/" target="_blank" rel="noopener">http://blog.jobbole.com/84089/</a></p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/19/hadoop系列学习/Hadoop MapReduce简单应用--Web日志分析/">Hadoop Web日志分析以及MapReduce简单应用</a><a class="next" href="/2017/05/18/hadoop系列学习/Hadoop HDFS调用/">Hadoop 调用HDFS</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

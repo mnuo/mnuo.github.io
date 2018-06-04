@@ -1,0 +1,322 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>spring security 系列1 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">spring security 系列1</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">spring security 系列1</h1><div class="post-meta">Jun 20, 2017<span> | </span><span class="category"><a href="/categories/SSH/">SSH</a></span></div><div class="post-content"><p>Spring Security是一种基于spring aop和servlet过滤器的安全框架;它提供全面的安全性解决方案,同时在web请求级和方法调用级处理身份确认和授权。在Spring framework基础上充分利用依赖注入(DI,dependency Injection)和面向切面技术。</p>
+<h3 id="1-Spring4-Springmvc4-SpringSecurity4入门配置"><a href="#1-Spring4-Springmvc4-SpringSecurity4入门配置" class="headerlink" title="1 Spring4+Springmvc4+SpringSecurity4入门配置"></a>1 Spring4+Springmvc4+SpringSecurity4入门配置</h3><ul>
+<li><p>用到的jar</p>
+<pre><code>&lt;!-- SpringSecurity jar--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-config&lt;/artifactId&gt;
+    &lt;version&gt;${spring.security.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-core&lt;/artifactId&gt;
+    &lt;version&gt;${spring.security.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-web&lt;/artifactId&gt;
+    &lt;version&gt;${spring.security.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-acl&lt;/artifactId&gt;
+    &lt;version&gt;${spring.security.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-taglibs&lt;/artifactId&gt;
+    &lt;version&gt;${spring.security.version}&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+<li><p>web.xml 添加拦截配置</p>
+<pre><code>&lt;!-- spring security 过滤器--&gt;
+&lt;filter&gt;
+    &lt;filter-name&gt;springSecurityFilterChain&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;springSecurityFilterChain&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</code></pre></li>
+<li><p>spring-security.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;  
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+    xmlns:security=&quot;http://www.springframework.org/schema/security&quot;  
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;  
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+                        http://www.springframework.org/schema/security
+                        http://www.springframework.org/schema/security/spring-security-4.0.xsd&quot;&gt;   
+    &lt;!-- 对登录页面不进行拦截,后面带* 是因为这个请求页面后面可能有参数 --&gt;
+    &lt;security:http pattern=&quot;/loginpage&quot; security=&quot;none&quot; /&gt;
+    &lt;security:http auto-config=&quot;true&quot;&gt;
+        &lt;security:intercept-url pattern=&quot;/admin*&quot; access=&quot;hasRole(&apos;ROLE_ADMIN&apos;)&quot;/&gt;
+        &lt;security:intercept-url pattern=&quot;/welcome*&quot; access=&quot;hasAnyRole(&apos;ROLE_USER&apos;,&apos;ROLE_ADMIN&apos;)&quot;/&gt;
+        &lt;security:intercept-url pattern=&quot;/**&quot; access=&quot;hasRole(&apos;ROLE_USER&apos;)&quot;/&gt;
+        &lt;!-- 指定登录页 --&gt;
+        &lt;security:form-login login-page=&quot;/loginpage&quot; login-processing-url=&quot;/login&quot; always-use-default-target=&quot;true&quot;
+            default-target-url=&quot;/welcome&quot; authentication-failure-url=&quot;/loginpage?error=error&quot;/&gt;
+        &lt;!-- 退出登录 --&gt;
+        &lt;security:logout logout-url=&quot;/logout&quot; logout-success-url=&quot;/loginpage&quot; invalidate-session=&quot;true&quot;/&gt;
+        &lt;!-- 记住登录信息 --&gt;
+        &lt;security:remember-me key=&quot;authorition&quot;/&gt;
+        &lt;!-- 登录成功后拒绝访问跳转的页面:注意 ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替 --&gt;
+        &lt;security:access-denied-handler error-page=&quot;/accessDenied&quot;/&gt;
+        &lt;!-- 关闭csrf: 解决HTTP Status 403 - Expected CSRF token not found. Has your session expired? --&gt;
+        &lt;security:csrf disabled=&quot;true&quot;/&gt;
+    &lt;/security:http&gt;       
+    &lt;!-- 配置认证管理 --&gt;
+    &lt;security:authentication-manager&gt;
+        &lt;security:authentication-provider&gt;
+            &lt;!-- md5方式加密 --&gt;
+            &lt;security:password-encoder hash=&quot;md5&quot;/&gt;
+            &lt;!-- &lt;security:user-service&gt;
+                &lt;security:user name=&quot;admin&quot; password=&quot;21232f297a57a5a743894a0e4a801fc3&quot; authorities=&quot;ROLE_USER&quot;/&gt;
+            &lt;/security:user-service&gt; --&gt;
+            &lt;!-- 数据库方式 默认表users,authorities故而修改默认表查询jn_users... --&gt;
+            &lt;security:jdbc-user-service data-source-ref=&quot;dataSource&quot;
+                users-by-username-query = &quot;select username,password,enabled from jn_users where username = ?&quot;  
+            authorities-by-username-query = &quot;select username,authority from jn_authorities where username = ?&quot;
+            /&gt;
+        &lt;/security:authentication-provider&gt;
+    &lt;/security:authentication-manager&gt;
+&lt;/beans&gt;  
+</code></pre></li>
+<li><p>Springmvc.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;  
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;  
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;  
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd &quot;&gt; 
+    &lt;!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 --&gt;  
+    &lt;mvc:annotation-driven/&gt;
+    &lt;context:component-scan base-package=&quot;org.monuo.jeenuo.controller&quot; /&gt; 
+
+    &lt;!-- 开启 Spring MVC @Controller模式 --&gt;
+    &lt;bean id=&quot;cnManager&quot; class=&quot;org.springframework.web.accept.ContentNegotiationManagerFactoryBean&quot;&gt;  
+        &lt;property name=&quot;ignoreAcceptHeader&quot; value=&quot;true&quot;/&gt;  
+        &lt;property name=&quot;favorPathExtension&quot; value=&quot;true&quot;/&gt;  
+        &lt;property name=&quot;defaultContentType&quot; value=&quot;text/html&quot;/&gt;  
+        &lt;property name=&quot;favorParameter&quot; value=&quot;true&quot;/&gt;  
+        &lt;property name=&quot;mediaTypes&quot;&gt;  
+            &lt;map&gt;  
+                &lt;entry key=&quot;xml&quot; value=&quot;text/xml&quot;/&gt;  
+                &lt;entry key=&quot;json&quot; value=&quot;application/json&quot;/&gt;  
+                &lt;entry key=&quot;xls&quot; value=&quot;application/vnd.ms-excel&quot;/&gt;  
+            &lt;/map&gt;  
+        &lt;/property&gt;  
+    &lt;/bean&gt;
+     &lt;!-- 转换对象 --&gt;
+    &lt;bean id=&quot;jaxb2Marshaller&quot; class=&quot;org.springframework.oxm.jaxb.Jaxb2Marshaller&quot;&gt;
+         &lt;property name=&quot;marshallerProperties&quot;&gt;  
+              &lt;map&gt;  
+                   &lt;entry key=&quot;jaxb.formatted.output&quot;&gt;  
+                        &lt;value type=&quot;boolean&quot;&gt;true&lt;/value&gt;  
+                   &lt;/entry&gt;  
+                   &lt;entry key=&quot;jaxb.encoding&quot; value=&quot;UTF-8&quot; /&gt;  
+              &lt;/map&gt;  
+         &lt;/property&gt;  
+         &lt;property name=&quot;packagesToScan&quot;&gt;  
+              &lt;list&gt;  
+                   &lt;value&gt;org.monuo.jeenuo.entity&lt;/value&gt;  
+              &lt;/list&gt;  
+         &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;!-- 输出为JSON数据 --&gt;
+    &lt;bean id=&quot;mappingJacksonJsonView&quot; class=&quot;org.springframework.web.servlet.view.json.MappingJackson2JsonView&quot;&gt;
+        &lt;property name=&quot;prefixJson&quot; value=&quot;false&quot;/&gt;
+    &lt;/bean&gt;
+
+    &lt;!--输出为XML数据 --&gt;
+    &lt;bean id=&quot;marshallingView&quot; class=&quot;org.springframework.web.servlet.view.xml.MarshallingView&quot;&gt;
+        &lt;constructor-arg ref=&quot;jaxb2Marshaller&quot;/&gt;
+        &lt;property name=&quot;marshaller&quot;&gt; 
+             &lt;bean class=&quot;org.springframework.oxm.xstream.XStreamMarshaller&quot;/&gt; 
+         &lt;/property&gt; 
+    &lt;/bean&gt;
+     &lt;!-- 不拦截静态文件 --&gt;
+    &lt;mvc:resources location=&quot;/&quot; mapping=&quot;/*.js&quot;/&gt;
+    &lt;mvc:resources location=&quot;/&quot; mapping=&quot;/*.css&quot;/&gt;
+    &lt;mvc:resources location=&quot;/static/&quot; mapping=&quot;/static/**&quot;/&gt;  
+    &lt;mvc:default-servlet-handler/&gt;  
+
+    &lt;!-- 定义跳转的文件的前后缀 ，视图模式配置--&gt;  
+    &lt;bean class=&quot;org.springframework.web.servlet.view.InternalResourceViewResolver&quot;&gt;  
+        &lt;!-- 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 --&gt;  
+        &lt;property name=&quot;prefix&quot; value=&quot;/&quot; /&gt;  
+        &lt;property name=&quot;suffix&quot; value=&quot;.jsp&quot; /&gt;  
+    &lt;/bean&gt;
+    &lt;!-- 配置文件上传，如果没有使用文件上传可以不用配置，当然如果不配，那么配置文件中也不必引入上传组件包 --&gt;  
+    &lt;bean id=&quot;multipartResolver&quot;    
+        class=&quot;org.springframework.web.multipart.commons.CommonsMultipartResolver&quot;&gt;    
+        &lt;!-- 默认编码 --&gt;  
+        &lt;property name=&quot;defaultEncoding&quot; value=&quot;utf-8&quot; /&gt;    
+        &lt;!-- 文件大小最大值 --&gt;  
+        &lt;property name=&quot;maxUploadSize&quot; value=&quot;10485760000&quot; /&gt;    
+        &lt;!-- 内存中的最大值 --&gt;  
+        &lt;property name=&quot;maxInMemorySize&quot; value=&quot;40960&quot; /&gt;    
+    &lt;/bean&gt;
+&lt;/beans&gt;
+</code></pre></li>
+<li><p>spring-mybatis.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;  
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot;  
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;  
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd    
+                        http://www.springframework.org/schema/tx
+                        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+                        http://www.springframework.org/schema/aop
+                        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+                        http://www.springframework.org/schema/util
+                        http://www.springframework.org/schema/util/spring-util-4.3.xsd&quot;&gt;  
+    &lt;!-- 引入配置文件 --&gt;  
+    &lt;bean id=&quot;propertyConfigurer&quot;  
+        class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;  
+        &lt;property name=&quot;location&quot; value=&quot;classpath:jdbc.properties&quot; /&gt;  
+    &lt;/bean&gt;  
+    &lt;bean id=&quot;dataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;  
+        destroy-method=&quot;close&quot;&gt;  
+        &lt;property name=&quot;driverClassName&quot; value=&quot;${jdbc.driver}&quot; /&gt;  
+        &lt;property name=&quot;url&quot; value=&quot;${jdbc.url}&quot; /&gt;  
+        &lt;property name=&quot;username&quot; value=&quot;${jdbc.username}&quot; /&gt;  
+        &lt;property name=&quot;password&quot; value=&quot;${jdbc.password}&quot; /&gt;  
+        &lt;!-- 初始化连接大小 --&gt;  
+        &lt;property name=&quot;initialSize&quot; value=&quot;${jdbc.initialSize}&quot;&gt;&lt;/property&gt;  
+        &lt;!-- 连接池最大数量 --&gt;  
+        &lt;property name=&quot;maxActive&quot; value=&quot;${jdbc.maxActive}&quot;&gt;&lt;/property&gt;  
+        &lt;!-- 连接池最大空闲 --&gt;  
+        &lt;property name=&quot;maxIdle&quot; value=&quot;${jdbc.maxIdle}&quot;&gt;&lt;/property&gt;  
+        &lt;!-- 连接池最小空闲 --&gt;  
+        &lt;property name=&quot;minIdle&quot; value=&quot;${jdbc.minIdle}&quot;&gt;&lt;/property&gt;  
+        &lt;!-- 获取连接最大等待时间 --&gt;  
+        &lt;property name=&quot;maxWait&quot; value=&quot;${jdbc.maxWait}&quot;&gt;&lt;/property&gt;  
+    &lt;/bean&gt;  
+
+    &lt;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --&gt;  
+    &lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;  
+        &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;  
+        &lt;!-- 自动扫描mapping.xml文件 --&gt;  
+        &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:mapping/*.xml&quot;&gt;&lt;/property&gt;  
+    &lt;/bean&gt;  
+
+    &lt;!-- DAO接口所在包名，Spring会自动查找其下的类 --&gt;  
+    &lt;bean class=&quot;org.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;  
+        &lt;property name=&quot;basePackage&quot; value=&quot;org.monuo.jeenuo.dao&quot; /&gt;  
+        &lt;property name=&quot;sqlSessionFactoryBeanName&quot; value=&quot;sqlSessionFactory&quot;&gt;&lt;/property&gt;  
+    &lt;/bean&gt;  
+
+    &lt;!-- (事务管理)transaction manager, use JtaTransactionManager for global tx --&gt;  
+    &lt;bean id=&quot;transactionManager&quot;  
+        class=&quot;org.springframework.jdbc.datasource.DataSourceTransactionManager&quot;&gt;  
+        &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;  
+    &lt;/bean&gt;  
+&lt;/beans&gt;  
+</code></pre></li>
+<li><p>controller</p>
+<pre><code>@RequestMapping(value = &quot;/loginpage&quot;)  
+public String loginPage(@RequestParam(value = &quot;error&quot;, required = false) String error, Model model) {  
+    if (error != null) {
+        return &quot;loginerror&quot;;
+    }
+    return &quot;login&quot;;  
+}  
+@RequestMapping(value={&quot;/welcome&quot;})
+public String welcome(){
+    //获取上下文
+    SecurityContext securityContext = SecurityContextHolder.getContext();
+    //获取认证对象
+    Authentication au = securityContext.getAuthentication();
+    //在认证对象中获取主体对象
+    Object obj = au.getPrincipal();
+    String username = &quot;&quot;;
+    if(obj instanceof UserDetails)
+        username = ((UserDetails) obj).getUsername();
+    else
+        username = obj.toString();
+    System.out.println(&quot;\n======================username: &quot; + username + &quot; obj instanceof UserDetails: &quot; +(obj instanceof UserDetails));
+    return &quot;index&quot;;
+}
+
+@RequestMapping(value={&quot;/accessDenied&quot;})
+public String accessDenied(){
+    return &quot;/accessDenied&quot;;
+}
+@RequestMapping(value={&quot;/admin&quot;})
+public String admin(){
+    return &quot;/admin&quot;;
+}
+</code></pre></li>
+<li>login.jsp <pre><code> &lt;h2&gt;请输入您的用户名与密码&lt;/h2&gt;  
+&lt;form name=&apos;f&apos; action=&apos;${pageContext.request.contextPath }/login&apos; method=&apos;POST&apos;&gt;
+    &lt;table&gt;
+        &lt;tr&gt;
+            &lt;td&gt;用户:&lt;/td&gt;
+            &lt;td&gt;&lt;input type=&apos;text&apos; name=&apos;username&apos; value=&apos;&apos;&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td&gt;密码:&lt;/td&gt;
+            &lt;td&gt;&lt;input type=&apos;password&apos; name=&apos;password&apos; /&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td colspan=&apos;2&apos;&gt;
+                &lt;input id=&quot;remember-me&quot; name=&quot;remember-me&quot; type=&quot;checkbox&quot; checked=&quot;checked&quot;/&gt;自动登录
+            &lt;/td&gt;
+        &lt;/tr&gt;
+        &lt;tr&gt;
+            &lt;td colspan=&apos;2&apos;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;
+                value=&quot;登录&quot; /&gt;&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+&lt;/form&gt;
+</code></pre></li>
+<li><p>index.jsp</p>
+<pre><code>&lt;%@include file=&quot;header.jsp&quot; %&gt;
+&lt;!-- sec:authentication property=&quot;name&quot; 是springSecurity自定义标签库中获取登录者信息 --&gt;
+&lt;h2&gt;Hello &lt;sec:authentication property=&quot;name&quot;/&gt;!这是首页了!&lt;/h2&gt;
+&lt;!-- 有选择的显示连接 --&gt;
+&lt;sec:authorize access=&quot;hasRole(&apos;ROLE_ADMIN&apos;)&quot;&gt;
+    &lt;a href=&quot;admin.jsp&quot;&gt;进入admin.jsp&lt;/a&gt;
+&lt;/sec:authorize&gt;
+</code></pre></li>
+<li><p>loginerror.jsp</p>
+<pre><code>&lt;body&gt;
+    登录失败
+&lt;/body&gt;
+</code></pre></li>
+<li>header.jsp<pre><code>&lt;body&gt;
+    &lt;c:url value=&quot;/logout&quot; var=&quot;logoutUrl&quot;/&gt;
+    &lt;a href=&quot;${logoutUrl }&quot;&gt;退出系统&lt;/a&gt;
+&lt;/body&gt;
+</code></pre></li>
+<li>admin.jsp<pre><code>&lt;%@include file=&quot;header.jsp&quot; %&gt;
+&lt;h2&gt;Hello World!这是admin.jsp!&lt;/h2&gt;
+</code></pre></li>
+<li>accessDenied.jsp<pre><code>&lt;h2&gt;您的访问被拒绝,无权访问该资源!&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+&lt;h2&gt;ie对自定义403的页面有个页面大小限制，必须超过512字节，如果小于512字节，ie会使用其自带的403页面代替&lt;/h2&gt;
+</code></pre></li>
+</ul>
+<p>参考文章:<br><a href="http://download.csdn.net/detail/u012367513/7826801" target="_blank" rel="noopener">http://download.csdn.net/detail/u012367513/7826801</a><br><a href="http://blog.csdn.net/yin380697242/article/details/51786388" target="_blank" rel="noopener">http://blog.csdn.net/yin380697242/article/details/51786388</a>        </p>
+</div><div class="tags"><a href="/tags/SSH/">SSH</a></div><div class="post-nav"><a class="pre" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a><a class="next" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

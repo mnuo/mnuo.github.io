@@ -1,0 +1,157 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Mongodb windown安装和简单入门 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Mongodb windown安装和简单入门</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Mongodb windown安装和简单入门</h1><div class="post-meta">Jun 15, 2017<span> | </span><span class="category"><a href="/categories/Nosql/">Nosql</a></span></div><div class="post-content"><p>MongoDB 是一个基于分布式文件存储的数据库。由 C++ 语言编写。旨在为 WEB 应用提供可扩展的高性能数据存储解决方案。<br>MongoDB 是一个介于关系数据库和非关系数据库之间的产品，是非关系数据库当中功能最丰富，最像关系数据库的。</p>
+<h3 id="1-MongoDB安装"><a href="#1-MongoDB安装" class="headerlink" title="1 MongoDB安装"></a>1 MongoDB安装</h3><ul>
+<li><p>1 下载</p>
+<pre><code>https://www.mongodb.com/download-center?jmp=nav#community
+</code></pre></li>
+<li><p>2 msi 安装</p>
+</li>
+<li>3 配置文件<pre><code>md $MongoDB_home/data
+md $MongoDB_home/logs
+md $MongoDB_home/etc
+新建文件$MongoDB_home/etc/mongodb.config
+dbpath=D:\appservers\MongoDB\Server\3.4\data #数据库路径
+logpath=D:\appservers\MongoDB\Server\3.4\logs\mongodb.log #日志输出文件路径
+logappend=true #错误日志采用追加模式，配置这个选项后mongodb的日志会追加到现有的日志文件，而不是从新创建一个新文件
+journal=true #启用日志文件，默认启用
+quiet=true #这个选项可以过滤掉一些无用的日志信息，若需要调试使用请设置为false
+port=27017 #端口号 默认为27017
+</code></pre></li>
+<li><p>4 安装到window服务里面</p>
+<pre><code>mongod.exe --config D:\appservers\MongoDB\Server\3.4\etc\mongodb.conf --install
+</code></pre></li>
+<li><p>5 启动</p>
+<pre><code>net start MongoDB
+</code></pre></li>
+<li>6 测试是否安装成功<pre><code>http://localhost:27017/
+浏览器显示:
+It looks like you are trying to access MongoDB over HTTP on the native driver port.
+</code></pre></li>
+</ul>
+<h3 id="2-MongoDB基本操作"><a href="#2-MongoDB基本操作" class="headerlink" title="2 MongoDB基本操作"></a>2 MongoDB基本操作</h3><ul>
+<li>使用shell连接:<pre><code>jh@jh-PC MINGW32 /d/appservers/MongoDB/Server/3.4/bin
+$ mongo
+MongoDB shell version v3.4.5
+connecting to: mongodb://127.0.0.1:27017
+MongoDB server version: 3.4.5
+&gt; show dbs
+admin  0.000GB
+local  0.000GB
+&gt;db
+test
+&gt;use local
+switched to db local
+&gt;db
+local
+</code></pre></li>
+<li>增加<pre><code>2017-06-15T09:42:08.234+0800 I CONTROL  [initandlisten]
+&gt; db.Person.insert({&quot;name&quot;:&quot;张三&quot;, &quot;age&quot;:10})
+WriteResult({ &quot;nInserted&quot; : 1 })
+&gt; db.Person.insert({&quot;name&quot;:&quot;李四&quot;, &quot;age&quot;:20})
+WriteResult({ &quot;nInserted&quot; : 1 })
+&gt;
+</code></pre></li>
+<li><p>查询</p>
+<pre><code>条件查询:
+    &gt; db.Person.find({&quot;name&quot;:&quot;张三&quot;})
+    { &quot;_id&quot; : ObjectId(&quot;5941fd2562450e6e499f419f&quot;), &quot;name&quot; : &quot;张三&quot;, &quot;age&quot; : 10 }
+    &gt;
+查找全部:
+    &gt; db.Person.find()
+    { &quot;_id&quot; : ObjectId(&quot;5941fd2562450e6e499f419f&quot;), &quot;name&quot; : &quot;张三&quot;, &quot;age&quot; : 10 }
+    { &quot;_id&quot; : ObjectId(&quot;5941fd3962450e6e499f41a0&quot;), &quot;name&quot; : &quot;李四&quot;, &quot;age&quot; : 20 }
+</code></pre></li>
+<li><p>删除</p>
+<pre><code>&gt; db.Person.remove({&quot;name&quot;:&quot;张三&quot;})
+WriteResult({ &quot;nRemoved&quot; : 1 })
+&gt; db.Person.find()
+{ &quot;_id&quot; : ObjectId(&quot;5941fd3962450e6e499f41a0&quot;), &quot;name&quot; : &quot;李四&quot;, &quot;age&quot; : 20 }
+</code></pre></li>
+</ul>
+<h3 id="3-MongoDB-添加用户和权限"><a href="#3-MongoDB-添加用户和权限" class="headerlink" title="3 MongoDB 添加用户和权限"></a>3 MongoDB 添加用户和权限</h3><ul>
+<li>操作<pre><code>&gt; use admin
+switched to db admin
+&gt; db
+admin
+&gt; db.createUser(
+... {
+...   user: &quot;sa&quot;,
+...   pwd: &quot;123&quot;,
+...   roles: [{role:&quot;__system&quot;, db: &quot;admin&quot;}]
+... }
+... )
+Successfully added user: {
+        &quot;user&quot; : &quot;sa&quot;,
+        &quot;roles&quot; : [
+                {
+                        &quot;role&quot; : &quot;__system&quot;,
+                        &quot;db&quot; : &quot;admin&quot;
+                }
+        ]
+}
+&gt;
+</code></pre></li>
+<li>开启权限验证<pre><code>在mongodb.conf文件中添加:
+    # 开启验证
+    auth=true
+登录: 
+&gt; use admin
+switched to db admin
+&gt; db.auth(&apos;sa&apos;,&apos;123&apos;)
+1
+如果没有登录:
+    &gt; db.Person.find()
+    Error: error: {
+            &quot;ok&quot; : 0,
+            &quot;errmsg&quot; : &quot;not authorized on admin to execute command { find: \&quot;Person\&quot;, fi...
+            &quot;code&quot; : 13,
+            &quot;codeName&quot; : &quot;Unauthorized&quot;
+    }
+</code></pre></li>
+<li>给“test”数据库创建一个账号：testUser，密码：123，拥有“readWrite”角色的权限<pre><code>&gt; use test
+switched to db test
+&gt; db.createUser(
+...    {
+...      user: &quot;testUser&quot;,
+...      pwd: &quot;123&quot;,
+...      roles: [ { role: &quot;readWrite&quot;, db: &quot;test&quot; } ]
+...    }
+...  )
+Successfully added user: {
+        &quot;user&quot; : &quot;testUser&quot;,
+        &quot;roles&quot; : [
+                {
+                        &quot;role&quot; : &quot;readWrite&quot;,
+                        &quot;db&quot; : &quot;test&quot;
+                }
+        ]
+}
+</code></pre></li>
+</ul>
+<h3 id="4-权限说明"><a href="#4-权限说明" class="headerlink" title="4 权限说明"></a>4 权限说明</h3><ul>
+<li>read 数据库的只读权限，包括：<pre><code>aggregate,checkShardingIndex,cloneCollectionAsCapped,collStats,count,dataSize,dbHash,dbStats,distinct,filemd5，mapReduce (inline output only.),text (beta feature.)geoNear,geoSearch,geoWalk,group
+</code></pre></li>
+<li><p>readWrite 数据库的读写权限，包括:</p>
+<pre><code>cloneCollection (as the target database.),convertToCapped，create (and to create collections implicitly.)，renameCollection (within the same database.)findAndModify,mapReduce (output to a collection.) drop(),dropIndexes,emptycapped,ensureIndex() 
+和read的所有权限
+</code></pre></li>
+<li><p>dbAdmin</p>
+<pre><code>clean,collMod,collStats,compact,convertToCappe create,db.createCollection(),dbStats,drop(),dropIndexes ensureIndex()，indexStats,profile,reIndex renameCollection (within a single database.),validate 
+</code></pre></li>
+<li>userAdmin角色 数据库的用户管理权限</li>
+<li>clusterAdmin角色 集群管理权限(副本集、分片、主从等相关管理)，包括：<pre><code>addShard,closeAllDatabases,connPoolStats,connPoolSync,_cpuProfilerStart_cpuProfilerStop,cursorInfo,diagLogging,dropDatabase 
+shardingState,shutdown,splitChunk,splitVector,split,top,touchresync 
+serverStatus,setParameter,setShardVersion,shardCollection 
+replSetMaintenance,replSetReconfig,replSetStepDown,replSetSyncFrom 
+repairDatabase,replSetFreeze,replSetGetStatus,replSetInitiate 
+logRotate,moveChunk,movePrimary,netstat,removeShard,unsetSharding 
+hostInfo,db.currentOp(),db.killOp(),listDatabases,listShardsgetCmdLineOpts,getLog,getParameter,getShardMap,getShardVersion 
+enableSharding,flushRouterConfig,fsync,db.fsyncUnlock()
+</code></pre></li>
+<li>readAnyDatabase 任何数据库的只读权限(和read相似)</li>
+<li>readWriteAnyDatabase 任何数据库的读写权限(和readWrite相似)</li>
+<li>userAdminAnyDatabase 任何数据库用户的管理权限(和userAdmin相似)</li>
+<li>dbAdminAnyDatabase 任何数据库的管理权限(dbAdmin相似)</li>
+<li>__system 什么权限都有</li>
+</ul>
+<h3 id="5-安装mongodb可视化工具robomongo"><a href="#5-安装mongodb可视化工具robomongo" class="headerlink" title="5 安装mongodb可视化工具robomongo"></a>5 安装mongodb可视化工具robomongo</h3><p>参考文章:<br><a href="http://www.cnblogs.com/lzrabbit/p/3682510.html" target="_blank" rel="noopener">http://www.cnblogs.com/lzrabbit/p/3682510.html</a><br><a href="http://www.cnblogs.com/sheepswallow/p/4863578.html" target="_blank" rel="noopener">http://www.cnblogs.com/sheepswallow/p/4863578.html</a><br><a href="http://www.cnblogs.com/sheepswallow/p/4868519.html" target="_blank" rel="noopener">http://www.cnblogs.com/sheepswallow/p/4868519.html</a></p>
+</div><div class="tags"><a href="/tags/Nosql/">Nosql</a></div><div class="post-nav"><a class="pre" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a><a class="next" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

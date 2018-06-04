@@ -1,0 +1,218 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hive 基本使用 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hive 基本使用</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hive 基本使用</h1><div class="post-meta">May 23, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><h3 id="1-使用操作"><a href="#1-使用操作" class="headerlink" title="1 使用操作:"></a>1 使用操作:</h3><ul>
+<li>准备文件: <pre><code>hadoop@master:~/datafile$ vim t_hive.txt
+16    2    3
+61    12    13
+41    2    31
+17    21    3
+71    2    31
+1    12    34
+11    2    34
+</code></pre></li>
+<li>创建表: <pre><code>hive&gt; CREATE TABLE t_hive(a int, b int) ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;\t&apos;;
+OK
+Time taken: 1.79 seconds
+</code></pre></li>
+<li>导入数据:         <pre><code>hive&gt; LOAD DATA LOCAL INPATH &apos;/home/hadoop/datafile/t_hive.txt&apos; OVERWRITE INTO TABLE t_hive;
+Loading data to table default.t_hive
+Table default.t_hive stats: [numFiles=1, numRows=0, totalSize=56, rawDataSize=0]
+OK
+Time taken: 14.721 seconds
+</code></pre></li>
+<li>查看表: <pre><code>hive&gt; show tables;
+OK
+t_hive
+Time taken: 0.318 seconds, Fetched: 1 row(s)
+hive&gt; show tables &apos;*t*&apos;;
+OK
+t_hive
+Time taken: 0.056 seconds, Fetched: 1 row(s)
+</code></pre></li>
+<li>查看表数据: <pre><code>hive&gt; select * from t_hive;
+OK
+16      2
+61      12
+41      2
+17      21
+71      2
+1       12
+11      2
+Time taken: 3.169 seconds, Fetched: 7 row(s)
+</code></pre></li>
+<li>查看表结构: <pre><code>hive&gt; desc t_hive;
+OK
+a                       int
+b                       int
+Time taken: 0.294 seconds, Fetched: 2 row(s)
+</code></pre></li>
+<li>添加字段: <pre><code>hive&gt; ALTER TABLE t_hive ADD COLUMNS (new_col String);
+OK
+Time taken: 0.424 seconds
+hive&gt; desc t_hive;
+OK
+a                       int
+b                       int
+new_col                 string
+Time taken: 0.222 seconds, Fetched: 3 row(s)
+</code></pre></li>
+<li>重命名表: <pre><code>hive&gt; ALTER TABLE t_hive RENAME TO t_hadoop;
+OK
+Time taken: 0.328 seconds
+hive&gt; show tables;
+OK
+t_hadoop
+Time taken: 0.072 seconds, Fetched: 1 row(s)
+</code></pre></li>
+<li>删除表: <pre><code>hive&gt; drop table t_hadoop;
+OK
+Time taken: 1.308 seconds
+hive&gt; show tables;
+OK
+Time taken: 0.068 seconds
+</code></pre><h3 id="2-Hive交互模式"><a href="#2-Hive交互模式" class="headerlink" title="2 Hive交互模式:"></a>2 Hive交互模式:</h3></li>
+<li><pre><code>quit,exit:  退出交互式shell
+reset: 重置配置为默认值
+set &lt;key&gt;=&lt;value&gt; : 修改特定变量的值(如果变量名拼写错误，不会报错)
+set :  输出用户覆盖的hive配置变量
+set -v : 输出所有Hadoop和Hive的配置变量
+add FILE[S] *, add JAR[S] *, add ARCHIVE[S] * : 添加 一个或多个 file, jar, archives到分布式缓存
+list FILE[S], list JAR[S], list ARCHIVE[S] : 输出已经添加到分布式缓存的资源。
+list FILE[S] *, list JAR[S] *,list ARCHIVE[S] * : 检查给定的资源是否添加到分布式缓存
+delete FILE[S] *,delete JAR[S] *,delete ARCHIVE[S] * : 从分布式缓存删除指定的资源
+! &lt;command&gt; :  从Hive shell执行一个shell命令
+dfs &lt;dfs command&gt; :  从Hive shell执行一个dfs命令
+&lt;query string&gt; : 执行一个Hive 查询，然后输出结果到标准输出
+source FILE &lt;filepath&gt;:  在CLI里执行一个hive脚本文件
+</code></pre></li>
+</ul>
+<h3 id="3-导入数据"><a href="#3-导入数据" class="headerlink" title="3 导入数据"></a>3 导入数据</h3><ul>
+<li><p>1 导入数据: </p>
+<pre><code>hive&gt; LOAD DATA LOCAL INPATH &apos;/home/hadoop/datafile/t_hive.txt&apos; OVERWRITE INTO TABLE t_hive;
+Loading data to table default.t_hive
+Table default.t_hive stats: [numFiles=1, numRows=0, totalSize=56, rawDataSize=0]
+OK
+Time taken: 2.975 seconds
+HDFS中查看:         
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -cat /user/hive/warehouse/t_hive/t_hive.txt
+16      2       3
+61      12      13
+41      2       31
+17      21      3
+71      2       31
+1       12      34
+11      2       34
+</code></pre></li>
+<li><p>2 从HDFS导入数据: </p>
+<pre><code>hive&gt; CREATE TABLE t_hive2 (a int, b int, c int) ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;\t&apos;;
+OK
+Time taken: 0.174 seconds
+hive&gt; LOAD DATA INPATH &apos;/user/hive/warehouse/t_hive/t_hive.txt&apos; OVERWRITE INTO TABLE t_hive2;
+Loading data to table default.t_hive2
+Table default.t_hive2 stats: [numFiles=1, numRows=0, totalSize=56, rawDataSize=0]
+OK
+Time taken: 0.954 seconds
+hive&gt; select * from t_hive2;
+OK
+16      2       3
+61      12      13
+41      2       31
+17      21      3
+71      2       31
+1       12      34
+11      2       34
+Time taken: 1.309 seconds, Fetched: 7 row(s)
+</code></pre></li>
+<li><p>3 从其他表导入数据:</p>
+<pre><code>hive&gt; insert overwrite table t_hive2 select * from t_hive;
+</code></pre></li>
+<li><p>4 创建表并从其他表导入数据:</p>
+<pre><code>hive&gt; CREATE TABLE t_hive3 AS SELECT * FROM t_hive2 ;
+</code></pre></li>
+<li><p>5 仅复制表结构不导数据</p>
+<pre><code>hive&gt; CREATE TABLE t_hive4 LIKE t_hive;
+hive&gt; select * from t_hive4;
+OK
+Time taken: 0.077 seconds
+</code></pre></li>
+</ul>
+<h3 id="4-数据导出"><a href="#4-数据导出" class="headerlink" title="4 数据导出"></a>4 数据导出</h3><ul>
+<li><p>1 从HDFS到HDFS<br>  bin/hadoop fs -cp /user/hive/warehouse/t_hive /</p>
+</li>
+<li><p>2 通过Hive导出到本地文件系统<br>  hive&gt; INSERT OVERWRITE LOCAL DIRECTORY ‘/tmp/t_hive’ SELECT * FROM t_hive;</p>
+</li>
+</ul>
+<h3 id="5-Hive查询HiveQL"><a href="#5-Hive查询HiveQL" class="headerlink" title="5 Hive查询HiveQL"></a>5 Hive查询HiveQL</h3><ul>
+<li>普通查询：排序，列别名，嵌套子查询<pre><code>hive&gt; FROM (
+    &gt;   SELECT b,c as c2 FROM t_hive
+    &gt; ) t
+    &gt; SELECT t.b, t.c2
+    &gt; WHERE b&gt;2
+    &gt; LIMIT 2;
+</code></pre></li>
+<li>连接查询：JOIN<pre><code>hive&gt; SELECT t1.a,t1.b,t2.a,t2.b
+    &gt; FROM t_hive t1 JOIN t_hive2 t2 on t1.a=t2.a
+    &gt; WHERE t1.c&gt;10;
+</code></pre></li>
+<li>聚合查询1：count, avg<pre><code>hive&gt; SELECT count(*), avg(a) FROM t_hive;
+</code></pre></li>
+<li>聚合查询2：count, distinct<pre><code>hive&gt; SELECT count(DISTINCT b) FROM t_hive;
+</code></pre></li>
+<li>聚合查询3：GROUP BY, HAVING<pre><code>hive&gt; SELECT avg(a),b,sum(c) FROM t_hive GROUP BY b,c
+hive&gt; SELECT avg(a),b,sum(c) FROM t_hive GROUP BY b,c HAVING sum(c)&gt;30
+</code></pre><h3 id="6-Hive视图"><a href="#6-Hive视图" class="headerlink" title="6 Hive视图"></a>6 Hive视图</h3></li>
+<li><pre><code>创建: hive&gt; CREATE VIEW v_hive AS SELECT a,b FROM t_hive where c&gt;30;
+删除: hive&gt; DROP VIEW IF EXISTS v_hive
+</code></pre><h3 id="7-Hive分区表"><a href="#7-Hive分区表" class="headerlink" title="7 Hive分区表"></a>7 Hive分区表</h3></li>
+<li><p>常见数据:</p>
+<pre><code>vi /home/cos/demo/t_hft_20130627.csv
+000001,092023,9.76
+000002,091947,8.99
+000004,092002,9.79
+000005,091514,2.2
+000001,092008,9.70
+000001,092059,9.45
+~ vi /home/cos/demo/t_hft_20130628.csv
+000001,092023,9.76
+000002,091947,8.99
+000004,092002,9.79
+000005,091514,2.2
+000001,092008,9.70
+000001,092059,9.45
+</code></pre></li>
+<li><p>创建数据表: </p>
+<pre><code>DROP TABLE IF EXISTS t_hft;
+CREATE TABLE t_hft(
+SecurityID STRING,
+tradeTime STRING,
+PreClosePx DOUBLE
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY &apos;,&apos;;
+</code></pre></li>
+<li><p>导入数据: </p>
+<pre><code>hive&gt; LOAD DATA LOCAL INPATH &apos;/home/cos/demo/t_hft_20130627.csv&apos; OVERWRITE INTO TABLE t_hft PARTITION (tradeDate=20130627);
+Copying data from file:/home/cos/demo/t_hft_20130627.csv
+Copying file: file:/home/cos/demo/t_hft_20130627.csv
+Loading data to table default.t_hft partition (tradedate=20130627)
+hive&gt; LOAD DATA LOCAL INPATH &apos;/home/cos/demo/t_hft_20130628.csv&apos; OVERWRITE INTO TABLE t_hft PARTITION (tradeDate=20130628);
+Copying data from file:/home/cos/demo/t_hft_20130628.csv
+Copying file: file:/home/cos/demo/t_hft_20130628.csv
+Loading data to table default.t_hft partition (tradedate=20130628)
+</code></pre></li>
+<li><p>查看分区表</p>
+<pre><code>hive&gt; SHOW PARTITIONS t_hft;
+tradedate=20130627
+tradedate=20130628
+Time taken: 0.082 seconds
+</code></pre></li>
+<li>查询数据<pre><code>hive&gt; select * from t_hft where securityid=&apos;000001&apos;;
+000001  092023  9.76    20130627
+000001  092008  9.7     20130627
+000001  092059  9.45    20130627
+000001  092023  9.76    20130628
+000001  092008  9.7     20130628
+000001  092059  9.45    20130628
+hive&gt; select * from t_hft where tradedate=20130627 and PreClosePx&lt;9;
+000002  091947  8.99    20130627
+000005  091514  2.2     20130627
+</code></pre></li>
+</ul>
+<p>文章参考:<br><a href="http://blog.fens.me/hadoop-hive-intro/" target="_blank" rel="noopener">http://blog.fens.me/hadoop-hive-intro/</a></p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/24/hadoop系列学习/Pig 安装及入门示例/">Pig安装及入门示例</a><a class="next" href="/2017/05/23/hadoop系列学习/Hive 介绍和安装/">Hive 介绍和安装</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>mysql存储过程 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mysql存储过程</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">mysql存储过程</h1><div class="post-meta">Jun 16, 2016<span> | </span><span class="category"><a href="/categories/MySQL/">MySQL</a></span></div><div class="post-content"><h4 id="创建存储过程"><a href="#创建存储过程" class="headerlink" title="创建存储过程"></a>创建存储过程</h4><pre><code>DELIMITER $$
+
+CREATE PROCEDURE film_in_stock(IN p_film_id INT, IN p_store_id INT, OUT p_film_count INT)
+    READS SQL DATA
+    BEGIN
+        SELECT inventory_id
+        FROM inventory
+        WHERE film_id = p_film_id
+        AND store_id = p_store_id;
+        SELECT FOUND_ROWS() INTO p_film_count;
+    END $$
+DELIMITER ;
+</code></pre><h4 id="执行"><a href="#执行" class="headerlink" title="执行:"></a>执行:</h4><pre><code>CALL film_in_stock(1,1,@a)
+    select @a;
+</code></pre><h4 id="删除"><a href="#删除" class="headerlink" title="删除:"></a>删除:</h4><pre><code>drop PROCEDURE film_in_stock;
+</code></pre><h4 id="查看"><a href="#查看" class="headerlink" title="查看:"></a>查看:</h4><ul>
+<li><p>查看存储过程状态:</p>
+<pre><code>mysql&gt; show procedure status like &apos;film_in_stock&apos;\G
+*************************** 1. row ***************************
+                  Db: test
+                Name: film_in_stock
+                Type: PROCEDURE
+             Definer: root@%
+            Modified: 2016-06-04 13:08:00
+             Created: 2016-06-04 13:08:00
+       Security_type: DEFINER
+             Comment:
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: latin1_swedish_ci
+1 row in set (0.00 sec)
+</code></pre></li>
+<li><p>查看存储过程或者函数的定义</p>
+<pre><code>mysql&gt; show create procedure film_in_stock \G
+*************************** 1. row ***************************
+           Procedure: film_in_stock
+            sql_mode: STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+    Create Procedure: CREATE DEFINER=`root`@`%` PROCEDURE `film_in_stock`(IN p_film_id INT, IN p_store_id INT, OUT p_film_count INT)
+                      READS SQL DATA
+                        BEGIN
+                            SELECT inventory_id
+                            FROM inventory
+                            WHERE film_id = p_film_id AND store_id = p_store_id;
+                            SELECT FOUND_ROWS() INTO p_film_count;
+                        END
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: latin1_swedish_ci
+1 row in set (0.00 sec)
+</code></pre></li>
+<li>通过查看information_schema数据库中的routine表</li>
+<li><pre><code>mysql&gt; select * from information_schema.routines where ROUTINE_NAME=&apos;film_in_stock&apos;\G
+*************************** 1. row ***************************
+           SPECIFIC_NAME: film_in_stock
+         ROUTINE_CATALOG: def
+          ROUTINE_SCHEMA: test
+            ROUTINE_NAME: film_in_stock
+            ROUTINE_TYPE: PROCEDURE
+               DATA_TYPE:
+CHARACTER_MAXIMUM_LENGTH: NULL
+  CHARACTER_OCTET_LENGTH: NULL
+       NUMERIC_PRECISION: NULL
+           NUMERIC_SCALE: NULL
+      DATETIME_PRECISION: NULL
+      CHARACTER_SET_NAME: NULL
+          COLLATION_NAME: NULL
+          DTD_IDENTIFIER: NULL
+            ROUTINE_BODY: SQL
+      ROUTINE_DEFINITION: BEGIN
+                                SELECT inventory_id
+                                FROM inventory
+                                WHERE film_id = p_film_id
+                                AND store_id = p_store_id;
+                                SELECT FOUND_ROWS() INTO p_film_count;
+                        END
+           EXTERNAL_NAME: NULL
+       EXTERNAL_LANGUAGE: NULL
+         PARAMETER_STYLE: SQL
+        IS_DETERMINISTIC: NO
+         SQL_DATA_ACCESS: READS SQL DATA
+                SQL_PATH: NULL
+           SECURITY_TYPE: DEFINER
+                 CREATED: 2016-06-04 13:08:00
+            LAST_ALTERED: 2016-06-04 13:08:00
+                SQL_MODE: STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+         ROUTINE_COMMENT:
+                 DEFINER: root@%
+    CHARACTER_SET_CLIENT: utf8
+    COLLATION_CONNECTION: utf8_general_ci
+      DATABASE_COLLATION: latin1_swedish_ci
+1 row in set (0.00 sec)
+</code></pre></li>
+</ul>
+<h4 id="变量的使用"><a href="#变量的使用" class="headerlink" title="变量的使用:"></a>变量的使用:</h4><ul>
+<li><p>变量的定义:</p>
+<pre><code>DECLARE last_month_start 
+</code></pre><p>  作用只能在begin..end中</p>
+</li>
+<li><p>变量的赋值:</p>
+<pre><code>SET last_month_start = DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH);
+
+    CREATE FUNCTION get_customer_balance(p_customer_id INT,p_effective_date DATETIME)
+    RETURNS DECIMAL(5,2)
+    DETERMINISTIC
+    READS SQL DATA
+    BEGIN
+        ...
+        DECLARE v_payments DECIMAL(5,2)##sum of payments made previously
+        ...
+        SELECT IFNULL(SUM(payment.amount),0) INTO v_payments
+        FROM payment
+        WHERE payment.payment_date &lt;= p_effective_date
+        AND payment.customer_id = p_customer_id;
+    END $$
+</code></pre></li>
+</ul>
+<h4 id="条件的定义和处理"><a href="#条件的定义和处理" class="headerlink" title="条件的定义和处理:"></a>条件的定义和处理:</h4><ul>
+<li>条件的定义:</li>
+<li><pre><code>DECLARE condition_name CONDITION FOR coundition_value
+
+condition_value:
+    SQLSTATE [VALUE] sqlstate_value
+    | mysql_error_code
+</code></pre></li>
+<li><p>条件的处理:</p>
+<pre><code>DECLARE handler_type HANDLER FOR condition_value[,...] sp_statement
+    handler_type:
+    CONTINUE
+    | EXIT
+    | UNDO
+    condition_value:
+        SQLSTATE [VALUE] sqlstate_value
+        | condition_name
+        | SQLWARNING
+        | NOT FOUND
+        | SQLEXCEPTION
+        | mysql_error_code
+</code></pre><ul>
+<li><p>例子1:</p>
+<pre><code>create table actor(
+    actor_id SMALLINT NOT NULL PRIMARY KEY,
+    first_name VARCHAR(50) ,
+    last_name VARCHAR(50)
+)ENGINE=INNODB AUTO_INCREMENT=0 DEFAULT CHARSET=UTF8;
+</code></pre></li>
+</ul>
+</li>
+</ul>
+<pre><code>        mysql&gt; insert into actor values(1,&apos;WADE&apos;,&apos;SAXON&apos;);
+        Query OK, 1 row affected (0.00 sec)
+
+        mysql&gt; delimiter $$
+        mysql&gt; CREATE PROCEDURE actor_insert()
+            -&gt; BEGIN
+            -&gt;   SET @x=1;
+            -&gt;   INSERT INTO actor(actor_id,first_name,last_name) values(2,&apos;zhang&apos;,&apos;jiagang&apos;);
+            -&gt;   SET @x=2;
+            -&gt;   INSERT INTO actor(actor_id,first_name,last_name) VALUES(1,&apos;Test&apos;,&apos;1&apos;);
+            -&gt;   SET @x=3;
+            -&gt; END;
+            -&gt; $$
+        Query OK, 0 rows affected (0.00 sec)
+
+        mysql&gt; DELIMITER ;
+        mysql&gt; call actor_insert();
+        ERROR 1062 (23000): Duplicate entry &apos;1&apos; for key &apos;PRIMARY&apos;
+        mysql&gt; select @x;
+        +------+
+        | @x   |
+        +------+
+        |    2 |
+        +------+
+        1 row in set (0.00 sec)
+    从上例子看出运行抛出异常;
+
++ 例子修改:
+
+        mysql&gt; delimiter $$
+        mysql&gt;
+        mysql&gt; CREATE PROCEDURE actor_insert ()
+        -&gt; BEGIN
+        -&gt; DECLARE CONTINUE HANDLER FOR SQLSTATE &apos;23000&apos; SET @x2 = 1;
+        -&gt; SET @x = 1;
+        -&gt; INSERT INTO actor(actor_id,first_name,last_name) VALUES (201,&apos;Test&apos;,&apos;201&apos;);
+        -&gt; SET @x = 2;
+        -&gt; INSERT INTO actor(actor_id,first_name,last_name) VALUES (1,&apos;Test&apos;,&apos;1&apos;);
+        -&gt; SET @x = 3;
+        -&gt; END;
+        -&gt; $$
+        Query OK, 0 rows affected (0.00 sec)
+        mysql&gt; delimiter ;
+    &gt; 调用条件处理的过程，再遇到主键重的错误时，会按照定义的处理方式进行处理，由于例子中定义的是 CONTINUE，所以会继续执行下面的语句。    
+    &gt; handler_type 现在还只支持 CONTINUE 和 EXIT 两种，CONTINUE 表示继续执行下面的语句，EXIT 则表示执行终止，UNDO 现在还不支持。
+</code></pre><h4 id="光标的使用"><a href="#光标的使用" class="headerlink" title="光标的使用:"></a>光标的使用:</h4><blockquote>
+<p>在存储过程和函数中可以使用光标对结果集进行循环的处理。</p>
+</blockquote>
+<ul>
+<li><p>声明光标:</p>
+<pre><code>DELARE cursor_name CURSOR FOR select_statement
+</code></pre></li>
+<li><p>OPEN光标:</p>
+<pre><code>OPEN cursor_name;
+</code></pre></li>
+<li><p>FETCH光标:</p>
+<pre><code>FETCH cursor_name INTO var_name[,...]
+</code></pre></li>
+<li><p>CLOSEF光标:</p>
+<pre><code>CLOSE cursor_name;
+</code></pre><blockquote>
+<p>以下例子是一个简单的使用光标的过程， 对 payment 表按照行进行循环的处理， 按照 staff_id 值的不同累加 amount 的值，判断循环结束的条件是捕获 NOT FOUND 的条件，当 FETCH 光 标找不到下一条记录的时候，就会关闭光标然后退出过程。   </p>
+</blockquote>
+<pre><code>mysql&gt; delimiter $$
+mysql&gt;
+mysql&gt; CREATE PROCEDURE payment_stat ()
+    -&gt; BEGIN
+    -&gt; DECLARE i_staff_id int;
+    -&gt; DECLARE d_amount decimal(5,2);
+    -&gt; DECLARE cur_payment cursor for select staff_id,amount from payment;
+    -&gt; DECLARE EXIT HANDLER FOR NOT FOUND CLOSE cur_payment;
+    -&gt;
+    -&gt; set @x1 = 0;
+    -&gt; set @x2 = 0;
+    -&gt;
+    -&gt; OPEN cur_payment;
+    -&gt;
+    -&gt; REPEAT
+    -&gt; FETCH cur_payment INTO i_staff_id, d_amount;
+    -&gt; if i_staff_id = 2 then
+    -&gt; set @x1 = @x1 + d_amount;
+    -&gt; else
+    -&gt; set @x2 = @x2 + d_amount;
+    -&gt; end if;
+    -&gt; UNTIL 0 END REPEAT;
+    -&gt;
+    -&gt; CLOSE cur_payment;
+    -&gt;
+    -&gt; END;
+    -&gt; $$
+mysql&gt; delimiter $$
+</code></pre><h4 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制:"></a>流程控制:</h4><p>可以使用IF CASE LOOP LEAVE ITERATE REPEAT 及 WHILE 语句进行流程的控制.</p>
+</li>
+<li><p>1  IF:</p>
+<pre><code>IF search_condition THEN statement_list
+    [ELSEIF search_condition THEN statement_list] ...
+    [ELSE statement_list]
+END IF
+</code></pre></li>
+<li><p>2 CASE:</p>
+<pre><code>CASE case_value
+    WHEN when_value THEN statement_list
+    [WHEN when_value THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+Or:
+CASE
+    WHEN search_condition THEN statement_list
+    [WHEN search_condition THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+</code></pre><blockquote>
+<p>在上文光标的使用例子中，IF 语句也可以使用 CASE 语句来完成：</p>
+</blockquote>
+<pre><code>case
+when i_staff_id = 2 then
+        set @x1 = @x1 + d_amount;
+    else
+        set @x2 = @x2 + d_amount;
+end case;
+</code></pre><p>  或者：</p>
+<pre><code>case i_staff_id
+    when 2 then
+        set @x1 = @x1 + d_amount;
+    else
+        set @x2 = @x2 + d_amount;
+end case;
+</code></pre></li>
+<li><p>3 LOOP:  </p>
+<pre><code>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;LOOP 实现简单的循环，退出循环的条件需要使用其他的语句定义，通常可以使用 LEAVE 语句实现，具体语法如下：
+
+[begin_label:] LOOP
+    statement_list
+END LOOP [end_label]
+</code></pre><p>  如果不在 statement_list 中增加退出循环的语句，那么 LOOP 语句可以用来实现简单的死循环。</p>
+</li>
+<li><p>4 LEVER:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;用来从标注的流程构造中退出，通常和 BEGIN … END 或者循环一起使用。下面是一个使用 LOOP 和 LEAVE 的简单例子， 循环 100 次向 actor 表中插入记录， 当插入 100条记录后，退出循环：</p>
+<pre><code>mysql&gt; CREATE PROCEDURE actor_insert ()
+    -&gt; BEGIN
+    -&gt; set @x = 0;
+    -&gt; ins: LOOP
+    -&gt; set @x = @x + 1;
+    -&gt; IF @x = 100 then
+    -&gt; leave ins;
+    -&gt; END IF;
+    -&gt; INSERT INTO actor(first_name,last_name) VALUES (&apos;Test&apos;,&apos;201&apos;);
+    -&gt; END LOOP ins;
+    -&gt; END;
+    -&gt; $$
+</code></pre></li>
+<li><p>5 ITERATE:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ITERATE 语句必须用在循环中，作用是跳过当前循环的剩下的语句，直接进入下一轮循环。下面的例子使用了 ITERATE 语句，当@x 变量是偶数的时候，不再执行循环中剩下的语句，而直接进行下一轮的循环：</p>
+<pre><code>mysql&gt; CREATE PROCEDURE actor_insert ()
+    -&gt; BEGIN
+    -&gt; set @x = 0;
+    -&gt; ins: LOOP
+    -&gt; set @x = @x + 1;
+    -&gt; IF @x = 10 then
+    -&gt; leave ins;
+    -&gt; ELSEIF mod(@x,2) = 0 then
+    -&gt; ITERATE ins;
+    -&gt; END IF;
+    -&gt; INSERT INTO actor(actor_id,first_name,last_name) VALUES (@x+200,&apos;Test&apos;,@x);
+    -&gt; END LOOP ins;
+    -&gt; END;
+    -&gt; $$
+</code></pre></li>
+<li><p>6 REPEAT:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;有条件的循环控制语句，当满足条件的时候退出循环，具体语法如下：</p>
+<pre><code>[begin_label:] REPEAT
+    statement_list
+UNTIL search_condition
+END REPEAT [end_label]
+--&gt;
+    -&gt; REPEAT
+    -&gt;     FETCH cur_payment INTO i_staff_id, d_amount;
+    -&gt;         if i_staff_id = 2 then
+    -&gt;             set @x1 = @x1 + d_amount;
+    -&gt;         else
+    -&gt;             set @x2 = @x2 + d_amount;
+    -&gt;         end if;
+    -&gt; UNTIL 0 END REPEAT;
+</code></pre></li>
+<li><p>7 WHILE:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WHILE 语句实现的也是有条件的循环控制语句，即当满足条件时执行循环的内容，具体语法 如下：</p>
+<pre><code>[begin_label:] WHILE search_condition DO
+    statement_list
+END WHILE [end_label]
+</code></pre><blockquote>
+<p>WHILE 循环和 REPEAT 循环的区别在于：WHILE 是满足条件才执行循环，REPEAT 是满足条件退出循环；WHILE 在首次循环执行之前就判断条件，所以循环最少执行 0 次，而 REPEAT 是在首次执行循环之后才判断条件，所以循环最少执行 1 次。以下例子用来对比 REPEAT 和 WHILE 语句的功能：</p>
+</blockquote>
+</li>
+</ul>
+</div><div class="tags"><a href="/tags/MySql/">MySql</a></div><div class="post-nav"><a class="pre" href="/2016/06/17/mysql常用函数/">mysql常用函数</a><a class="next" href="/2016/06/11/mysql数据类型/">数据类型</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

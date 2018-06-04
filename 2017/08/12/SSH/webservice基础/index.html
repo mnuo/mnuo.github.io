@@ -1,0 +1,60 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>WebService | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">WebService</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">WebService</h1><div class="post-meta">Aug 12, 2017<span> | </span><span class="category"><a href="/categories/Web-Service/">Web Service</a></span></div><div class="post-content"><p>WebService 也叫做XML WEB SERVICE, WebService 是一种可以接收从Internet或者Internet上的其他系统中传递过来的请求, 轻量级的独立的通讯技术。<br>是通过SOAP在web上提供的软件服务,使用WSDL文件进行说明,并通过UDDI进行注册。</p>
+<h3 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1 基本概念"></a>1 基本概念</h3><ul>
+<li>XML(Extensible Markup Language):扩展型可标记语言。面向短期的临时数据处理,面向万维网络,是SOAP的基础</li>
+<li>SOAP(Simple Object Access Protocol): 简单对象存取协议。是XML WEB SERVICE 的通信协议。当用户通过uddi找到你的WSDL描述文档之后,他通过SOAP调用你建立的web服务中的一个或多个操作。SOAP是XML文档形式的调用方法的规范，它可以支持不同的底层接口，像HTTP(S)或者SMTP</li>
+<li>WSDL：(Web Services Description Language) WSDL 文件是一个 XML 文档，用于说明一组 SOAP 消息以及如何交换这些消息。大多数情况下由软件自动生成和使用。</li>
+<li>UDDI (Universal Description, Discovery, and Integration) 是一个主要针对Web服务供应商和使用者的新项目。在用户能够调用Web服务之前，必须确定这个服务内包含哪些商务方法，找到被调用的接口定义，还要在服务端来编制软件，UDDI是一种根据描述文档来引导系统查找相应服务的机制。UDDI利用SOAP消息机制（标准的XML/HTTP）来发布，编辑，浏览以及查找注册信息。它采用XML格式来封装各种不同类型的数据，并且发送到注册中心或者由注册中心来返回需要的数据。</li>
+</ul>
+<h3 id="2-根据WSDL生成java代码"><a href="#2-根据WSDL生成java代码" class="headerlink" title="2 根据WSDL生成java代码"></a>2 根据WSDL生成java代码</h3><ul>
+<li>1,下载apache-cxf-2.6.2在环境变量中配置CXF_HOME 值为E:\gavin\cxf\apache-cxf-3.0.0,在PATH中加入%CXF_HOME%\bin</li>
+<li>2,输入cmd 进入控制窗口，输入wsdl2java看是否配置成功</li>
+<li>3,wsdl2java -p [包名] -d [路径] -client[server,all] wsdl地址</li>
+</ul>
+<h3 id="3-调用"><a href="#3-调用" class="headerlink" title="3 调用"></a>3 调用</h3><ul>
+<li>http方法: <pre><code>String soapRequestOfTargetService=
+    &quot;&lt;soapenv:Envelope xmlns:soapenv=\&quot;http://schemas.xmlsoap.org/soap/envelope/\&quot; xmlns:ebiz=\&quot;http://www.cmcc.com.cn/EBIZ/service/EBIZService1.0\&quot;&gt;&quot;+
+      &quot; &lt;soapenv:Header/&gt;&quot;+
+      &quot; &lt;soapenv:Body&gt;&quot;+
+       &quot;   &lt;ebiz:resultInfoConfirm&gt;&quot;+
+         &quot;    &lt;ebiz:in0&gt;{1}&lt;/ebiz:in0&gt;&quot;+
+        &quot;  &lt;/ebiz:resultInfoConfirm&gt;&quot;+
+       &quot;&lt;/soapenv:Body&gt;&quot;+
+    &quot;&lt;/soapenv:Envelope&gt;&quot;;
+try {                        
+    String url = ResourceUtil.getProperty(Constant.SERVICE_Synchronize_Result_Info_SRV);            
+    PostMethod postmethod = new PostMethod(url);
+    logger.info(&quot;加密前的请求xml如下:&quot;+reqXML);
+    //报文Base64加密
+    reqXML=encryptBASE64(reqXML);
+    soapRequestOfTargetService=soapRequestOfTargetService.replace(&quot;{1}&quot;, reqXML);
+    logger.info(&quot;加密后请求xml如下:&quot;+soapRequestOfTargetService);
+    byte[] b = soapRequestOfTargetService.getBytes(&quot;UTF-8&quot;); 
+    InputStream is = new ByteArrayInputStream(b, 0, b.length);
+    RequestEntity re = new InputStreamRequestEntity(is, b.length, &quot;application/xop+xml; charset=UTF-8; type=\&quot;text/xml\&quot;&quot;);
+    postmethod.setRequestEntity(re);
+    HttpClient httpClient = new HttpClient();
+    int statusCode = httpClient.executeMethod(postmethod);
+    logger.info(&quot;http响应状态码：&quot; + statusCode);
+    String soapResponseData = postmethod.getResponseBodyAsString();                    
+    //logger.info(&quot;响应xml如下：&quot;+soapResponseData);
+    //替换符号
+    soapResponseData=soapResponseData.replace(&quot;&amp;lt;&quot;,&quot;&lt;&quot;);
+    soapResponseData=soapResponseData.replace(&quot;&amp;gt;&quot;,&quot;&gt;&quot;);
+    logger.info(&quot;响应xml如下：&quot;+soapResponseData);
+    //添加接口返回的信息到数据库中
+    logger.info(&quot;开始插入结果数据&quot;);
+    insertResultInfo(soapResponseData, report, jtmdmService);            
+} catch (Exception ex) {
+    ex.printStackTrace();
+}
+</code></pre></li>
+<li>HttpSOAP<pre><code>request = new request();
+List&lt;SCMGroupImportedContractInfoImportSrvInputItem&gt; inputItems = request.getCONTRACTINFOLIST();
+inputItems.add(item);
+//调用接口
+Response srvResponse = port.process(request);
+String errorFlag = srvResponse.getERRORFLAG();
+String errorMessage = srvResponse.getERRORMESSAGE();
+</code></pre></li>
+</ul>
+</div><div class="tags"><a href="/tags/Web-Service/">Web Service</a></div><div class="post-nav"><a class="next" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

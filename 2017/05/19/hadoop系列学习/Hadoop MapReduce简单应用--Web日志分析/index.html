@@ -1,0 +1,338 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Hadoop Web日志分析以及MapReduce简单应用 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Hadoop Web日志分析以及MapReduce简单应用</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Hadoop Web日志分析以及MapReduce简单应用</h1><div class="post-meta">May 19, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h3><pre><code>本文来源:http://blog.fens.me/hadoop-mapreduce-log-kpi/
+</code></pre><h3 id="2-名字解释"><a href="#2-名字解释" class="headerlink" title="2 名字解释"></a>2 名字解释</h3><ul>
+<li><p>Web日志: </p>
+<pre><code>Web日志由Web服务器产生(Nginx,Apache,tomcat等)。从web日志中我们可以获取网站每类页面得PV值(PageView,访问量)等,可以计算用户所检索的关键词排行榜,用户停留时间最高的页面等;构建广告点击模型,分析用户行为特征等等.例如:
+222.68.172.190 - - [18/Sep/2013:06:49:57 +0000] &quot;GET /images/my.jpg HTTP/1.1&quot; 200 19939 &quot;http://www.angularjs.cn/A00n&quot; &quot;Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36&quot;
+</code></pre></li>
+<li><p>KPI指标设计</p>
+<ul>
+<li>PV(PageView): 页面访问量统计</li>
+<li>IP: 页面独立IP的访问量统计</li>
+<li>Time: 用户每小时PV的统计</li>
+<li>Source: 用户来源域名的统计</li>
+<li>Browser: 用户的访问设备统计</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-并行算法设计"><a href="#3-并行算法设计" class="headerlink" title="3 并行算法设计"></a>3 并行算法设计</h3><ul>
+<li>PV(PageView): 页面访问量统计<pre><code>Map过程{key:$request,value:1}
+Reduce过程{key:$request,value:求和(sum)}
+</code></pre></li>
+<li><p>IP: 页面独立IP的访问量统计</p>
+<pre><code>Map: {key:$request,value:$remote_addr}
+Reduce: {key:$request,value:去重再求和(sum(unique))}
+</code></pre></li>
+<li><p>Time: 用户每小时PV的统计</p>
+<pre><code>Map: {key:$time_local,value:1}
+Reduce: {key:$time_local,value:求和(sum)}
+</code></pre></li>
+<li><p>Source: 用户来源域名的统计</p>
+<pre><code>Map: {key:$http_referer,value:1}
+Reduce: {key:$http_referer,value:求和(sum)}
+</code></pre></li>
+<li><p>Browser: 用户的访问设备统计</p>
+<pre><code>Map: {key:$http_user_agent,value:1}
+Reduce: {key:$http_user_agent,value:求和(sum)}
+</code></pre></li>
+</ul>
+<h3 id="3-示例操作"><a href="#3-示例操作" class="headerlink" title="3 示例操作"></a>3 示例操作</h3><h4 id="3-1-准备文件"><a href="#3-1-准备文件" class="headerlink" title="3.1 准备文件"></a>3.1 准备文件</h4><ul>
+<li>access.log.10放到节点上面<pre><code>hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -mkdir -p /user/hdfs/log_kpi
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -copyFromLocal /home/hadoop/datafile/access.log.10 /user/hdfs/log_kpi/
+hadoop@master:~/hadoop-2.7.3$ bin/hadoop fs -ls -R /
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:27 /user/hdfs
+drwxr-xr-x   - hadoop supergroup          0 2017-05-14 16:28 /user/hdfs/log_kpi
+-rw-r--r--   1 hadoop supergroup    3025757 2017-05-14 16:28 /user/hdfs/log_kpi/access.log.10
+</code></pre></li>
+</ul>
+<h4 id="3-2-代码示例-PV代码"><a href="#3-2-代码示例-PV代码" class="headerlink" title="3.2 代码示例: (PV代码)"></a>3.2 代码示例: (PV代码)</h4><ul>
+<li><p>KPI</p>
+<pre><code>/**
+ * KPI.java created at 2017年5月19日 上午11:29:11
+ */
+package org.monuo.myhadoop.kpi;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
+
+import org.apache.log4j.Logger;
+
+/**
+ * 日志文件每一行作为一条记录，该类完成每一行日志的解析
+ * @author saxon
+ */
+public class KPI {
+    public static Logger logger = Logger.getLogger(KPI.class);
+
+    private String remoteAddr;//记录客户端的ip地址
+    private String remoteUser;//记录客户端的名称
+    private String timeLocal;//记录访问的时间和时区
+    private String request;//记录请问的url和http协议
+    private String status;//记录请求状态;成功是200
+    private String bodyBytesSent;//记录发送给客户端文件主体内容大小
+    private String httpReferer;//记录从哪个页面链接访问过来的
+    private String httpUserAgent;//记录客户浏览器相关信息
+
+    private boolean valid = true;//判断数据是否合法
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(&quot;valid:&quot; + this.valid);
+        sb.append(&quot;\nremoteAddr:&quot; + this.remoteAddr);
+        sb.append(&quot;\nremoteUser:&quot; + this.remoteUser);
+        sb.append(&quot;\ntimeLocal:&quot; + this.timeLocal);
+        sb.append(&quot;\nrequest:&quot; + this.request);
+        sb.append(&quot;\nstatus:&quot; + this.status);
+        sb.append(&quot;\nbodyBytesSent:&quot; + this.bodyBytesSent);
+        sb.append(&quot;\nhttpReferer:&quot; + this.httpReferer);
+        sb.append(&quot;\nhttpUserAgent:&quot; + this.httpUserAgent);
+        return sb.toString();
+    }
+
+    public static KPI parser(String line){
+        logger.info(line);
+        KPI kpi = new KPI();
+        String[] arr = line.split(&quot; &quot;);
+        if(arr.length &gt; 11){
+            kpi.setRemoteAddr(arr[0]);
+            kpi.setRemoteUser(arr[1]);
+            kpi.setTimeLocal(arr[3].substring(1));
+            kpi.setRequest(arr[6]);
+            kpi.setStatus(arr[8]);
+            kpi.setBodyBytesSent(arr[9]);
+            kpi.setHttpReferer(arr[10]);
+            if(arr.length &gt; 12){
+                kpi.setHttpUserAgent(arr[11] + arr[12]);
+            }else{
+                kpi.setHttpUserAgent(arr[11]);
+            }
+
+            if(Integer.parseInt(kpi.getStatus()) &gt;= 400){//大于400 http错误
+                kpi.setValid(false);
+            }
+        }else{
+            kpi.setValid(true);
+        }
+        return kpi;
+    }
+    /**
+     * 按page的PV分类
+     * @param line
+     * @return
+     */
+    public static KPI filterPVs(String line) {
+        KPI kpi = parser(line);
+        Set&lt;String&gt; pages = new HashSet&lt;String&gt;();
+
+        pages.add(&quot;/about&quot;);
+        pages.add(&quot;/black-ip-list/&quot;);
+        pages.add(&quot;/cassandra-clustor/&quot;);
+        pages.add(&quot;/finance-rhive-repurchase/&quot;);
+        pages.add(&quot;/hadoop-family-roadmap/&quot;);
+        pages.add(&quot;/hadoop-hive-intro/&quot;);
+        pages.add(&quot;/hadoop-zookeeper-intro/&quot;);
+        pages.add(&quot;/hadoop-mahout-roadmap/&quot;);
+
+        if(!pages.contains(kpi.getRequest())){
+            kpi.setValid(false);
+        }
+        return kpi;
+    }
+    /**
+     * @param args
+     * @throws Exception 
+     */
+    public static void main(String[] args) throws Exception {
+        String line = &quot;222.68.172.190 - - [18/Sep/2013:06:49:57 +0000] \&quot;GET /images/my.jpg HTTP/1.1\&quot; 200 19939 \&quot;http://www.angularjs.cn/A00n\&quot; \&quot;Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36\&quot;&quot;;
+        logger.info(line);
+
+        KPI kpi = new KPI();
+        String[] arr = line.split(&quot; &quot;);
+        kpi.setRemoteAddr(arr[0]);
+        kpi.setRemoteUser(arr[1]);
+        kpi.setTimeLocal(arr[3].substring(1));
+        kpi.setRequest(arr[6]);
+        kpi.setStatus(arr[8]);
+        kpi.setBodyBytesSent(arr[9]);
+        kpi.setHttpReferer(arr[10]);
+        kpi.setHttpUserAgent(arr[11] + arr[12]);
+        logger.info(kpi.toString());
+
+        SimpleDateFormat df = new SimpleDateFormat(&quot;yyyy.MM.dd HH:mm:ss&quot;, Locale.US);
+        logger.info(df.format(kpi.getTimeLocalDate()));
+        logger.info(kpi.getTimeLocalDateHour());
+        logger.info(kpi.getHttpRefererDomain());
+
+    }
+    public Date getTimeLocalDate() throws ParseException {
+        SimpleDateFormat df = new SimpleDateFormat(&quot;dd/MMM/yyyy:HH:mm:ss&quot;, Locale.US);
+        return df.parse(this.timeLocal);
+    }
+
+    public String getTimeLocalDateHour() throws ParseException{
+        SimpleDateFormat df = new SimpleDateFormat(&quot;yyyyMMddHH&quot;);
+        return df.format(this.getTimeLocalDate());
+    }
+    public String getHttpRefererDomain(){
+        if(httpReferer.length()&lt;8){ 
+            return httpReferer;
+        }
+
+        String str=this.httpReferer.replace(&quot;\&quot;&quot;, &quot;&quot;).replace(&quot;http://&quot;, &quot;&quot;).replace(&quot;https://&quot;, &quot;&quot;);
+        return str.indexOf(&quot;/&quot;)&gt;0?str.substring(0, str.indexOf(&quot;/&quot;)):str;
+    }
+    public String getRemoteAddr() {
+        return remoteAddr;
+    }
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+    public String getRemoteUser() {
+        return remoteUser;
+    }
+    public void setRemoteUser(String remoteUser) {
+        this.remoteUser = remoteUser;
+    }
+    public String getTimeLocal() {
+        return timeLocal;
+    }
+    public void setTimeLocal(String timeLocal) {
+        this.timeLocal = timeLocal;
+    }
+    public String getRequest() {
+        return request;
+    }
+    public void setRequest(String request) {
+        this.request = request;
+    }
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+    public String getBodyBytesSent() {
+        return bodyBytesSent;
+    }
+    public void setBodyBytesSent(String bodyBytesSent) {
+        this.bodyBytesSent = bodyBytesSent;
+    }
+    public String getHttpReferer() {
+        return httpReferer;
+    }
+    public void setHttpReferer(String httpReferer) {
+        this.httpReferer = httpReferer;
+    }
+    public String getHttpUserAgent() {
+        return httpUserAgent;
+    }
+    public void setHttpUserAgent(String httpUserAgent) {
+        this.httpUserAgent = httpUserAgent;
+    }
+    public boolean isValid() {
+        return valid;
+    }
+    public void setValid(boolean valid) {
+        this.valid = valid;
+    }
+}
+</code></pre></li>
+<li><p>KPIPV 访问量</p>
+<pre><code>/**
+ * KPIPV.java created at 2017年5月19日 上午11:56:35
+ */
+package org.monuo.myhadoop.kpi;
+
+import java.io.IOException;
+import java.util.Iterator;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapReduceBase;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.TextInputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
+
+/**
+ * @author saxon
+ */
+public class KPIPV {
+    /**
+     * Mapper类
+     * @author saxon
+     */
+    public static class KPIPVMapper extends MapReduceBase implements Mapper&lt;Object, Text, Text, IntWritable&gt;{
+        private IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+
+        public void map(Object key, Text value, OutputCollector&lt;Text, IntWritable&gt; output, Reporter reporter)
+                throws IOException {
+            KPI kpi = KPI.filterPVs(value.toString());
+            if(kpi.isValid()){
+                word.set(kpi.getRequest());
+                output.collect(word, one);
+            }
+        }
+
+    }
+    /**
+     * reducer 类
+     * @author saxon
+     */
+    public static class KPIPVReducer extends MapReduceBase implements Reducer&lt;Text, IntWritable, Text, IntWritable&gt;{
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterator&lt;IntWritable&gt; values, OutputCollector&lt;Text, IntWritable&gt; output,
+                Reporter reporter) throws IOException {
+            int sum = 0;
+            while (values.hasNext()) {
+                sum +=values.next().get();
+            }
+            result.set(sum);
+            output.collect(key, result);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        String input = &quot;hdfs://192.168.159.132:9000/user/hdfs/log_kpi/&quot;;
+        String output = &quot;hdfs://192.168.159.132:9000/user/hdfs/log_kpi/pv&quot;;
+
+        JobConf conf = new JobConf(KPIPV.class);
+        conf.setJobName(&quot;KPIPV&quot;);
+
+        conf.setMapOutputKeyClass(Text.class);
+        conf.setMapOutputValueClass(IntWritable.class);
+
+        conf.setOutputKeyClass(Text.class);
+        conf.setOutputValueClass(IntWritable.class);
+
+        conf.setMapperClass(KPIPVMapper.class);
+        conf.setCombinerClass(KPIPVReducer.class);
+        conf.setReducerClass(KPIPVReducer.class);
+
+        conf.setInputFormat(TextInputFormat.class);
+        conf.setOutputFormat(TextOutputFormat.class);
+
+        FileInputFormat.setInputPaths(conf, new Path(input));
+        FileOutputFormat.setOutputPath(conf, new Path(output));
+
+        JobClient.runJob(conf);
+        System.exit(0);
+    }
+}
+</code></pre></li>
+</ul>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/05/20/hadoop系列学习/Hadoop Mapreduce实现简单的矩阵乘法/">Hadoop Mapreduce实现简单的矩阵乘法</a><a class="next" href="/2017/05/18/hadoop系列学习/Hadoop MapReduce初步认识/">Hadoop MapReduce初步认识</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

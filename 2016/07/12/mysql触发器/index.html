@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>mysql触发器 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">mysql触发器</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">mysql触发器</h1><div class="post-meta">Jul 12, 2016<span> | </span><span class="category"><a href="/categories/MySQL/">MySQL</a></span></div><div class="post-content"><h4 id="创建触发器"><a href="#创建触发器" class="headerlink" title="创建触发器:"></a>创建触发器:</h4><pre><code>CREATE TRIGGER trigger_name trigger_event ON tbl_name FOR EACH ROW trigger_tmt;
+</code></pre><blockquote>
+<p>注意:<br>            触发器只能创建在永久表(Paymenent Table)上,不能对临时表(Temporary Table)创建触发器。</p>
+</blockquote>
+<pre><code>    DELIMITER $$
+    CREATE TRIGGER ins_film
+    AFTER INSERT ON film FOR EACH ROW BEGIN
+    INSERT INTO film_text (film_id, title, description)
+    VALUES (new.film_id, new.title, new.description);
+    END;
+    $$
+    delimiter ;
+
+对于有重复记录，需要进行 UPDATE 操作的 INSERT，触发器触发的顺序是 BEFORE INSERT、BEFORE UPDATE、AFTER UPDATE；对于没有重复记录的 INSERT，就是简单的执行 INSERT 操作，触发器触发的顺序是 BEFORE INSERT、AFTER INSERT。对于那些实际执行 UPDATE 操作的记录，仍然会执行 BEFORE INSERT 触发器的内容，在设计触发器的时候一定要考虑这种情况，避免错误地触发了触发器。
+</code></pre><h4 id="删除触发器"><a href="#删除触发器" class="headerlink" title="删除触发器:"></a>删除触发器:</h4><pre><code>DROP TRIGGER INS_FILM;
+</code></pre><h4 id="查看触发器"><a href="#查看触发器" class="headerlink" title="查看触发器:"></a>查看触发器:</h4><pre><code>mysql&gt; show triggers \G;
+*************************** 1. row ***************************
+             Trigger: ins_film
+               Event: INSERT
+               Table: film
+           Statement: BEGIN
+INSERT INTO film_text (film_id, title, description)
+VALUES (new.film_id, new.title, new.description);
+END
+              Timing: AFTER
+             Created: NULL
+            sql_mode: STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+             Definer: root@%
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: latin1_swedish_ci
+1 row in set (0.00 sec)
+
+mysql&gt; select * from information_schema.triggers where trigger_name like &apos;ins_film&apos;\G;
+*************************** 1. row ***************************
+           TRIGGER_CATALOG: def
+            TRIGGER_SCHEMA: test
+              TRIGGER_NAME: ins_film
+        EVENT_MANIPULATION: INSERT
+      EVENT_OBJECT_CATALOG: def
+       EVENT_OBJECT_SCHEMA: test
+        EVENT_OBJECT_TABLE: film
+              ACTION_ORDER: 0
+          ACTION_CONDITION: NULL
+          ACTION_STATEMENT: BEGIN
+INSERT INTO film_text (film_id, title, description)
+VALUES (new.film_id, new.title, new.description);
+END
+        ACTION_ORIENTATION: ROW
+             ACTION_TIMING: AFTER
+ACTION_REFERENCE_OLD_TABLE: NULL
+ACTION_REFERENCE_NEW_TABLE: NULL
+  ACTION_REFERENCE_OLD_ROW: OLD
+  ACTION_REFERENCE_NEW_ROW: NEW
+                   CREATED: NULL
+                  SQL_MODE: STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+                   DEFINER: root@%
+      CHARACTER_SET_CLIENT: utf8
+      COLLATION_CONNECTION: utf8_general_ci
+        DATABASE_COLLATION: latin1_swedish_ci
+1 row in set (0.23 sec)
+
+ERROR:
+No query specified
+</code></pre><h4 id="触发器的使用"><a href="#触发器的使用" class="headerlink" title="触发器的使用"></a>触发器的使用</h4><h5 id="触发器执行的语句有以下两个限制。"><a href="#触发器执行的语句有以下两个限制。" class="headerlink" title="触发器执行的语句有以下两个限制。"></a>触发器执行的语句有以下两个限制。</h5><ul>
+<li>1 触发程序不能调用将数据返回客户端的存储程序， 也不能使用采用 CALL 语句的动态 SQL语句，但是允许存储程序通过参数将数据返回触发程序。也就是存储过程或者函数通过 OUT或者 INOUT 类型的参数将数据返回触发器是可以的，但是不能调用直接返回数据的过程。  <ul>
+<li>2 不能在触发器中使用以显式或隐式方式开始或结束事务的语句， 如 START TRANSACTION、COMMIT 或 ROLLBACK。MySQL 的触发器是按照 BEFORE 触发器、行操作、AFTER 触发器的顺序执行的，其中任何一步操作发生错误都不会继续执行剩下的操作。如果是对事务表进行的操作，那么会整个作为一个事务被回滚（Rollback），但是如果是对非事务表进行的操作，那么已经更新的记录将无法回滚，这也是设计触发器的时候需要注意的问题。</li>
+</ul>
+</li>
+</ul>
+</div><div class="tags"><a href="/tags/MySql/">MySql</a></div><div class="post-nav"><a class="pre" href="/2016/07/12/mysql事务控制和锁定语句/">mysql事务控制和锁定语句</a><a class="next" href="/2016/07/12/mysql运算符/">mysql运算符</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

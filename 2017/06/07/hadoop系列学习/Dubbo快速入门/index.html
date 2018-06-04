@@ -1,0 +1,431 @@
+<!DOCTYPE html><html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Dubbo快速入门 | MNUO</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/8.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Dubbo快速入门</h1><a id="logo" href="/.">MNUO</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> Start</i></a><a href="/archives/"><i class="fa fa-archive"> Archiv</i></a><a href="/about/"><i class="fa fa-user"> Über</i></a><a href="/atom.xml"><i class="fa fa-rss"> RSS</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Dubbo快速入门</h1><div class="post-meta">Jun 7, 2017<span> | </span><span class="category"><a href="/categories/Hadoop/">Hadoop</a></span></div><div class="post-content"><p>Dubbo是一个分布式服务框架,致力于提供高性能和透明化的BRC远程服务调用方案, 以及SOA服务治理方案。<br>其核心部分包含: </p>
+<ul>
+<li>远程通讯: 提供对多种基于长连接的NIO框架抽象封装,包括多种线程模型,序列化,以及”请求-响应” 模式的信息交换方式</li>
+<li>集群容错: 提供基于接口方法的透明远程过程调用,包过多种协议支持,以及软负载均衡,失败容错,地址路由,动态配置等集群支持</li>
+<li>自动发现: 基于注册中心目录服务,使服务消费方能动态的查找服务提供方,试地址透明,使服务提供方可以平滑增加或减少机器</li>
+</ul>
+<h3 id="Dobbo-Zookeeper-spring集成"><a href="#Dobbo-Zookeeper-spring集成" class="headerlink" title="Dobbo + Zookeeper + spring集成"></a>Dobbo + Zookeeper + spring集成</h3><ul>
+<li><p>服务提供dubboserver</p>
+<ul>
+<li><p>pom.xml</p>
+<pre><code>&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;com.monuo&lt;/groupId&gt;
+  &lt;artifactId&gt;dubboserver&lt;/artifactId&gt;
+  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;packaging&gt;war&lt;/packaging&gt;
+  &lt;properties&gt;  
+      &lt;!-- spring版本号 --&gt;  
+      &lt;spring.version&gt;4.3.3.RELEASE&lt;/spring.version&gt;  
+      &lt;!-- mybatis版本号 --&gt;  
+      &lt;hibernate.version&gt;4.3.1.Final&lt;/hibernate.version&gt;  
+      &lt;!-- log4j日志文件管理包版本 --&gt;  
+      &lt;slf4j.version&gt;1.7.7&lt;/slf4j.version&gt;  
+      &lt;log4j.version&gt;1.2.17&lt;/log4j.version&gt;  
+      &lt;commons.fileupload.version&gt;1.2.1&lt;/commons.fileupload.version&gt;  
+      &lt;!-- 文件拷贝时的编码 --&gt;  
+      &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;  
+      &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;  
+      &lt;!-- 编译时的编码 --&gt;  
+      &lt;maven.compiler.encoding&gt;UTF-8&lt;/maven.compiler.encoding&gt;
+        &lt;!-- &lt;project.deploy&gt;deploy&lt;/project.deploy&gt;  
+        &lt;project.tomcat.version&gt;8.0.33&lt;/project.tomcat.version&gt;   --&gt;
+  &lt;/properties&gt;
+    &lt;dependencies&gt;
+    &lt;dependency&gt;    
+       &lt;groupId&gt;junit&lt;/groupId&gt;    
+       &lt;artifactId&gt;junit&lt;/artifactId&gt;    
+       &lt;version&gt;4.11&lt;/version&gt;    
+       &lt;!-- 表示开发的时候引入，发布的时候不会加载此包 --&gt;    
+       &lt;scope&gt;test&lt;/scope&gt;    
+   &lt;/dependency&gt; 
+    &lt;!-- Servlet+JSP+JSTL --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+        &lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;
+        &lt;version&gt;3.1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;javax.servlet.jsp&lt;/groupId&gt;
+        &lt;artifactId&gt;javax.servlet.jsp-api&lt;/artifactId&gt;
+        &lt;version&gt;2.3.1&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+        &lt;artifactId&gt;jstl&lt;/artifactId&gt;
+        &lt;version&gt;1.2&lt;/version&gt;
+    &lt;/dependency&gt;
+     &lt;!-- spring核心包 --&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-core&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-web&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-oxm&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-tx&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-jdbc&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-aop&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-orm&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;    
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-context-support&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt;
+    &lt;dependency&gt;    
+        &lt;groupId&gt;org.springframework&lt;/groupId&gt;    
+        &lt;artifactId&gt;spring-test&lt;/artifactId&gt;    
+        &lt;version&gt;${spring.version}&lt;/version&gt;    
+    &lt;/dependency&gt; 
+   &lt;dependency&gt;
+        &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+        &lt;artifactId&gt;dubbo&lt;/artifactId&gt;
+        &lt;version&gt;2.5.3&lt;/version&gt;
+        &lt;exclusions&gt;
+                &lt;exclusion&gt;
+                    &lt;artifactId&gt;spring&lt;/artifactId&gt;   
+                    &lt;groupId&gt;org.springframework&lt;/groupId&gt;  
+                &lt;/exclusion&gt;
+                &lt;exclusion&gt;
+                    &lt;artifactId&gt;javassist&lt;/artifactId&gt;   
+                    &lt;groupId&gt;org.javassist&lt;/groupId&gt;  
+                &lt;/exclusion&gt;
+                &lt;exclusion&gt;
+                    &lt;artifactId&gt;netty&lt;/artifactId&gt;   
+                    &lt;groupId&gt;io.netty&lt;/groupId&gt;  
+                &lt;/exclusion&gt;
+            &lt;/exclusions&gt;
+    &lt;/dependency&gt; 
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.javassist&lt;/groupId&gt;
+        &lt;artifactId&gt;javassist&lt;/artifactId&gt;
+        &lt;version&gt;3.20.0-GA&lt;/version&gt;
+    &lt;/dependency&gt; 
+    &lt;!-- https://mvnrepository.com/artifact/io.netty/netty-all --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;io.netty&lt;/groupId&gt;
+        &lt;artifactId&gt;netty-all&lt;/artifactId&gt;
+        &lt;version&gt;4.1.11.Final&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;  
+        &lt;groupId&gt;log4j&lt;/groupId&gt;  
+        &lt;artifactId&gt;log4j&lt;/artifactId&gt;  
+        &lt;version&gt;${log4j.version}&lt;/version&gt;  
+    &lt;/dependency&gt;  
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.101tec&lt;/groupId&gt;
+        &lt;artifactId&gt;zkclient&lt;/artifactId&gt;
+        &lt;version&gt;0.9&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;
+        &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;
+        &lt;version&gt;3.4.9&lt;/version&gt;
+        &lt;exclusions&gt;
+                &lt;exclusion&gt;
+                    &lt;artifactId&gt;netty&lt;/artifactId&gt;   
+                    &lt;groupId&gt;io.netty&lt;/groupId&gt;  
+                &lt;/exclusion&gt;
+            &lt;/exclusions&gt;
+    &lt;/dependency&gt; 
+    &lt;dependency&gt;
+            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+            &lt;artifactId&gt;slf4j-log4j12&lt;/artifactId&gt;
+            &lt;version&gt;${slf4j.version}&lt;/version&gt;
+        &lt;/dependency&gt;
+  &lt;/dependencies&gt;          
+    &lt;!-- &lt;build&gt;  
+    &lt;plugins&gt;  
+        &lt;plugin&gt;  
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  
+            &lt;artifactId&gt;maven-jar-plugin&lt;/artifactId&gt;  
+            &lt;version&gt;2.6&lt;/version&gt;  
+            &lt;configuration&gt;  
+                &lt;archive&gt;  
+                    &lt;manifest&gt;  
+                        &lt;addClasspath&gt;true&lt;/addClasspath&gt;  
+                        &lt;classpathPrefix&gt;lib/&lt;/classpathPrefix&gt;  
+                        &lt;mainClass&gt;com.xxg.Main&lt;/mainClass&gt;  
+                    &lt;/manifest&gt;  
+                &lt;/archive&gt;  
+            &lt;/configuration&gt;  
+        &lt;/plugin&gt;  
+        &lt;plugin&gt;  
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  
+            &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;  
+            &lt;version&gt;2.10&lt;/version&gt;  
+            &lt;executions&gt;  
+                &lt;execution&gt;  
+                    &lt;id&gt;copy-dependencies&lt;/id&gt;  
+                    &lt;phase&gt;package&lt;/phase&gt;  
+                    &lt;goals&gt;  
+                        &lt;goal&gt;copy-dependencies&lt;/goal&gt;  
+                    &lt;/goals&gt;  
+                    &lt;configuration&gt;  
+                        &lt;outputDirectory&gt;${project.build.directory}/lib&lt;/outputDirectory&gt;  
+                    &lt;/configuration&gt;  
+                &lt;/execution&gt;  
+            &lt;/executions&gt;  
+        &lt;/plugin&gt;  
+
+    &lt;/plugins&gt;  
+&lt;/build&gt;   --&gt;
+&lt;build&gt;
+    &lt;plugins&gt;  
+        &lt;plugin&gt;  
+            &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  
+            &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;  
+            &lt;configuration&gt;  
+                &lt;source&gt;1.8&lt;/source&gt;  
+                &lt;target&gt;1.8&lt;/target&gt;  
+            &lt;/configuration&gt;  
+        &lt;/plugin&gt;
+        &lt;plugin&gt;  
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  
+                &lt;artifactId&gt;maven-resources-plugin&lt;/artifactId&gt;  
+                &lt;version&gt;2.6&lt;/version&gt;  
+                &lt;configuration&gt;  
+                    &lt;encoding&gt;UTF-8&lt;/encoding&gt;&lt;!-- 指定编码格式，否则在DOS下运行mvn命令时当发生文件资源copy时将使用系统默认使用GBK编码 --&gt;  
+                &lt;/configuration&gt;  
+            &lt;/plugin&gt;    
+    &lt;/plugins&gt; 
+&lt;/build&gt;
+&lt;/project&gt;
+</code></pre></li>
+<li><p>web.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;    
+&lt;web-app xmlns=&quot;http://java.sun.com/xml/ns/javaee&quot;  
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;  
+    xsi:schemaLocation=&quot;http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd&quot;  
+    version=&quot;3.0&quot;  
+    metadata-complete=&quot;false&quot;&gt;  
+
+    &lt;context-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;classpath:spring/springmvc-config.xml;classpath:dubbo/*.xml&lt;/param-value&gt;
+    &lt;/context-param&gt;
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+            &lt;param-value&gt;classpath:spring/springmvc-config.xml&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+        &lt;async-supported&gt;true&lt;/async-supported&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;DispatcherServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;filter&gt;
+        &lt;filter-name&gt;CharacterEncodingFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.springframework.web.filter.CharacterEncodingFilter&lt;/filter-class&gt;
+        &lt;async-supported&gt;true&lt;/async-supported&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;encoding&lt;/param-name&gt;
+            &lt;param-value&gt;UTF-8&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;forceEncoding&lt;/param-name&gt;
+            &lt;param-value&gt;true&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;CharacterEncodingFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+&lt;/web-app&gt;
+</code></pre></li>
+<li>sprimgmvc-config.xml<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;  
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;  
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; 
+    xmlns:p=&quot;http://www.springframework.org/schema/p&quot;  
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;  
+    xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot; 
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot; 
+    xmlns:cache=&quot;http://www.springframework.org/schema/cache&quot; 
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-4.3.xsd  
+                        http://www.springframework.org/schema/tx 
+                        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+                        http://www.springframework.org/schema/cache
+                        http://www.springframework.org/schema/cache/spring-cache-4.3.xsd&quot;&gt;
+    &lt;!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory --&gt;  
+    &lt;mvc:resources mapping=&quot;/resources/**&quot; location=&quot;/resources/&quot; /&gt; 
+    &lt;!-- Enables the Spring MVC @Controller programming model --&gt;  
+    &lt;mvc:annotation-driven/&gt;
+    &lt;!--spring 自动扫描org.monuo下边的所有类  --&gt;  
+    &lt;context:component-scan base-package=&quot;com.monuo&quot; /&gt;  
+    &lt;context:property-placeholder location=&quot;classpath:config.properties&quot; /&gt;
+    &lt;!-- 自定义配置Service --&gt;  
+  &lt;!--   &lt;beans:bean id=&quot;sayHelloService&quot; class=&quot;org.monuo.dubboserver.service.DemoServiceImpl&quot;/&gt; --&gt; 
+&lt;/beans&gt;
+</code></pre></li>
+<li><p>dubbo-config.xml</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;    
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;    
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;    
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+        http://www.springframework.org/schema/beans/spring-beans.xsd    
+        http://code.alibabatech.com/schema/dubbo    
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;    
+    &lt;!--   系统项目名  
+    &lt;dubbo:application name=&quot;DubboDemo&quot; /&gt; 
+     注册中心    
+    &lt;dubbo:registry protocol=&quot;zookeeper&quot; address=&quot;${able_zookeeper}&quot;  /&gt;  
+     是否纳入调用统计报表（可选）  
+    &lt;dubbo:monitor protocol=&quot;registry&quot;/&gt;  
+     协议  
+    &lt;dubbo:protocol name=&quot;dubbo&quot; port=&quot;31581&quot; /&gt; 
+
+    服务者与消费者的默认配置  
+    延迟到Spring初始化完成后，再暴露服务,服务调用超时设置为6秒,超时不重试      
+    &lt;dubbo:provider delay=&quot;-1&quot; timeout=&quot;6000&quot; retries=&quot;0&quot;/&gt;  
+    &lt;dubbo:consumer timeout=&quot;6000&quot; retries=&quot;0&quot;/&gt;  
+
+     --&gt;
+    &lt;!-- 具体的实现bean --&gt;  
+    &lt;bean id=&quot;demoService&quot; class=&quot;com.monuo.dubboserver.service.DemoServiceImpl&quot; /&gt;  
+
+    &lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;  
+    &lt;dubbo:application name=&quot;xs_provider&quot; /&gt;  
+
+    &lt;!-- 使用multicast广播注册中心暴露服务地址 --&gt;  
+    &lt;!-- &lt;dubbo:registry address=&quot;multicast://224.5.6.7:1234&quot; /&gt;  --&gt; 
+
+    &lt;!-- 使用zookeeper注册中心暴露服务地址 ,即zookeeper的所在服务器ip地址和端口号 --&gt;  
+    &lt;dubbo:registry address=&quot;${able_zookeeper}&quot; /&gt;  
+
+    &lt;!-- 用dubbo协议在20880端口暴露服务 --&gt;  
+    &lt;dubbo:protocol name=&quot;dubbo&quot; port=&quot;20880&quot;/&gt;  
+    &lt;dubbo:provider delay=&quot;-1&quot; timeout=&quot;1200000&quot; retries=&quot;0&quot;/&gt;  
+    &lt;!-- 声明需要暴露的服务接口 --&gt;  
+    &lt;dubbo:service interface=&quot;com.monuo.dubboserver.service.DemoService&quot;  ref=&quot;demoService&quot;/&gt;  
+&lt;/beans&gt;
+</code></pre></li>
+<li><p>java 类</p>
+<pre><code>public class User implements Serializable {
+    private static final long serialVersionUID = -1776596657814853993L;
+
+    private long id;
+    private String name;
+    private int age;
+    private String sex;
+    ...
+}
+public interface DemoService {
+    public String sayHello(String name);
+    public List&lt;User&gt; getUsers();  
+}
+
+public class DemoServiceImpl implements DemoService {
+    @Override
+    public List&lt;User&gt; getUsers() {
+        List&lt;User&gt; list = new ArrayList&lt;User&gt;();  
+        User u1 = new User();  
+        u1.setName(&quot;hejingyuan&quot;);  
+        u1.setAge(20);  
+        u1.setSex(&quot;f&quot;);  
+
+        User u2 = new User();  
+        u2.setName(&quot;xvshu&quot;);  
+        u2.setAge(21);  
+        u2.setSex(&quot;m&quot;);  
+</code></pre></li>
+</ul>
+</li>
+</ul>
+<pre><code>        list.add(u1);  
+        list.add(u2);  
+
+        return list;  
+    }
+    @Override
+    public String sayHello(String name) {
+        return &quot;Hello &quot; + name;  
+    }
+}
+</code></pre><ul>
+<li><p>消费者端: 将服务端的接口打成jar引入消费端</p>
+<pre><code>- consumer.xml
+        &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;    
+        &lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;    
+            xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;    
+            xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans    
+                http://www.springframework.org/schema/beans/spring-beans.xsd    
+                http://code.alibabatech.com/schema/dubbo    
+                http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;  
+
+            &lt;!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 --&gt;  
+            &lt;dubbo:application name=&quot;monuo_consumer&quot; /&gt;  
+
+            &lt;!-- 使用zookeeper注册中心暴露服务地址 --&gt;  
+            &lt;!-- &lt;dubbo:registry address=&quot;multicast://10.185.49.17:1234&quot; /&gt;   --&gt;
+            &lt;dubbo:registry address=&quot;${able_zookeeper}&quot; /&gt;  
+
+            &lt;!-- 生成远程服务代理，可以像使用本地bean一样使用demoService --&gt;  
+            &lt;dubbo:reference id=&quot;demoService&quot; interface=&quot;com.monuo.dubboserver.service.DemoService&quot; /&gt;  
+        &lt;/beans&gt;
+- java 代码        
+        public static void main(String[] args) {
+            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(new String[]{&quot;spring/springmvc-config.xml&quot;,&quot;dubbo/consumer.xml&quot;});
+            context.start();
+            DemoService demoService = (DemoService) context.getBean(&quot;demoService&quot;);
+            String hello = demoService.sayHello(&quot;hejingyuan&quot;);  
+            System.out.println(hello);  
+
+            List&lt;User&gt; list = demoService.getUsers();  
+            if (list != null &amp;&amp; list.size() &gt; 0) {  
+                for (int i = 0; i &lt; list.size(); i++) {  
+                    System.out.println(list.get(i));  
+                }  
+            } 
+        }                        
+</code></pre></li>
+<li>运行结果:<pre><code>...
+Hello hejingyuan
+2017-06-08 13:19:29 [com.alibaba.dubbo.remoting.transport.DecodeHandler]-[DEBUG]  [DUBBO] Decode decodeable message com.alibaba.dubbo.rpc.protocol.dubbo.DecodeableRpcResult, dubbo version: 2.5.3, current host: 10.185.49.17
+User [id=0, name=hejingyuan, age=20]
+User [id=0, name=xvshu, age=21]
+...
+</code></pre></li>
+</ul>
+<p>参考文章:<br><a href="http://blog.csdn.net/top_code/article/details/51010614" target="_blank" rel="noopener">http://blog.csdn.net/top_code/article/details/51010614</a></p>
+</div><div class="tags"><a href="/tags/Hadoop/">Hadoop</a></div><div class="post-nav"><a class="pre" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a><a class="next" href="/2017/05/26/hadoop系列学习/HBase集群安装/">HBase集群安装</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://yoursite.com"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> Kategorien</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Github/">Github</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Hadoop/">Hadoop</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JMS/">JMS</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java-Web/">Java Web</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mave/">Mave</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Nosql/">Nosql</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSH/">SSH</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web-Service/">Web Service</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式java基础应用和实践/">分布式java基础应用和实践</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> Tags</i></div><div class="tagcloud"><a href="/tags/分布式java基础应用和实践/" style="font-size: 15px;">分布式java基础应用和实践</a> <a href="/tags/Github/" style="font-size: 15px;">Github</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/MySql/" style="font-size: 15px;">MySql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/nginx/" style="font-size: 15px;">nginx</a> <a href="/tags/JMS/" style="font-size: 15px;">JMS</a> <a href="/tags/Nosql/" style="font-size: 15px;">Nosql</a> <a href="/tags/SSH/" style="font-size: 15px;">SSH</a> <a href="/tags/Web-Service/" style="font-size: 15px;">Web Service</a> <a href="/tags/Hadoop/" style="font-size: 15px;">Hadoop</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> Letzte</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/08/12/SSH/webservice基础/">WebService</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/07/12/JMS/JSM(1)--介绍/">JMS(1) -- 介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/25/SSH/spring security 系列2/">spring security 系列2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/20/SSH/spring security 系列1/">spring security 系列1</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/15/Nosql/Mongodb windown安装和简单入门/">Mongodb windown安装和简单入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/14/SSH/Hibernate 二级缓存/">Hibernate 二级缓存</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/13/hadoop系列学习/Redis + Springmvc + Hibernate + Spring/">Redis + Springmvc + Hibernate + Spring</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/09/hadoop系列学习/Redis 入门基础(2)/">Redis 入门基础(2)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/08/hadoop系列学习/Redis 入门基础/">Redis 入门基础(1)</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/06/07/hadoop系列学习/Dubbo快速入门/">Dubbo快速入门</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> Blogroll</i></div><ul></ul><a href="http://www.example1.com/" title="site-name1" target="_blank">site-name1</a><ul></ul><a href="http://www.example2.com/" title="site-name2" target="_blank">site-name2</a><ul></ul><a href="http://www.example3.com/" title="site-name3" target="_blank">site-name3</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">MNUO.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.0" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.3.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
