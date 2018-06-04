@@ -230,9 +230,13 @@ div {
     .post .post-content h3 {
       margin: 1.4em 0 1.1em; }
     .post .post-content pre code {
-      padding: 0 2em; }
+      padding: 0 2em; 
+	  font-family: Courier New;
+    font-size: 13px;}
     .post .post-content p {
-      margin: 0 0 1.234em; }
+      margin: 0 0 1.234em; 
+	  font-family: Courier New;
+    font-size: 13px;}
       .post .post-content p code {
         display: inline-block;
         margin: 0 5px;
