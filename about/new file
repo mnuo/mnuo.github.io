@@ -1,0 +1,314 @@
+1, 下载nodejs: node-v10.15.3-x64.msi
+安装完:＼
+	验证命令:　node -v
+				npm -v
+
+2, 配置全局变量环境
+	cd /d/appservers/nodejs			//进入安装目录
+	mkdir node_global				//新建 node_global目录
+	mkdir node_cache				//新建 node_cache目录
+	npm config set prefix "D:\appservers\nodejs\node_global"
+	npm config set cache "D:\appservers\nodejs\node_cache"
+	
+3, 配置环境变量
+	系统变量增加:
+	NODE_PATH-->D:\appservers\nodejs\node_global\node_modules
+	用户变量Path增加: 
+	Path-->D:\appservers\nodejs\node_global\
+	
+4, 测试:
+	npm install express -g　	//g全局安装express插件, 在root + /node_global/node_modules下可以看到
+	
+5, 安装cnpm.
+	作用: 如果在cmd中直接使用npm来安装的一些工具的话会比较慢，所以我们使用淘宝的npm镜像;以后再用到npm的地方直接用cnpm来代替就好
+	npm install -g cnpm --registry=https://registry.npm.taobao.org
+	
+6, 安装全局vue-cli脚手架，
+	作用:因为这个工具能帮我们搭建好我们需要的模板框架(可以理解为各种文件模板)，比较简单。
+	cnpm install -g  vue-cli 
+	验证: 
+	vue -V
+
+7, 新建项目 
+	vue init webpack (项目名)
+
+8, vue-cli安装出来的项目模板间是相互依赖的，所有我们需要进入项目中安装项目依赖。cd vue_test_project进入项目中
+★★★ 此处需特别注意：从npm上安装依赖，即npm install虽然慢了点，但是安装的依赖包是完全的，没有少文件。
+如若从cnpm上安装依赖，即cnpm install 可能会导致最后安装的依赖包不完整。
+★不建议从淘宝镜像上即cnpm安装依赖，可能会导致项目运行不了。（出问题时可以试着两者都试试）
+完成后你会发现项目中多了个node_modules文件，就是依赖包。
+
+9 启动
+	cd vue-text-project
+	cnpm run dev
+	访问: http://localhost:8080/
+	
+10 vscode安装
+11 vs import folder
+	npm install 安装依赖
+	npm start / npm run dev 启动项目
+	
+12 导入elementui
+
+------------------------------------------------------------------------------------
+项目结构: 
+	build -- 项目构建(webpack)相关代码
+	config --项目配置, 比如端口, Ip
+	node_modules -- npm加载的依赖模块
+	src 	-- 我们开发目录, 基本所有事情都写在这里
+	static 	--静态资源目录
+		-- app.vue	--项目入口文件
+		-- components	-- 组件文件
+		-- assets		-- 放置图片,比如logo
+		-- main.js		-- 项目核心文件
+	.xxxx	--配置文件,比如git,语法之类
+	index.html	-- 首页文件入口
+	package.json	-- 项目配置文件, 比如依赖
+	
+------------------------------------------------------------------------------------------------------------------------------
+col[name="gutter"][width="0"] {
+    display: none;
+}
+//页面table放大, scroll消失 table header没有恢复添加样式
+
+Error: 
+	表示由JVM检测到的无法预期的错误, 是JVM层次的, 导致jvm无法继续执行, 应用程序是不可扑捉到的, 无法采取任何恢复措施.
+	
+Checked Exception: 
+	通常是IO异常, SQL异常,java编译器要求对此类异常必须捕捉处理
+
+Run Exception:
+	这个是运行时异常,通常由代码错误导致,不需要处理, 有虚拟机接管抛出.比如NumPointerException, NumberFormateException等.
+	
+
+Hibernate 缓存
+	-- 一级缓存
+		是session的缓存, 是内置的, 不能被卸载的,事务范围的缓存, 在一级缓存中持久化的每个实例都具有唯一的OID
+		
+	-- 二级缓存
+		是sessionfactory的缓存,由于sessionfactory的生命周期和应用程序的对应, 所以二级缓存是进程范围或者集群范围的缓存.要使用二级缓存需要
+		手动配置缓存机制.一般使用read_only
+		
+	-- 查询缓存
+		一级二级缓存都是对整个实体进行缓存, 不会缓存普通属性,如果相对普通属性进行缓存,就考虑使用查询缓存.配置需要在配置文件中开启
+		hibernate.cache.use_query_cache=true
+
+spring事务: 
+	实现spring事务管理有多重方式, 其中一种是使用注解模式.在对应的实现类或者方法上添加@Trasactional注解.
+	在定义Transactional的时候, 由propagation,isolation,rollbackfor,noRollbackfor等属性配置.
+	其中propagation配置事务的传播行为:
+		1, required 默认情况下有事务则加入事务, 没有则新建事务
+		2, Not_support 容器不开启事务
+		3, requires_new 不管事务是否存在,都创建新事务, 原来的事务被挂起, 新的事务执行完毕, 才会继续执行
+		4, Manadatory 必须在存在的事务中执行, 没有就抛出异常
+		5, never 必须在没有事务中执行, 否则抛出异常
+		6, Support, 跟随调用它的方法,有事务就加入, 没有野不开启
+		7, nested	如果存在一个事务, 嵌套一个事务运行
+		--------------------------------------------
+		required默认, 有就加入没有就新建
+		required_new 都新建
+		not_support, 都不开启事务
+		support,有就加入, 没有也不开启
+		manadatory, 有及加入, 没有记抛异常
+		never, 没有就执行不开启, 有事务就抛异常
+		nested, 有事务就嵌套执行
+		
+	isolation配置事务的隔离级别: 
+		default: 使用数据库默认
+		read_uncommit: 读取未提交, 会出现脏读,幻读,不可重复读
+		read_commit: 会出现幻读,不可重复读
+		repeatable_read: 出现幻读
+		serialization: 都不会出现.
+	  tip: 脏读, 读取到另一个事务未提交的数据
+			不可重复读: 两次读取的数据不一样, 中间有事务修改过数据
+			幻读: 第一次查询后并发事务添加了记录, 导致比第二次少了记录
+	rollbackfor, 和norollbackfor是回滚机制设置.	
+		
+线程池
+	定义: 
+	创建线程要花费昂贵的资源和时间, 如果任务来了才创建线程, 那么响应的时间会变长, 而且一个进程能创建的线程数有限, 为了避免这些问题,在程序启动的时候
+	就创建若干线程来响应处理, 他们就是线程池, 里面的线程叫做工作线程
+	作用: 
+	在调用线程的时候初始化一定数量的线程, 有线程过来的时候, 先检测初始化的线程还有空的没有, 没有就再看当前运行中的线程是不是已经达到最大数, 如果没有
+	就新分配一个线程去处理.
+	优点：
+	可以管理线程，有一个高度中枢，这样程序才不会乱，保证系统不会因为大量的并发因为资源不足而挂掉．
+	
+Hashmap
+	1, 是一个散列桶,他存储的内容是键值对key-value映射
+	2, 采用数组和链表的数据结构, 能在查询和修改方便集成了数组的线性查找和链表的寻址修改
+	3, 是非synchronized,所以很快
+	4, 接口接受null建和值, 而HashTable则不能
+	原理:
+	HashMap是基于hashing的原理, 我们使用 put(key, value) 存储对象到 HashMap 中，使用 get(key) 从 HashMap 中获取对象。
+	当我们给 put() 方法传递键和值时，我们先对键调用 hashCode() 方法，计算并返回的 hashCode 是用于找到 Map 数组的 bucket 位置来储存 Node 对象。
+	当我们调用 get() 方法，HashMap 会使用键对象的 hashcode 找到 bucket 位置，找到 bucket 位置之后，会调用 keys.equals() 方法去找到链表中正确的节点，最终找到要找的值对象。
+	
+Springboot乐观锁和悲观锁
+		悲观锁: 每次拿数据都觉得别人会修改, 所以都加上锁。比较适合写入操作比较频繁的场景, 如果出现大量的读取操作, 每次读取的时候,都会进行加锁, 这样会加大锁的开销,降低了系统脱兔量
+		---在实体类中id后面添加@version注解, 如果需要aop需要自定义@inteface
+		
+		乐观锁: 每次拿数据都觉得不会修改, 所以只有写入的时候才进行比较是否修改。比较适合读取操作比较频繁的场景, 如果出现大量的写入操作,数据发生冲突的可能性就会增大, 为了保证数据的一致性, 应用层需要不断的重新获取
+		---- jdbc中使用select * from a for update
+			springboot jpa 添加注解: @Lock(LockModeType.PESSIMISTIC_WRITE)
+------------------------------------------------------------------------
+JVM
+	线程私有: 
+		程序计数器
+			当前线程执行的字节码的行号指示器。字节码解释器工作时通过改变这个计数器的值来选取下一条需要执行的字节码指令,比如分支循环跳转,异常处理线程恢复
+		虚拟机栈
+			生命周期和线程相同, 描述java方法执行的内存模型;由一个个栈帧组成, 每个栈帧中拥有局部变量表,操作数栈,动态链接,方法出口等。
+			局部变量表主要存放了编译器可知的各种数据类型:boolean,int,byte,char,short,float,long,double;对象引用(reference类型)
+		本地方法栈
+			跟虚拟机栈类似, 前者是为java方法(字节码)服务, 而本地方法栈是为navicat方法服务
+		
+	线程共享:
+		堆
+			存储对象,数组等,是垃圾收集器管理的主要对象。
+			可分为新,老生代,永久(元区)
+		方法区:
+			存储被虚拟机加载的类信息, 常亮,静态变量,及时编译后的代码等数据.
+			--运行时常量池: 
+				class文件除了有类的版本,字段,方法,接口等描述外,还有常量池信息(用于存放编译器生成的各种字面量和符号引用)
+		直接内存
+			即计算机的内存
+	
+	--对象的创建: 
+		1,类加载检查
+			虚拟机遇到一条new指令,首先去检查这个指令的参数是否能在常量池中定位到这个类的符号引用, 并且检查这个符号引用代表的类是否已被加载过
+			解析和初始化过, 如果没有就必须执行相应的类加载过程
+		
+		2,分配内存
+			在类加载检查通过后, 接下来虚拟机将为新生对象分配内存.对象所需要的内存大小在类加载完成后便可确定,为对象分配空间的任务等同于把一块确定大小
+			的内存从java堆中划分出来, 分配时有: 指针碰撞和空闲列表
+		
+		3,初始化零值
+		4,设置对象头
+		5,执行init
+	
+	------------------------------------------------------------------------------
+		String str1 = "abc";
+		String str2 = new String("abc");
+		System.out.println("str1=str2: " + (str1==str2));
+		
+		String str3 = new String("abc");
+		String str4 = str3.intern();
+		String str5 = "abc";
+		System.out.println("str3=str4:" + (str3 == str4));
+		System.out.println("str4=str5:" + (str4 == str5));
+		System.out.println("str3=str5:" + (str3 == str5));
+		
+		String str6 = "str";
+		String str7 = "ing";
+		 
+		String str8 = "str" + "ing";//常量池中的对象
+		String str9 = str6 + str7; //在堆上创建的新的对象     
+		String str10 = "string";//常量池中的对象
+		System.out.println("str8=str9:"+(str8 == str9));//false
+		System.out.println("str8=str10:"+(str8 == str10));//true
+		System.out.println("str9=str10:"+(str9 == str10));//false
+		
+		Integer i1 = 40;
+		Integer i2 = 40;
+		Integer i3 = 0;
+		Integer i4 = new Integer(40);
+		Integer i5 = new Integer(40);
+		Integer i6 = new Integer(0);
+		 
+		System.out.println("i1=i2:" + (i1 == i2));
+		System.out.println("i1=i2+i3:" + (i1 == i2 + i3));
+		System.out.println("i1=i4:" + (i1 == i4));
+		System.out.println("i4=i5:" + (i4 == i5));
+		System.out.println("i4=i5+i6:" + (i4 == i5 + i6));   
+		System.out.println("40=i5+i6:" + (40 == i5 + i6));
+		---------------result
+		str1=str2: false
+		str3=str4:false
+		str4=str5:true
+		str3=str5:false
+		str8=str9:false
+		str8=str10:true
+		str9=str10:false
+		i1=i2:true
+		i1=i2+i3:true
+		i1=i4:false
+		i4=i5:false
+		i4=i5+i6:true
+		40=i5+i6:true
+	
+-----------------------------------------------
+git: 
+如果希望保留生产服务器上所做的改动,仅仅并入新配置项, 处理方法如下:
+
+git stash
+git pull
+git stash pop
+然后可以使用Git diff -w +文件名来确认代码自动合并的情况。
+
+2、如果要直接使用服务器上最新版本，那么可以选择直接覆盖
+
+git reset --hard
+git pull
+其中git reset是针对版本
+---------------------------------------------------------------------------
+1 git status 查看有多少次 提交了 没有push到版本库
+
+    eg：Your branch is ahead of 'origin/master' by 1 commit.  （我这里有一次）
+
+2. 查看已经提交 但是未传送到远程代码库的提交描述/说明
+
+git cherry -v
+
+  eg: + 27122d40164dbf08276d96960bde20a2059cdb8b 修改页面
+
+3.查看已经提交但是未传送到远程代码库的提交详情（可能不止一次）
+
+git log master ^origin/master
+
+ eg：
+
+commit 27122d40164dbf08276d96960bde20a2059cdb8b
+Author: hup <673643141@qq.com>
+Date:   Mon Oct 8 11:43:19 2018 +0800
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+
+
+
