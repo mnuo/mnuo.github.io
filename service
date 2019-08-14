@@ -1,0 +1,503 @@
+package com.rt.ssm.service.impl;
+
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.security.InvalidAlgorithmParameterException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Pattern;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.rt.ssm.data.exception.DataException;
+import com.rt.ssm.domain.TreeDomai;
+import com.rt.ssm.domain.WebResponse;
+import com.rt.ssm.model.TSysDict;
+import com.rt.ssm.model.TSysImage;
+import com.rt.ssm.model.TSysOrg;
+import com.rt.ssm.model.TSysUser;
+import com.rt.ssm.model.TSysUserCostDetail;
+import com.rt.ssm.model.TSysUserCostDetailMonth;
+import com.rt.ssm.model.repository.TStudyLearningPlanReporitory;
+import com.rt.ssm.model.repository.TStudyPlanCourseReporitory;
+import com.rt.ssm.model.repository.TStudyRecordReporitory;
+import com.rt.ssm.model.repository.TSysDictReporitory;
+import com.rt.ssm.model.repository.TSysOrgReporitory;
+import com.rt.ssm.model.repository.TSysUserCostDetailMonthReporitory;
+import com.rt.ssm.model.repository.TSysUserCostDetailReporitory;
+import com.rt.ssm.model.repository.TSysUserReporitory;
+import com.rt.ssm.service.ISysService;
+import com.rt.ssm.util.PageUtil;
+import com.rt.ssm.util.ServletUtil;
+import com.rt.ssm.util.WxUtil;
+
+@Service
+@Transactional
+public class SysService implements ISysService{
+	@Autowired
+	private TSysDictReporitory sysDictReporitory;
+	@Autowired
+	private TSysOrgReporitory sysOrgReporitory;
+	@Autowired
+	private TSysUserReporitory sysUserReporitory;
+	@Autowired
+	private TSysUserCostDetailReporitory sysUserCostDetailReporitory;
+	@Autowired
+	private TStudyLearningPlanReporitory studyLearningPlanReporitory;
+	@Autowired
+	private TStudyPlanCourseReporitory studyPlanCourseReporitory;
+	@Autowired
+	private TStudyRecordReporitory studyRecordReporitory;
+	@Autowired
+	private TSysUserCostDetailMonthReporitory sysUserCostDetailMonthReporitory;
+
+	@Override
+	public Page<TSysUser> getSysUserPage(PageUtil pageUtil, Map<String, String> params) {
+		List<Order> orders = new ArrayList<Order>();
+		orders.add(Order.desc("userName"));
+		Sort sort = Sort.by(orders);
+		Pageable pageable = PageRequest.of(pageUtil.getPageCount()-1, pageUtil.getPageSize(), sort);
+		Specification<TSysUser> specification = getSysUserQueryWhere(params);
+		Page<TSysUser> page = sysUserReporitory.findAll(specification, pageable);
+		
+		return page;
+	}
+	
+	private Specification<TSysUser> getSysUserQueryWhere(Map<String, String> params) {
+		 return new Specification<TSysUser>() {
+			private static final long serialVersionUID = 6148962495098428489L;
+
+				@Override
+	            public Predicate toPredicate(Root<TSysUser> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+	                List<Predicate> predicate = new ArrayList<>();
+	                if(!StringUtils.isEmpty(params.get("orgId"))) {
+	                	predicate.add(cb.equal(root.get("orgId"), params.get("orgId")));
+	                }
+	                if(!StringUtils.isEmpty(params.get("userName"))) {
+	                	predicate.add(cb.like(root.get("userName"), '%' + params.get("userName") + '%'));
+	                }
+	                Predicate[] pre = new Predicate[predicate.size()];
+	                return query.where(predicate.toArray(pre)).getRestriction();
+	            }
+	        };
+	}
+
+	@Cacheable(value="dict",key="#p0")
+	@Override
+	public List<TSysDict> getDicts(String sType) {
+		return sysDictReporitory.findBySType(sType);
+	}
+	
+	@Override
+	public String getDictValue(String skey) {
+		TSysDict dictexp = new TSysDict();
+		dictexp.setSKey(skey);
+		Example<TSysDict> example =Example.of(dictexp); 
+		Optional<TSysDict> op = sysDictReporitory.findOne(example);
+		if(op.isPresent()) {
+			return op.get().getSValue();
+		}else {
+			return null;
+		}
+	} 
+	
+	@Override
+	public List<TSysOrg> getAreaByType(String type) {
+		return sysOrgReporitory.findByType(type);
+	}
+	@Override
+	public void saveOrUpdateUser(TSysUser user) {
+		sysUserReporitory.saveAndFlush(user);
+	}
+
+	@Override
+	public TSysUser getUserWx(String token, String requestMethod) throws DataException, InvalidAlgorithmParameterException, UnsupportedEncodingException {
+		System.out.println("token:" + token);
+		String phoneNo = WxUtil.getPhoneNo(token);
+//		String phoneNo = "13701080814";
+		System.out.println("phoneNo:" + phoneNo);
+		TSysUser user = sysUserReporitory.findByPhoneNo(phoneNo);
+		if(user == null) {
+			System.out.println("用户不存在，请检查手机号是否正确（"+requestMethod+"）");
+			throw new DataException("用户不存在，请检查手机号是否正确");
+		}
+		return user;
+		
+				
+	}
+	
+	@Override
+	public String getBasePath(HttpServletRequest request) {
+		String path = request.getContextPath();
+		String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+		return basePath;
+	}
+
+	@Override
+	public List<TreeDomai> getTreeResponse(TSysOrg org) {
+		List<TreeDomai> tree = new ArrayList<TreeDomai>();
+		
+		String orgType = org.getType();
+		if("area".equals(orgType)) {
+			TreeDomai treeDomain = new TreeDomai();
+			treeDomain.setId(org.getUId());
+			treeDomain.setName(org.getOrgName());
+			treeDomain.setChildren(getTreeChildren(org));
+			tree.add(treeDomain);
+		}else {
+			TSysOrg result = sysOrgReporitory.findByUId(org.getParentId());
+			TreeDomai treedomain = new TreeDomai();
+			treedomain.setId(result.getUId());
+			treedomain.setName(result.getOrgName());
+			tree.add(treedomain);
+		}
+		return tree;
+	}
+	public List<TreeDomai> getTreeChildren(TSysOrg org){
+		List<TreeDomai> tree = new ArrayList<TreeDomai>();
+		List<TSysOrg> orgs = sysOrgReporitory.findByParentIdAndType(org.getUId(), "area");
+		if(orgs == null || orgs.size() > 0) {
+			for(TSysOrg sysOrg : orgs) {
+				TreeDomai treeDomain = new TreeDomai();
+				treeDomain.setId(sysOrg.getUId());
+				treeDomain.setName(sysOrg.getOrgName());
+				treeDomain.setChildren(getTreeChildren(sysOrg));
+				tree.add(treeDomain);
+			}
+		}else {
+			return null;
+		}
+		return tree;
+	}
+
+	@Override
+	public List<TSysOrg> getCompanyByParenId(String areaId) {
+		return sysOrgReporitory.findByParentIdAndType(areaId, "company");
+	}
+
+	@Override
+	public void saveAvater(String uId, TSysImage image) {
+		TSysUser user = sysUserReporitory.findByUId(uId);
+		user.setOpTime(new Timestamp(new Date().getTime()));
+		user.setOpUser(ServletUtil.getLoginAdmin().getOpUser());
+		user.setImageId(image.getUId());
+		user.setImagePath(image.getImagePath());
+		sysUserReporitory.saveAndFlush(user);
+	}
+	
+	@Override
+	public void saveAvater(String uId, TSysImage image, int imageState) {
+		TSysUser user = sysUserReporitory.findByUId(uId);
+		user.setOpTime(new Timestamp(new Date().getTime()));
+		if(ServletUtil.getLoginAdmin()!=null) {
+			user.setOpUser(ServletUtil.getLoginAdmin().getOpUser());
+		}
+		
+		user.setImageId(image.getUId());
+		user.setImagePath(image.getImagePath());
+		user.setVerifyState(imageState);
+		sysUserReporitory.saveAndFlush(user);
+	}
+
+	@Override
+	public TSysDict getDictBySTypeAndSKey(String string, String tradeId) {
+		return sysDictReporitory.findBySTypeAndSKey(string, tradeId);
+	}
+	@Override
+	public TSysOrg getOrgByUid(String orgId) {
+		return sysOrgReporitory.findByUId(orgId);
+	}
+
+	@Override
+	public TSysUser getSysUserByUId(String userId) {
+		return sysUserReporitory.findByUId(userId);
+	}
+	@Override
+	public Page<TSysUserCostDetailMonth> getUserCostDetailList(String uId, PageUtil pageUtil) {
+		List<Order> orders = new ArrayList<Order>();
+		orders.add(Order.desc("yyyyMm"));
+		Sort sort = Sort.by(orders);
+		Pageable pageable = PageRequest.of(pageUtil.getPageCount()-1, pageUtil.getPageSize(), sort);
+		return sysUserCostDetailMonthReporitory.findByUserId(uId, pageable);
+	}
+	@Override
+	public void deleteUserCostDetaiMonth(String uId) {
+		TSysUserCostDetailMonth entity = sysUserCostDetailMonthReporitory.findByUId(uId);
+		sysUserCostDetailMonthReporitory.delete(entity);
+		
+	}
+	@Override
+	public void saveCostDetail(String uId, String[] mothArr, String amount) {
+		TSysUserCostDetail costDetail = sysUserCostDetailReporitory.findByUserId(uId);
+		if(costDetail == null) {
+			costDetail = new TSysUserCostDetail();
+			costDetail.setUId(UUID.randomUUID().toString());
+		}
+		costDetail.setAmount(new BigDecimal(amount));
+		costDetail.setCostTime(new Timestamp(new Date().getTime()));
+		costDetail.setTotalMoth(mothArr.length);
+		costDetail.setValidMoth(mothArr.length);
+		costDetail.setUserId(uId);
+		costDetail.setOpTime(new Timestamp(new Date().getTime()));
+		costDetail.setOpUser(ServletUtil.getLoginAdmin().getUId());
+		sysUserCostDetailReporitory.saveAndFlush(costDetail);
+		
+		//获取学习计划
+		//TSysUser user = sysUserReporitory.findByUId(uId);
+		for(String moth : mothArr) {
+			TSysUserCostDetailMonth month = sysUserCostDetailMonthReporitory.findByCostDetailIdAndYyyyMm(costDetail.getUId(), moth);
+			if(month == null) {
+				month = new TSysUserCostDetailMonth();
+				month.setUId(UUID.randomUUID().toString());
+			}
+			month.setCostDetailId(costDetail.getUId());
+			month.setYyyyMm(moth);
+			month.setOpTime(new Timestamp(System.currentTimeMillis()));
+			month.setOpUser(ServletUtil.getLoginAdmin().getUId());
+			
+			sysUserCostDetailMonthReporitory.save(month);
+			
+			
+			/*List<TStudyLearningPlan> list = studyLearningPlanReporitory.findByOrgIdAndTradeIdAndYyyyMm(user.getOrgId(), user.getTradeId(), moth);
+			//
+			for(TStudyLearningPlan plan : list) {
+				List<TStudyPlanCourse> planCourses = studyPlanCourseReporitory.findByPlanId(plan.getuId());
+				for(TStudyPlanCourse planCourse : planCourses) {
+					String courseId = planCourse.getCourseId();
+					int batch = planCourse.getBatchNum();
+					for(int i = 1; i <= batch; i ++ ) {
+						TStudyRecord record = studyRecordReporitory.findByUserIdAndPlanIdAndCourseIdAndBatchNum(uId, plan.getUId(), courseId, i);
+						if(record == null) {
+							record = new TStudyRecord();
+							record.setUId(UUID.randomUUID().toString());
+							record.setBatchNum(i);
+							record.setCourseId(courseId);
+							record.setCostDetailId(costDetail.getUId());
+							record.setPlanId(plan.getUId());
+							record.setOpTime(new Timestamp(System.currentTimeMillis()));
+							record.setOpUser(ServletUtil.getLoginAdmin().getUId());
+							record.setYyyyMm(moth);
+							record.setStatus(0);
+							record.setUnitId(planCourse.getCourse().getUnitId());
+						}else {
+							record.setCostDetailId(costDetail.getUId());
+							record.setYyyyMm(moth);
+						}
+						studyRecordReporitory.save(record);
+						
+					}
+					
+				}
+			}*/
+		}
+		
+		
+	}
+
+	@Override
+	public boolean hasUserCost(String uId) {
+		SimpleDateFormat f = new SimpleDateFormat("yyyyMM");
+		String month = f.format(new Date());
+		TSysUserCostDetailMonth obj = sysUserCostDetailReporitory.getUserCostDetailByMonth(uId, month );
+		if(obj != null) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public TSysUser getSysUserByCardId(String cardId) {
+		return sysUserReporitory.findByCardId(cardId);
+	}
+	@Override
+	public WebResponse<String> saveImport(MultipartFile file, TSysOrg org) {
+		String PHONE_NUMBER_REG = "^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[01356789]|18[0-9]|19[89])\\d{8}$";
+		String CARD_ID_REG = "\\d{15}(\\d{2}[0-9xX])?";     
+		WebResponse<String> result = new WebResponse<String>();
+        if (file == null) {
+        	result.getContent().add("上传文件不能为空");
+        	result.setCode("1");
+        	return result;
+        }
+        //获取文件的名字
+        String originalFilename = file.getOriginalFilename();
+        Workbook workbook = null;
+        try {
+            if (originalFilename.endsWith(".xls")) {
+                workbook = new HSSFWorkbook(file.getInputStream());
+            } else if (originalFilename.endsWith(".xlsx")) {
+                workbook = new XSSFWorkbook(file.getInputStream());
+            }
+        } catch (Exception e) {
+        	result.getContent().add("格式错误,请上传格式(.xls或者.xlsx)");
+        	result.setCode("1");
+        	return result;
+        }
+        
+        if (workbook == null) {
+        	result.getContent().add("格式错误,请上传格式(.xls或者.xlsx)");
+        	result.setCode("1");
+        	return result;
+        } 
+        
+        //获取所有的工作表的的数量//
+        //获取一个sheet也就是一个工作簿
+        Sheet sheet = workbook.getSheetAt(0);
+        int lastRowNum = sheet.getLastRowNum();
+        List<TSysUser> users = new ArrayList<TSysUser>();
+         // 电话的正则
+         //从第一行开始第一行一般是标题
+        try {
+        	for (int i = 1; i <= lastRowNum; i++) {
+                Row row = sheet.getRow(i);
+                TSysUser user = new TSysUser();
+                user.setOrgId(org.getUId());
+                user.setOrgName(org.getOrgName());
+                user.setOpTime(new Timestamp(System.currentTimeMillis()));
+                user.setOpUser(ServletUtil.getLoginAdmin().getUId());
+                //获取电话单元格
+                if (row.getCell(0) != null) {
+                	row.getCell(0).setCellType(CellType.STRING);
+                    String phone = row.getCell(0).getStringCellValue();
+                    //todo 正则比对
+                    boolean matche = Pattern.matches(PHONE_NUMBER_REG, phone);
+                    if (!matche) {
+                    	throw new Exception("第" + (i+1) +"手机号码格式错误");
+                    }
+                    user.setPhoneNo(phone);
+                }else {
+                	throw new Exception("第" + (i+1) +"手机号码格式错误");
+                }
+                //身份证
+                if (row.getCell(1) != null) {
+                	row.getCell(1).setCellType(CellType.STRING);
+                    String cardId = row.getCell(1).getStringCellValue();
+                    boolean matche = Pattern.matches(CARD_ID_REG, cardId);
+                    if(cardId.indexOf(".") != -1) {
+                    	throw new Exception("第" + (i+1) +"行身份证格式错误, 请使用字符串类型");
+                    }
+                    if (!matche) {
+                    	throw new Exception("第" + (i+1) +"行身份证格式错误");
+                    }
+                    TSysUser checkUser = sysUserReporitory.findByCardId(cardId);
+                    if(checkUser != null) {
+                    	throw new Exception("第" + (i+1) +"行,该用户身份证已经存在。");
+                    }
+                    user.setCardId(cardId);
+                }else {
+                	throw new Exception("第" + (i+1) +"行身份证不能为空");
+                }
+                //姓名
+                if (row.getCell(2) != null) {
+                	row.getCell(2).setCellType(CellType.STRING);
+                    String userName = row.getCell(2).getStringCellValue();
+                    if(StringUtils.isEmpty(userName)) {
+                    	throw new Exception(("第" + (i+1) +"行姓名不能为空"));
+                    }
+                    user.setUserName(userName);
+                }else {
+                	throw new Exception("第" + (i+1) +"行姓名不能为空");
+                }
+                if (row.getCell(3) != null) {
+                	row.getCell(3).setCellType(CellType.STRING);
+                    String employeeId = row.getCell(3).getStringCellValue();
+                    if(StringUtils.isEmpty(employeeId)) {
+                    	throw new Exception(("第" + (i+1) +"从业资格证号不能为空"));
+                    }
+                    user.setEmployeeId(employeeId);
+                }
+                if (row.getCell(4) != null) {
+                	row.getCell(4).setCellType(CellType.STRING);
+                	String trade = row.getCell(4).getStringCellValue();
+                	if(StringUtils.isEmpty(trade)) {
+                		throw new Exception(("第" + (i+1) +"行行业不能为空"));
+                	}
+                	List<TSysDict> dicts = sysDictReporitory.findBySTypeAndSValue("trade", trade.trim());
+                	if(dicts == null || dicts.size() ==0) {
+                		throw new Exception(("第" + (i+1) +"行行业名称不匹对"));
+                	} 
+                	TSysDict dict = dicts.get(0);
+                	user.setTrade(dict.getsValue());
+                	user.setTradeId(dict.getsKey());
+                }else {
+                	throw new Exception("第" + (i+1) +"行,行业不能为空");
+                }
+                user.setUId(UUID.randomUUID().toString());
+                user.setVerifyState(-1);
+                users.add(user);
+            }
+        }catch (Exception e) {
+        	e.printStackTrace();
+			result.getContent().add(e.getMessage());
+			result.setCode("1");
+		}
+        if("1".equals(result.getCode())) {
+        	return result;
+        }
+        sysUserReporitory.saveAll(users);
+        return result;
+	}
+	
+}
+package com.rt.ssm.util;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+
+import org.apache.commons.codec.binary.Base64;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+public class WxUtil {
+	public static String getPhoneNo(String token) throws InvalidAlgorithmParameterException, UnsupportedEncodingException {
+		System.out.println("getWeChatPhone:" + token);
+		if (token != null && token.length() > 0 && !token.equals("")) {
+			String[] tokens = token.split("\\$\\$\\$");
+			String session_key = tokens[0];
+			String iv = tokens[1];
+			String encryptedData = tokens[2]; 	
+
+			byte[] resultByte;
+
+			resultByte = AES.decrypt(Base64.decodeBase64(encryptedData), Base64.decodeBase64(session_key), Base64.decodeBase64(iv));
+			if (null != resultByte && resultByte.length > 0) {
+				String userInfo = new String(resultByte, "UTF-8");
+				JsonObject jsonObject = (JsonObject) new JsonParser().parse(userInfo).getAsJsonObject();
+				return jsonObject.get("phoneNumber").getAsString();
+			}
+
+		}
+		return null;
+	}
+}
